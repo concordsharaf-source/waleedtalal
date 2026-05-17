@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مركز الدعم - مؤسسة الوليد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; }
+        .hidden { display: none !important; }
+        #messagesArea::-webkit-scrollbar { width: 6px; }
+        #messagesArea::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .recording-active { color: #ef4444 !important; animation: pulse-red 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    
+    <div id="authSection" class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto my-10 border-t-4 border-blue-600">
+        <h2 class="text-xl font-bold text-center mb-6 text-blue-900">تواصل مع فريق الدعم</h2>
+        <button onclick="handleGoogleLogin()" class="w-full mb-3 flex items-center justify-center gap-2 border border-gray-300 bg-white py-2 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition shadow-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"/>
+            </svg>
+            الدخول عبر جوجل
+        </button>
+
+        <div class="relative flex items-center justify-center mb-6">
+            <div class="w-full border-t border-gray-200"></div>
+            <span class="absolute px-3 bg-white text-gray-400 text-[10px]">أو بالبريد الإلكتروني</span>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-3">
+            <input type="email" id="authEmail" placeholder="البريد الإلكتروني" class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="authPassword" placeholder="كلمة المرور" class="w-full border rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition text-sm">دخول</button>
+                <button type="button" onclick="handleSignUp()" class="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg font-bold hover:bg-gray-200 transition text-sm">إنشاء حساب</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="mainContent" class="hidden container mx-auto p-4 max-w-4xl">
+        <header class="mb-8 text-center flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-900">مركز الدعم الخاص</h1>
+                <p class="text-gray-600 text-sm">مؤسسة الوليد للإنسانية</p>
+            </div>
+            <button onclick="handleLogout()" class="text-red-500 text-sm font-bold bg-red-50 px-3 py-1 rounded-lg border border-red-200 hover:bg-red-100 transition">خروج</button>
+        </header>
+
+        <div class="bg-blue-50 p-6 rounded-lg mb-6 border border-blue-200 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <select id="ticketCategory" class="border rounded-lg px-3 py-2 text-sm outline-none">
+                    <option value="طلب مساعدة">طلب مساعدة</option>
+                    <option value="استفسار">استفسار عام</option>
+                    <option value="شكوى">تقديم شكوى</option>
+                </select>
+                <input type="text" id="newTicketSubject" placeholder="اكتب موضوع الطلب..." class="border rounded-lg px-3 py-2 text-sm outline-none">
+                <button onclick="createNewTicket()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">فتح التذكرة</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 bg-white rounded-lg shadow p-4 h-[550px] flex flex-col border border-gray-200">
+                <h2 class="font-bold mb-4 border-b pb-2 text-gray-700 text-right">تذاكري</h2>
+                <div id="ticketsList" class="space-y-3 overflow-y-auto flex-1 text-right"></div>
+            </div>
+
+            <div class="md:col-span-2 bg-white rounded-lg shadow flex flex-col h-[550px] border-t-4 border-blue-600 relative">
+                <div id="chatHeader" class="p-4 border-b bg-gray-50 font-bold text-blue-800 text-right text-sm">اختر تذكرة لبدء المحادثة</div>
+                <div id="messagesArea" class="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50 flex flex-col"></div>
+                <div class="p-4 border-t bg-white">
+                    <div id="filePreview" class="hidden mb-2 p-2 bg-blue-50 rounded text-[10px] flex justify-between items-center">
+                        <span id="fileName" class="truncate ml-2"></span>
+                        <button onclick="cancelFile()" class="text-red-500 font-bold px-2">X</button>
+                    </div>
+                    <form id="messageForm" class="flex items-center gap-2" onsubmit="handleMessageSubmit(event)">
+                        <label class="cursor-pointer text-gray-400 hover:text-blue-600 transition p-1">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect(this)" disabled>
+                        </label>
+                        <button type="button" id="voiceBtn" onclick="toggleRecording()" class="text-gray-400 hover:text-red-500 transition p-1" disabled>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        </button>
+                        <input type="text" id="messageInput" placeholder="اكتب رسالتك..." class="flex-1 border rounded-full px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm" disabled>
+                        <button type="submit" id="sendBtn" class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50 transition" disabled>
+                            <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL = 'https://nfugvnjbpwhpzttfrtbg.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_2AyTT9Q94iccKqyIGlqH0Q_IGPPioI1';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const sounds = {
+        incoming: new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'),
+        action: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')
+    };
+
+    let currentTicketId = null;
+    let selectedFile = null;
+    let mediaRecorder;
+    let audioChunks = [];
+    let currentUserId = null;
+
+    async function checkUser() {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const MY_ADMIN_ID = '07faacef-7438-4b39-a4f7-2240563a77ac';
+
+        if (user) {
+            if (user.id === MY_ADMIN_ID) {
+                window.location.replace('index-admn.html');
+                return; 
+            }
+            currentUserId = user.id;
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            fetchMyTickets(user.id);
+            setupRealtimeGlobal();
+        }
+    }
+
+    async function handleGoogleLogin() {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + window.location.pathname }
+        });
+        if (error) alert("خطأ جوجل: " + error.message);
+    }
+
+    async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.reload();
+    }
+
+    async function createNewTicket() {
+        const subInput = document.getElementById('newTicketSubject');
+        const sub = subInput.value.trim();
+        const cat = document.getElementById('ticketCategory').value;
+        if(!sub) return alert("يرجى كتابة عنوان للتذكرة");
+
+        const { data: existing } = await supabaseClient.from('tickets').select('*').eq('user_id', currentUserId).order('updated_at', { ascending: false }).limit(1);
+
+        if (existing && existing.length > 0) {
+            loadMessages(existing[0].id, existing[0].subject);
+            alert("لديك تذكرة نشطة بالفعل.");
+            subInput.value = '';
+        } else {
+            const { data: newT, error } = await supabaseClient.from('tickets').insert([{ subject: `[${cat}] ${sub}`, user_id: currentUserId, unread_count: 1 }]).select();
+            if(!error) {
+                subInput.value = '';
+                fetchMyTickets(currentUserId);
+                loadMessages(newT[0].id, newT[0].subject);
+            }
+        }
+    }
+
+    async function fetchMyTickets(userId) {
+        const { data: tickets } = await supabaseClient.from('tickets').select('*').eq('user_id', userId).order('updated_at', { ascending: false });
+        const list = document.getElementById('ticketsList');
+        if (list && tickets) {
+            list.innerHTML = tickets.map(t => `
+                <div onclick="loadMessages('${t.id}', '${t.subject}')" class="p-3 border rounded-lg cursor-pointer hover:bg-blue-50 mb-2 transition bg-white shadow-sm border-r-4 ${currentTicketId === t.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}">
+                    <div class="text-sm font-bold truncate text-slate-700">${t.subject}</div>
+                    <div class="text-[10px] text-gray-400 mt-1">${new Date(t.updated_at).toLocaleTimeString('ar-EG')}</div>
+                </div>
+            `).join('');
+        }
+    }
+
+    async function loadMessages(ticketId, subject) {
+        currentTicketId = ticketId;
+        document.getElementById('chatHeader').innerText = subject;
+        ['messageInput', 'sendBtn', 'fileInput', 'voiceBtn'].forEach(id => document.getElementById(id).disabled = false);
+
+        const { data: messages } = await supabaseClient.from('messages').select('*').eq('ticket_id', ticketId).order('created_at', { ascending: true });
+        renderMessages(messages);
+    }
+
+    function renderMessages(messages) {
+    const area = document.getElementById('messagesArea');
+    if (!area) return;
+    area.innerHTML = ''; 
+
+    messages?.forEach(msg => {
+        const isMe = msg.sender_id === currentUserId; 
+        const msgDiv = document.createElement('div');
+        
+        msgDiv.className = `max-w-[85%] p-3 rounded-2xl mb-2 flex flex-col ${
+            isMe ? 'bg-blue-600 text-white self-end rounded-tr-none' : 'bg-slate-700 text-white self-start rounded-tl-none border border-slate-600'
+        }`;
+        
+        let content = '';
+
+        // الحل البديل: فحص الرابط نفسه بدلاً من الاعتماد على النوع فقط
+        const url = msg.file_url || "";
+        
+        if (msg.message_type === 'voice' || url.includes('.webm') || url.includes('voice')) {
+            content = `
+                <div class="audio-container p-1">
+                    <audio controls class="w-full max-w-[210px] h-9" style="filter: brightness(1.5);">
+                        <source src="${url}" type="audio/webm">
+                        متصفحك لا يدعم المشغل
+                    </audio>
+                </div>`;
+        } else if (msg.message_type === 'image' || url.match(/\.(jpg|jpeg|png|gif)$/i)) {
+            content = `<img src="${url}" class="rounded-lg mb-2 max-w-full shadow-sm">`;
+        }
+
+        if (msg.message_text) {
+            content += `<p class="text-sm leading-relaxed px-1">${msg.message_text}</p>`;
+        }
+
+        // إذا ظلت الفقاعة فارغة، نضع رداً احتياطياً
+        if (!content) content = '<span class="text-[10px] opacity-40">ملف مرفق قيد المعالجة...</span>';
+
+        msgDiv.innerHTML = content;
+        area.appendChild(msgDiv);
+    });
+    area.scrollTop = area.scrollHeight;
+}
+
+
+
+
+
+    // --- الدالة المصححة لإرسال الرسائل ---
+    async function handleMessageSubmit(e) {
+        if(e) e.preventDefault();
+        const input = document.getElementById('messageInput');
+        if (!input.value.trim() && !selectedFile) return;
+
+        let url = null, type = 'text', text = input.value.trim();
+        const now = new Date().toISOString();
+
+        if (selectedFile) {
+            url = await uploadFile(selectedFile);
+            type = selectedFile.type.startsWith('image/') ? 'image' : 'file';
+            cancelFile();
+        }
+
+        try {
+            // 1. إرسال الرسالة أولاً
+            const { error: msgErr } = await supabaseClient.from('messages').insert([{
+                ticket_id: currentTicketId,
+                message_text: text || "📎 ملف مرفق",
+                sender_id: currentUserId,
+                file_url: url,
+                message_type: type
+            }]);
+
+            if (msgErr) throw msgErr;
+
+            // 2. جلب وزيادة عداد الرسائل غير المقروءة للأدمن
+            const { data: ticketData } = await supabaseClient
+                .from('tickets')
+                .select('unread_count')
+                .eq('id', currentTicketId)
+                .single();
+
+            const newUnreadCount = (ticketData?.unread_count || 0) + 1;
+
+            // 3. تحديث التذكرة لتقفز للأعلى وتظهر النقطة الخضراء
+            await supabaseClient.from('tickets').update({ 
+                updated_at: now, 
+                unread_count: newUnreadCount 
+            }).eq('id', currentTicketId);
+
+            input.value = '';
+        } catch (err) {
+            console.error("خطأ في المزامنة:", err);
+        }
+    }
+
+    async function toggleRecording() {
+        const btn = document.getElementById('voiceBtn');
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = async () => {
+                const now = new Date().toISOString();
+                const file = new File([new Blob(audioChunks)], `v_${Date.now()}.mp3`, { type: 'audio/mpeg' });
+                const url = await uploadFile(file);
+                
+                // إرسال الرسالة الصوتية ثم تحديث التذكرة
+                const { error } = await supabaseClient.from('messages').insert([{ ticket_id: currentTicketId, sender_id: currentUserId, file_url: url, message_type: 'voice' }]);
+                if (!error) {
+                    const { data: tData } = await supabaseClient.from('tickets').select('unread_count').eq('id', currentTicketId).single();
+                    await supabaseClient.from('tickets').update({ updated_at: now, unread_count: (tData?.unread_count || 0) + 1 }).eq('id', currentTicketId);
+                }
+            };
+            mediaRecorder.start();
+            btn.classList.add('recording-active');
+        } else {
+            mediaRecorder.stop();
+            btn.classList.remove('recording-active');
+        }
+    }
+
+    async function uploadFile(file) {
+        const path = `chat/${Date.now()}_${file.name}`;
+        await supabaseClient.storage.from('chat-attachments').upload(path, file);
+        return supabaseClient.storage.from('chat-attachments').getPublicUrl(path).data.publicUrl;
+    }
+
+    function handleFileSelect(i) { if(i.files[0]){ selectedFile=i.files[0]; document.getElementById('filePreview').classList.remove('hidden'); document.getElementById('fileName').innerText=selectedFile.name; } }
+    function cancelFile() { selectedFile=null; document.getElementById('filePreview').classList.add('hidden'); document.getElementById('fileInput').value=''; }
+
+    function setupRealtimeGlobal() {
+        supabaseClient.channel('client_sync')
+            .on('postgres_changes', { event: 'INSERT', table: 'messages' }, (payload) => {
+                if (payload.new.ticket_id === currentTicketId) {
+                    if (payload.new.sender_id !== currentUserId) sounds.incoming.play().catch(() => {});
+                    loadMessages(currentTicketId, document.getElementById('chatHeader').innerText);
+                }
+                fetchMyTickets(currentUserId);
+            })
+            .on('postgres_changes', { event: 'UPDATE', table: 'tickets' }, () => fetchMyTickets(currentUserId))
+            .subscribe();
+    }
+
+    window.onload = checkUser;
+</script>
+</body>
+</html>

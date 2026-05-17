@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>من نحن - مؤسسة الوليد للإنسانية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+        /* اقتباس المتغيرات الأساسية لضمان تطابق الألوان */
+        :root {
+            --primary-green: #008444;
+            --accent-purple: #7e57c2;
+            --whatsapp-color: #25D366;
+            --transition-speed: 0.4s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: #fff; overflow-x: hidden; }
+
+        /* --- الهيدر (نسخة مطابقة للرئيسية) --- */
+        header {
+            position: absolute;
+            top: 0; width: 100%; padding: 10px 2%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-size: cover;
+            background-position: center;
+       
+        }
+
+        .logo-container img { width: 30%; height: auto; mix-blend-mode: multiply; }
+        nav ul { display: flex; list-style: none; color: white; }
+        nav ul li { margin-left: 5px; cursor: pointer; font-weight: bold; font-size: 0.6rem; }
+        nav ul li a { color: white; text-decoration: none; transition: 0.3s; }
+        nav ul li a:hover { color: var(--primary-green); }
+
+        /* --- قسم الترحيب الخاص بصفحة من نحن --- */
+        .about-hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('images/ad.png');
+            background-size: cover;
+            background-position: center;
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+
+        .about-hero h1 { font-size: 3rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+
+        /* --- قسم المحتوى والمعلومات --- */
+        .content-section { padding: 80px 10%; line-height: 1.8; text-align: center; }
+        .content-section h2 { color: var(--primary-green); margin-bottom: 20px; font-size: 2rem; }
+        .content-section p { font-size: 1.1rem; color: #444; width: 100% max-width: 900px; margin: 0 auto 40px; }
+
+        /* --- بطاقات الرؤية والأهداف (اقتباس شكل البطاقات) --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 50px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            padding: 40px;
+            border-radius: 15px;
+            border-top: 5px solid var(--primary-green);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        .info-card:hover { transform: translateY(-10px); background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .info-card i { font-size: 2.5rem; color: var(--primary-green); margin-bottom: 20px; }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* سرعة ونعومة الحركة */
+        }
+        
+        .text-1 { transition-delay: 0s; }    /* يظهر فوراً */
+        .text-2 { transition-delay: 0.5s; }  /* ينتظر نصف ثانية ثم يظهر */
+        .text-3 { transition-delay: 1s; }    /* ينتظر ثانية كاملة ثم يظهر */
+
+
+/* الحالة النشطة: ظهور العنصر وعودته لمكانه الأصلي */
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- التذييل (نسخة مطابقة للرئيسية) --- */
+        .main-footer {
+        background-color: #0f172a; /* الوضع الداكن */
+        color: #f1f5f9;
+        padding: 50px 20px 20px;
+        border-top: 4px solid #38bdf8; /* الخط الأزرق السماوي */
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .footer-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-section {
+        margin-bottom: 30px;
+        width: 100%;
+    }
+
+    .footer-section h3 {
+        color: #38bdf8;
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+    }
+
+    .contact-links, .links-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .contact-item, .links-grid a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .contact-item i {
+        color: #38bdf8;
+        font-size: 1.2rem;
+    }
+
+    .contact-item:hover, .links-grid a:hover {
+        color: #fff;
+        transform: translateY(-3px);
+    }
+
+    .footer-divider {
+        width: 100%;
+        height: 1px;
+        background: rgba(148, 163, 184, 0.2);
+        margin: 20px 0;
+    }
+
+    .footer-bottom {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .footer-bottom .branding {
+        margin-top: 5px;
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    /* تحسين للجوال */
+    @media (max-width: 600px) {
+        .contact-links, .links-grid {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+        
+        .whatsapp-float {
+            position: fixed; bottom: 30px; left: 30px;
+            background-color: var(--whatsapp-color); color: #FFF;
+            border-radius: 50px; width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; z-index: 1000; text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <button onclick="toggleWhatsAppModal()" class="whatsapp-float">
+        <i class="fab fa-whatsapp"></i>
+   </button>
+
+    <header>
+        <div class="logo-container reveal">
+            <img src="images/ad.png" alt="logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/index.html">الرئيسية</a></li>
+                <li><a href="about.html" style="color: var(--primary-green);">من_نحن</a></li>
+                <li><a href="hmlat.html">المشاريع</a></li>
+                <li><i class="fas fa-bars"></i></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="about-hero reveal">
+        <h1>من نحن</h1>
+    </section>
+
+    <section class="content-section reveal">
+        <h2>رؤيتنا للعالم</h2>
+        <p>مؤسسة الوليد للإنسانية هي مؤسسة عالمية تهدف إلى بناء الجسور من أجل عالم أكثر تسامحاً وقبولاً وفهماً، ومن أجل تمكين المجتمعات ومكافحة الفقر.</p>
+        
+        <div class="info-grid reveal">
+            <div class="info-card">
+                <i class="fas fa-hands-helping"></i>
+                <h3>الإغاثة الإنسانية</h3>
+                <p>الاستجابة السريعة للكوارث الطبيعية ودعم المتضررين حول العالم.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+            
+            <div class="info-card reveal">
+                <i class="fas fa-female"></i>
+                <h3>تمكين المرأة</h3>
+                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
+            </div>
+            <div class="info-card reveal">
+                <i class="fas fa-microchip"></i>
+                <h3>الابتكار والذكاء</h3>
+                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
+            </div>
+        </div>
+    </section>
+
+    <div style="height: 30px;"></div> 
+    <footer class="main-footer">
+    <div class="footer-container">
+        
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
+            <div class="contact-links">
+                <a href="mailto:support@alwaleed.com" class="contact-item">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </a>
+                <a href="https://wa.me/your-number" class="contact-item">
+                    <i class="fab fa-whatsapp"></i> واتساب الدعم
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+    </div>
+</footer>
+
+    
+
+
+   
+    <div id="whatsappModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; width: 90%; max-width: 400px; border-radius: 15px; overflow: hidden; font-family: sans-serif;">
+        <div style="background: #25d366; color: white; padding: 15px; text-align: center; font-weight: bold;">
+            صندوق الشكاوي والملاحظات
+        </div>
+        <div style="padding: 15px;">    
+            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/us.html" style="font-weight: bold;">طلب مساعدة</a></button>
+            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/donate.html" style="font-weight: bold;">طلب تبرع</a></button>
+            
+               <textarea id="userNote" rows="2" style="width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; margin-top: 15px; direction: rtl;" placeholder="اكتب ملاحظتك هنا..."></textarea>
+            <button id="btn-main" style="width: 100%; background: #98FB98; color: blacke; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer;"><a href="pages/index-ss.html">تواصل مع فريق ال</a></button>
+            <button onclick="toggleWhatsAppModal()" style="width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
+                إلغاء
+            </button>
+        </div>
+    </div>
+</div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const observerOptions = {
+        threshold: 0.1 // تفعيل الحركة عند ظهور 10% من العنصر
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            } else {
+                // حذف الكلاس عند الخروج لجعل الحركة تتكرر دوماً
+                entry.target.classList.remove("active");
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    });
+    </script>
+
+    <script>
+// تأكد أن الدالة موجودة هنا بين وسومي السكريبت
+    function toggleWhatsAppModal() {
+        const modal = document.getElementById('whatsappModal');
+        if (modal.style.display ==='none' || modal.style.display === '') {
+            modal.style.display ='flex';
+        } else {
+            modal.style.display ='none';
+        }
+    }
+
+// دالة الإرسال بالرقم الجديد التي أعطيتك إياها
+    function sendToWhatsApp() {
+        const noteElement = document.getElementById('userNote');
+        const note = noteElement.value.trim();
+        const phoneNumber ="966567232680"; 
+
+        if (note ==="") {
+            alert("فضلاً اكتب الملاحظة أولاً");
+            return;
+        }
+        
+         const prefix="📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
+         const suffix="\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
+        
+        const fullMessage = prefix + note + suffix;
+
+
+        const encodedText = encodeURIComponent(fullMessage);
+        const whatsappUrl ="https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
+
+        window.open(whatsappUrl,'_blank');
+        toggleWhatsAppModal();
+        noteElement.value =""; 
+    }
+    
+    </script>
+
+</body>
+</html>

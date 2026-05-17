@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاريعنا | الوليد للإنسانية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+        /* اقتباس المتغيرات الأساسية لضمان تطابق الألوان */
+        :root {
+            --primary-green: #008444;
+            --accent-purple: #7e57c2;
+            --whatsapp-color: #25D366;
+            --transition-speed: 0.4s;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: #fff; overflow-x: hidden; }
+
+        /* --- الهيدر (نسخة مطابقة للرئيسية) --- */
+        header {
+            position: absolute;
+            top: 0; width: 100%; padding: 15px 2%;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background-size: cover;
+            background-position: center;
+       }
+
+        .logo-container img { width: 30%; height: auto; mix-blend-mode: multiply; }
+        nav ul { display: flex; list-style: none; color: white; }
+        nav ul li { margin-left: 10px; cursor: pointer; font-weight: bold; }
+        nav ul li a { color: white; text-decoration: none; font-size: 0.3rem; transition: 0.3s; }
+        nav ul li a:hover { color: var(--primary-green); }
+
+        /* --- قسم الترحيب الخاص بصفحة من نحن --- */
+        .about-hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('images/ad.png');
+            background-size: cover;
+            background-position: center;
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+
+        .about-hero h1 { font-size: 2.5rem; botton: 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        
+        .logo img {
+            height: auto;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 5px;
+            margin: 0;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark-blue);
+            font-weight: 250px;
+            font-size: 8px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,45,86,0.7), rgba(0,45,86,0.7)), 
+                        url('images/xx.jpg') no-repeat center center/cover;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin: 0;
+            border-bottom: 4px solid var(--gold);
+            padding-bottom: 10px;
+        }
+
+        
+
+
+        /* Projects Section */
+        .container {
+            padding: 50px 8%;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 25px;
+            border: 1px solid #ddd;
+            background: #fff5;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            font-weight: blod;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--gold);
+            color: green;
+            border-color: var(--gold);
+            transform: scale(1.1);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; /* المسافة بين البطاقات */
+            padding: 15px;
+            width: 90%;
+            margin: 0 auto; /* توسيط الشبكة في منتصف الصفحة */
+        }
+
+/* --- التعديل المخصص للهواتف والأجهزة اللوحية --- */
+
+/* للشاشات المتوسطة (مثل الأيباد) - يظهر بطاقتين في السطر */
+    @media (max-width: 992px) {
+        .projects-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+/* للشاشات الصغيرة (الهواتف) - يظهر بطاقة واحدة فقط في السطر */
+    @media (max-width: 600px) {
+        .projects-grid {
+            grid-template-columns: 1fr; /* عمود واحد فقط يملأ العرض */
+            gap: 15px; /* تقليل المسافة لتناسب شاشة الهاتف */
+            width: 95%; /* زيادة العرض قليلاً لاستغلال مساحة الهاتف */
+        }
+    }
+
+        .project-card {
+            border-radius: 15px;
+            background-color: #ffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .project-image {
+            height: 280px;
+            width: 100%;
+            background-size: contain;
+            background-repeat: no-repeat            
+            background-position: center;
+            background-color: #f4f4f4;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden; /* ضروري جداً لقص الزوائد عند التكبير */
+            position: relative;
+        }
+        
+
+/* التحكم في الصورة نفسها */
+        .project-image img, .project-image {
+            width: 100%;
+            height: 100%;
+            background-size: cover; /* لملء الإطار بشكل احترافي */
+            background-position: center;
+            transition: transform 0.5s ease; /* سرعة ونعومة التكبير */
+        }
+
+/* التأثير السحري: عند تمرير الماوس على البطاقة تكبر الصورة */
+        .project-card:hover .project-image {
+            transform: scale(1.1); /* تكبير بنسبة 10% فقط ليعطي فخامة */
+        }
+        
+        
+        /* هذا الكود يطبق فقط على الشاشات الصغيرة (الهواتف) */
+    @media (max-width: 768px) {
+        .project-image {
+            height: 250px; /* يمكننا زيادة الارتفاع قليلاً في الهاتف ليصبح أوضح */
+        }
+
+    /* إلغاء تأثير التكبير في الهاتف لأنه قد يسبب إرباكاً عند اللمس */
+        .project-card:hover .project-image {
+            transform: none; 
+        }
+    
+    /* بدلاً من التكبير، يمكننا جعل البطاقة تظهر بظل أوضح عند لمسها */
+        .project-card:active {
+            background-color: #f0f0f0;
+        }
+    }
+
+
+        .project-content {
+            padding: 20px 15px;
+            background-color: green;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            height: auto;
+            max-height: 120px;
+            overflow: visibie;
+            opacity: 0.5;
+            justify-content: center;
+        }
+
+        .project-category {
+            color: black;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .project-title {
+            font-size: 0.9rem;
+            font-weight: blod;
+            color: #ffffff;
+            margin-bottom: 0;
+            height: 55px;
+        }
+        
+        .hr {
+            border: 0;             /* حذف الخط الافتراضي */
+            height: 2px;           /* سمك الفاصل */
+            background: #27ae60;   /* لون الفاصل (أخضر المؤسسة) */
+            width: 100%;            /* عرض الفاصل (يمكنك جعله 100% أو أقل) */
+            margin: 30px auto;     /* مسافة 30 بكسل فوق وتحت الفاصل مع توسيطه */
+            border-radius: 5px;    /* زوايا منحنية للخط */
+            opacity: 0.3;          /* شفافية بسيطة لكي لا يكون مزعجاً للعين */
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.0s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* سرعة ونعومة الحركة */
+        }
+        
+        .text-1 { transition-delay: 0s; }    /* يظهر فوراً */
+        .text-2 { transition-delay: 0.5s; }  /* ينتظر نصف ثانية ثم يظهر */
+        .text-3 { transition-delay: 1s; }    /* ينتظر ثانية كاملة ثم يظهر */
+
+
+/* الحالة النشطة: ظهور العنصر وعودته لمكانه الأصلي */
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+
+        
+        /* Footer */
+        .main-footer {
+        background-color: #0f172a; /* الوضع الداكن */
+        color: #f1f5f9;
+        padding: 50px 20px 20px;
+        border-top: 4px solid #38bdf8; /* الخط الأزرق السماوي */
+        font-family: 'Cairo', sans-serif;
+    }
+
+    .footer-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-section {
+        margin-bottom: 30px;
+        width: 100%;
+    }
+
+    .footer-section h3 {
+        color: #38bdf8;
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+    }
+
+    .contact-links, .links-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
+    .contact-item, .links-grid a {
+        color: #94a3b8;
+        text-decoration: none;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .contact-item i {
+        color: #38bdf8;
+        font-size: 1.2rem;
+    }
+
+    .contact-item:hover, .links-grid a:hover {
+        color: #fff;
+        transform: translateY(-3px);
+    }
+
+    .footer-divider {
+        width: 100%;
+        height: 1px;
+        background: rgba(148, 163, 184, 0.2);
+        margin: 20px 0;
+    }
+
+    .footer-bottom {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .footer-bottom .branding {
+        margin-top: 5px;
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    /* تحسين للجوال */
+    @media (max-width: 600px) {
+        .contact-links, .links-grid {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+        
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            left: 50px;
+            background-color: var(--whatsapp-color);
+            color: #ffff;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .whatsapp-float:hover { transform: scale(1.1) rotate(10deg); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container reveal">
+            <img src="images/ad.png" alt="logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/index.html">الرئيسية</a></li>
+                <li><a href="#" style="color: var(--primary-green);">مشاريعنا</a></li>
+                <li><a href="we.html">من_نحن</a></li>
+                <li><i class="fas fa-bars"></i></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <section class="hero reveal">
+        <h1 style="color: green; text-shadow: 2px 2px 10px rgba(0,0,0,0.7); transform: translateY(150px);">مشاريعنا</h1>
+    </section>
+    
+        <div style="height: 50px;"></div>
+
+    <div class="container reveal">
+        <div class="filters reveal">
+            <button class="filter-btn active">الكل</button>
+            <button class="filter-btn reveal">تنمية المجتمعات</button>
+            <button class="filter-btn reveal">تمكين المرأة والشباب</button>
+            <button class="filter-btn reveal">الإغاثة في حالات الكوارث</button>
+            <button class="filter-btn reveal">سد الفجوة بين الثقافات</button>
+        </div>
+    </section>
+    
+        <div style="height: 50px;"></div>
+    
+    <section class="project-section reveal">
+           <h2 style="text-align: center;">مشاريعنا الحالية</h2>
+    </section>
+    
+    <div style="height: 50px;"></div>
+    
+    <hr>
+    
+    <div style="height: 50px;"></div>
+    
+    <section class="projects-grid reveal">      
+        <div class="project-card reveal">
+            <div class="project-image reveal">
+                <img src="/images/www.jpg" alt="دعم التعليم">
+            </div>
+            
+            <div class="project-content reveal">
+                <div class="project-category reveal">مشروع تطبيق صعوبات التعلم</div>
+                <div class="project-title reveal">مشروع تطبيق صعوبات التعلم</div>
+                    <a href="housing-details.html" class="read-more">اقرأ المزيد ←</a>
+             </div>
+        </div>
+        
+        <div class="project-card reveal">
+            <div class="project-image reveal">
+                <img src="/images/wwq.jpg" alt="تمكين الشباب">
+            </div>
+            
+            <div class="project-content reveal">
+                <div class="project-category reveal">مبادرة التدريب المهني والتقني</div>
+                <div class="project-title reveal">مبادرة التدريب المهني والتقني</div>
+                    <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                </div>
+            </div>
+            
+            <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/qql.jpg" alt="مبادرات">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">بناء الجسور بين الثقافات</div>
+                    <div class="project-title reveal">الحفاظ على الثقافة من خلال الفن: مبادرة مجلس التعاون الخليجي</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/qqp.jpg" alt="تمكين">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">تنمية المجتمعات</div>
+                    <div class="project-title reveal">مشروع المستقبل: التعليم من اجل التوظيف</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/wwr.jpg" alt="مبادرات">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">تنمية البيئة المستدامة</div>
+                    <div class="project-title reveal">التخلص من العناصر التي تلوث البيئة وتؤثر على الحياة الصحية</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/wws.jpeg" alt="اسكان">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">توزيع وحدات سكنية</div>
+                    <div class="project-title reveal">توزيع وحدات سكنية للأيتام والمحتاجين</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/wwt.jpg" alt="تمكين">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">ظاهرة العنف ضد المرأه</div>
+                    <div class="project-title reveal">نشر الوعي محاربة ظاهرة العنف ضد المراه</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/wwy.jpg" alt="تمكين ">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">تمكين خيارات التعليم السلس</div>
+                    <div class="project-title reveal">مبادرة التدريب المهني والتقني</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+                
+                <div class="project-card reveal">
+                <div class="project-image reveal">
+                    <img src="/images/wwu.jpg" alt="القطاع الصحي">
+                </div>
+            
+                <div class="project-content reveal">
+                    <div class="project-category reveal">دعم المناطق النائية من خلال بنا مستشفيات ومراكز صحية</div>
+                    <div class="project-title reveal">مبادرة التدريب والتاهيل</div>
+                        <a href="youth-details.html" class="read-more">اقرأ المزيد ←</a>
+                    </div>
+                </div>
+        </div>
+    </section>
+
+
+        </div>
+    </div>
+    
+    <hr>
+    
+    <div style="height: 30px;"></div> 
+
+    <footer class="main-footer">
+    <div class="footer-container">
+        
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
+            <div class="contact-links">
+                <a href="mailto:support@alwaleed.com" class="contact-item">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </a>
+                <a href="https://wa.me/your-number" class="contact-item">
+                    <i class="fab fa-whatsapp"></i> واتساب الدعم
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+    </div>
+</footer>
+
+   
+    ``<div id="whatsappModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; width: 90%; max-width: 400px; border-radius: 15px; overflow: hidden; font-family: sans-serif;">
+        <div style="background: #25d366; color: white; padding: 15px; text-align: center; font-weight: bold;">
+            صندوق الشكاوي والملاحظات
+        </div>
+        <div style="padding: 15px;">    
+            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/us.html" style="font-weight: bold;">طلب مساعدة</a></button>
+            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/donate.html" style="font-weight: bold;">طلب تبرع</a></button>
+            
+               <textarea id="userNote" rows="2" style="width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; margin-top: 15px; direction: rtl;" placeholder="اكتب ملاحظتك هنا..."></textarea>
+            <button id="btn-main" style="width: 100%; background: #98FB98; color: blacke; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer;"><a href="pages/index-ss.html">تواصل مع فريق الدعم</a></button>
+            <button onclick="toggleWhatsAppModal()" style="width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
+                إلغاء
+            </button>
+        </div>
+    </div>
+</div>`
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const observerOptions = {
+        threshold: 0.1 // تفعيل الحركة عند ظهور 10% من العنصر
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            } else {
+                // حذف الكلاس عند الخروج لجعل الحركة تتكرر دوماً
+                entry.target.classList.remove("active");
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    });
+    </script>
+
+    <script>
+// تأكد أن الدالة موجودة هنا بين وسومي السكريبت
+    function toggleWhatsAppModal() {
+        const modal = document.getElementById('whatsappModal');
+        if (modal.style.display ==='none' || modal.style.display === '') {
+            modal.style.display ='flex';
+        } else {
+            modal.style.display ='none';
+        }
+    }
+
+// دالة الإرسال بالرقم الجديد التي أعطيتك إياها
+    function sendToWhatsApp() {
+        const noteElement = document.getElementById('userNote');
+        const note = noteElement.value.trim();
+        const phoneNumber ="966567232680"; 
+
+        if (note ==="") {
+            alert("فضلاً اكتب الملاحظة أولاً");
+            return;
+        }
+        
+         const prefix="📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
+         const suffix="\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
+        
+        const fullMessage = prefix + note + suffix;
+
+
+        const encodedText = encodeURIComponent(fullMessage);
+        const whatsappUrl ="https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
+
+        window.open(whatsappUrl,'_blank');
+        toggleWhatsAppModal();
+        noteElement.value =""; 
+    }
+    
+    </script>
+    
+
+</body>
+</html>
