@@ -16,170 +16,149 @@
     --accent-green: #25D366;
   }
 
-    body {
-      font-family: 'Cairo', Tahoma, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f0f2f5;
-      color: #333;
-      line-height: 1.6;
-    }
+  body {
+    font-family: 'Cairo', Tahoma, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+  }
 
-    header {
-      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
-      background-size: cover;
-      background-position: center;
-      height: 40vh;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
-    }
+  header {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+    background-size: cover;
+    background-position: center;
+    height: 40vh;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
 
-    .logo {
-      width: 110px;
-      height: 110px;
-      background-color: #fff;
-      background-image: var(--header-bg-image);
-      background-size: cover;
-      background-position: center;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.8);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      margin-bottom: 15px;
-    }
+  .logo {
+    width: 110px;
+    height: 110px;
+    background-color: #fff;
+    background-image: var(--header-bg-image);
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.8);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    margin-bottom: 15px;
+  }
 
-    header h1 {
-      margin: 5px 0;
-      font-size: 2.2rem;
-      font-weight: bold;
-    }
+  header h1 {
+    margin: 5px 0;
+    font-size: 2.2rem;
+  }
 
-    header p {
-      margin: 0;
-      font-size: 1.1rem;
-      opacity: 0.9;
-    }
+  header p {
+    margin: 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
 
-    .support-section {
-      max-width: 1100px;
-      margin: -60px auto 40px;
-      padding: 0 20px;
-    }
+  .support-section {
+    max-width: 1100px;
+    margin: -60px auto 40px;
+    padding: 0 20px;
+  }
 
-    .support-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 25px;
-      margin-bottom: 50px;
-    }
+  .card {
+    background-color: var(--card-bg-dark);
+    padding: 35px;
+    border-radius: 25px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+  }
 
-    .support-item {
-      position: relative;
-      height: 220px;
-      border-radius: 15px;
-      overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      transition: 0.3s ease;
-      cursor: pointer;
-      background-size: cover;
-      background-position: center;
-    }
+  h2 {
+    color: var(--text-on-dark);
+    text-align: center;
+    margin-bottom: 25px;
+  }
 
-    .support-item:hover {
-      transform: translateY(-10px);
-    }
+  /* ✅ تحسين شكل الحقول بالكامل */
+  .form-group {
+    margin-bottom: 12px; /* مسافة صغيرة بين الخانات */
+  }
 
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 100%);
-      z-index: 1;
-    }
+  label {
+    display: block;
+    color: var(--text-on-dark);
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
 
-    .support-item .content {
-      position: relative;
-      z-index: 2;
-      padding: 20px;
-      color: #fff;
-    }
+  input, select, textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background-color: var(--input-bg-light);
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+  }
 
-    .support-item h3 {
-      margin: 0 0 8px;
-      font-size: 1.3rem;
-      color: var(--accent-green);
-    }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border: 1px solid #25D366;
+    box-shadow: 0 0 8px rgba(37,211,102,0.3);
+  }
 
-    .support-item p {
-      margin: 0;
-      font-size: 0.95rem;
-      opacity: 0.9;
-    }
+  textarea {
+    resize: none;
+  }
 
-    .card {
-      background-color: var(--card-bg-dark);
-      padding: 35px;
-      border-radius: 25px;
-      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
-    }
+  button {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(to right, #25D366, #128C7E);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+  }
 
-    h2 {
-      color: var(--text-on-dark);
-      text-align: center;
-      margin-bottom: 25px;
-    }
+  button:hover {
+    transform: scale(1.02);
+  }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background-color: var(--input-bg-light);
-    }
+  .main-footer {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    padding: 50px 20px 20px;
+    border-top: 4px solid #38bdf8;
+  }
 
-    button {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(to right, #25D366, #128C7E);
-      color: white;
-      border: none;
-      border-radius: 15px;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
+  .footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+  }
 
-    .main-footer {
-      background-color: #0f172a;
-      color: #f1f5f9;
-      padding: 50px 20px 20px;
-      border-top: 4px solid #38bdf8;
-    }
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
 
-    .footer-container {
-      max-width: 1100px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .contact-links {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      flex-wrap: wrap;
-    }
-
-    .contact-item {
-      color: #94a3b8;
-      text-decoration: none;
-    }
+  .contact-item {
+    color: #94a3b8;
+    text-decoration: none;
+  }
 
   </style>
 </head>
@@ -194,33 +173,38 @@
 
 <section class="support-section">
 
-  <div class="support-grid">
-
-    <div class="support-item" style="background-image:url('images/de.jpg')">
-      <div class="overlay"></div>
-      <div class="content">
-        <h3>مساعدة مالية</h3>
-        <p>دعم مالي للمحتاجين</p>
-      </div>
-    </div>
-
-  </div>
-
   <div class="card">
 
     <h2>طلب المساعدة</h2>
 
-    <input id="name" placeholder="الاسم">
-    <input id="phone" placeholder="الهاتف">
-    <input id="location" placeholder="الدولة">
+    <div class="form-group">
+      <label>الاسم الكامل</label>
+      <input id="name" placeholder="أدخل اسمك">
+    </div>
 
-    <select id="type">
-      <option>مالية</option>
-      <option>سكنية</option>
-      <option>سيارات</option>
-    </select>
+    <div class="form-group">
+      <label>رقم الجوال</label>
+      <input id="phone" placeholder="مثال: 00966...">
+    </div>
 
-    <textarea id="notes" placeholder="تفاصيل الحالة"></textarea>
+    <div class="form-group">
+      <label>الدولة</label>
+      <input id="location" placeholder="اختر دولتك">
+    </div>
+
+    <div class="form-group">
+      <label>نوع المساعدة</label>
+      <select id="type">
+        <option>مالية</option>
+        <option>سكنية</option>
+        <option>سيارات</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>تفاصيل الحالة</label>
+      <textarea id="notes" rows="4" placeholder="اشرح حالتك"></textarea>
+    </div>
 
     <button id="sendBtn">إرسال عبر واتساب</button>
 
@@ -250,9 +234,7 @@
 
 <script>
 
-const sendBtn = document.getElementById("sendBtn");
-
-sendBtn.onclick = function () {
+document.getElementById("sendBtn").onclick = function () {
 
     const name = document.getElementById("name").value;
     const phone = document.getElementById("phone").value;
