@@ -249,7 +249,7 @@
                 <a href="mailto:support@alwaleed.com" class="contact-item">
                     <i class="fas fa-envelope"></i> البريد الإلكتروني
                 </a>
-                <a href="https://wa.me/your-number" class="contact-item">
+                <a href="https://wa.me/966569872542" class="contact-item">
                     <i class="fab fa-whatsapp"></i> واتساب الدعم
                 </a>
             </div>
@@ -314,8 +314,8 @@
             authDomain: "alwaleed-3a813.firebaseapp.com",
             projectId: "alwaleed-3a813",
             storageBucket: "alwaleed-3a813.firebasestorage.app",
-            messagingSenderId: "680698906569",
-            appId: "1:680698906569:web:154df6466c1c89d67f4a18"
+            messagingSenderId: "966569872542",
+            appId: "1:966569872542:web:154df6466c1c89d67f4a18"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -338,9 +338,9 @@
                     name, amount: Number(amount), currency, nationality, method, date: new Date().toISOString()
                 });
                 
-                const adminPhone = "966567232680";
+                const adminPhone = "966569872542";
                 const message = `*طلب تقديم تبرع جديد* 🕊️\n\n*الاسم:* ${name}\n*الجنسية:* ${nationality}\n*المبلغ:* ${amount} ${currency}\n*الوسيلة:* ${method}\n\n_يرجى تزويدي بالبيانات اللازمة._`;
-                window.location.href = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+                window.location.href = `https://wa.me/966569872542${adminPhone}?text=${encodeURIComponent(message)}`;
             } catch (e) {
                 alert("حدث خطأ في الاتصال");
             }
@@ -367,7 +367,7 @@
             const note = document.getElementById('userNote').value.trim();
             if (!note) return alert("اكتب ملاحظتك");
             const msg = `📢 *رسالة جديدة:*\n\n${note}`;
-            window.open(`https://api.whatsapp.com/send?phone=966567232680&text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=966569872542&text=${encodeURIComponent(msg)}`, '_blank');
             toggleWhatsAppModal();
         }
     </script>
