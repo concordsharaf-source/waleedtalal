@@ -6,8 +6,8 @@
     <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+
         :root { 
-            /* تأكد من صحة مسار الصورة هنا */
             --header-bg-image: url('images/xx.jpg');
             --card-bg-dark: #1a2522; 
             --input-bg-light: #f8f9fa; 
@@ -17,7 +17,7 @@
         }
 
         body { font-family: 'Cairo', Tahoma, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333; line-height: 1.6; }
-        
+
         header { 
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image); 
             background-size: cover; background-position: center; height: 40vh; 
@@ -65,311 +65,143 @@
         }
 
         .method-btn.active { background-color: var(--gold); color: #1a2522; }
-        
-        .details-box {
-            background-color: #fff; padding: 18px; border-radius: 12px; margin-bottom: 20px; display: none; border: 1px dashed var(--gold);
-        }
+
+        .details-box { background-color: #fff; padding: 18px; border-radius: 12px; margin-bottom: 20px; display: none; border: 1px dashed var(--gold); }
         .details-box.active { display: block; }
 
         .address-copy {
             background: #f4f4f4; color: #333; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 0.8rem; word-break: break-all; margin: 10px 0; display: block; text-align: center; border: 1px solid #ddd;
         }
-        
-        .submit-whatsapp-btn {
-            width: 100%; padding: 18px; background-color: #25D366; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; transition: 0.3s;
-        }
 
-        .reveal { opacity: 0; transform: translateY(30px); transition: 0.8s ease-out; }
-        .reveal.active { opacity: 1; transform: translateY(0); }
+        .submit-whatsapp-btn {
+            width: 100%; padding: 18px; background-color: #25D366; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; color: white;
+        }
 
         .whatsapp-float {
             position: fixed; bottom: 30px; left: 30px; background-color: #25D366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 1000; text-decoration: none;
         }
-        .btn-crypto { background-color: #F3BA2F; color: #1a2522; width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
         .main-footer {
-        background-color: #0f172a; /* الوضع الداكن */
-        color: #f1f5f9;
-        padding: 50px 20px 20px;
-        border-top: 4px solid #38bdf8; /* الخط الأزرق السماوي */
-        font-family: 'Cairo', sans-serif;
-    }
-
-    .footer-container {
-        max-width: 1100px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
-
-    .footer-section {
-        margin-bottom: 30px;
-        width: 100%;
-    }
-
-    .footer-section h3 {
-        color: #38bdf8;
-        margin-bottom: 20px;
-        font-size: 1.2rem;
-    }
-
-    .contact-links, .links-grid {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        flex-wrap: wrap;
-    }
-
-    .contact-item, .links-grid a {
-        color: #94a3b8;
-        text-decoration: none;
-        transition: 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .contact-item i {
-        color: #38bdf8;
-        font-size: 1.2rem;
-    }
-
-    .contact-item:hover, .links-grid a:hover {
-        color: #fff;
-        transform: translateY(-3px);
-    }
-
-    .footer-divider {
-        width: 100%;
-        height: 1px;
-        background: rgba(148, 163, 184, 0.2);
-        margin: 20px 0;
-    }
-
-    .footer-bottom {
-        color: #64748b;
-        font-size: 0.9rem;
-    }
-
-    .footer-bottom .branding {
-        margin-top: 5px;
-        font-size: 0.8rem;
-        opacity: 0.7;
-    }
-
-    /* تحسين للجوال */
-    @media (max-width: 600px) {
-        .contact-links, .links-grid {
-            flex-direction: column;
-            gap: 15px;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            padding: 50px 20px 20px;
+            border-top: 4px solid #38bdf8;
         }
-    }
-        
+
+        .footer-container { max-width: 1100px; margin: 0 auto; text-align: center; }
+
+        .contact-links, .links-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item, .links-grid a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    
-    
-    <header>
-        <div class="logo reveal"></div>
-        <h1 class="reveal">مؤسسة الوليد الإنسانية</h1>
-        <p class="reveal">كن شريكاً في صناعة الأمل. تبرعك اليوم يبني مستقبلاً أفضل لمن هم في أمسّ الحاجة إليك.</p>
-    </header>
-    
-    <div style="height: 50px;"></div>    
-    
-    <div class="form-card reveal">
-        <h2>تقديم طلب تبرع جديد</h2>
 
-        <form id="donationForm">
-            <div class="input-group">
-                <label>اسم المتبرع الكريم:</label>
-                <input type="text" id="name" placeholder="اكتب اسمك هنا" required>
+<header>
+    <div class="logo"></div>
+    <h1>مؤسسة الوليد الإنسانية</h1>
+    <p>كن شريكاً في صناعة الأمل</p>
+</header>
+
+<div class="form-card">
+
+    <h2>تقديم طلب تبرع جديد</h2>
+
+    <form id="donationForm">
+
+        <div class="input-group">
+            <label>اسم المتبرع الكريم</label>
+            <input id="name">
+        </div>
+
+        <div class="flex-group">
+            <div class="input-group" style="flex:2;">
+                <label>مبلغ التبرع</label>
+                <input id="amount" type="number">
             </div>
 
-            <div class="flex-group">
-                <div class="input-group" style="flex: 2;">
-                    <label>مبلغ التبرع:</label>
-                    <input type="number" id="amount" placeholder="المبلغ" required>
-                </div>
-                <div class="input-group" style="flex: 1;">
-                    <label>العملة:</label>
-                    <select id="currency">
-                        <option value="دولار">USD</option>
-                        <option value="ريال">SAR</option>
-                        <option value="درهم">AED</option>
-                        <option value="يورو">EUR</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label>جنسية المتبرع:</label>
-                <input type="text" id="nationality" placeholder="مثال: سعودي، يمني، مصري..." required>
-            </div>
-
-            <label style="font-size: 0.9rem; color: #bbb;">اختر وسيلة الدفع المناسبة:</label>
-            <div class="payment-methods">
-                <button type="button" class="method-btn active" id="tabBank" onclick="switchMethod('Bank')">بنكي</button>
-                <button type="button" class="method-btn" id="tabWestern" onclick="switchMethod('Western')">ويسترن يونيون</button>
-                <button type="button" class="method-btn" id="tabCrypto" onclick="switchMethod('Crypto')">عملات رقمية</button>
-            </div>
-
-            <div id="boxBank" class="details-box active">
-                <p>يرجى إرسال بياناتك لتزويدك برقم الآيبان المحدث الخاص بالمؤسسة من أجل إكمال عملية التبرع.</p>
-            </div>
-
-            <div id="boxWestern" class="details-box">
-                <p>سيتم تزويدك باسم المستفيد المعتمد للتحويل الدولي عبر ويسترن يونيون عن طريق واتساب بعد إرسال هذا الطلب.</p>
-            </div>
-
-            <div id="boxCrypto" class="details-box">
-                <p><strong>عناوين المحافظ المعتمدة (BSC):</strong></p>
-                <span class="address-copy">0xa219e65dfe4d818bc15125f86c4356b90c01675d</span>
-                <button type="button" class="btn-crypto">ربط محفظة BNB Smart Chain</button>
-            </div>
-
-            <button type="button" id="sendWhatsapp" class="submit-whatsapp-btn">
-                تأكيد وإرسال الطلب عبر واتساب
-            </button>
-        </form>
-    </div>
-
-<div style="height: 30px;"></div> 
-
-    <footer class="main-footer">
-    <div class="footer-container">
-        
-        <div class="footer-section contact-info">
-            <h3>تواصل معنا</h3>
-            <div class="contact-links">
-                <a href="mailto:support@alwaleed.com" class="contact-item">
-                    <i class="fas fa-envelope"></i> البريد الإلكتروني
-                </a>
-                <a href="https://wa.me/966569872542" class="contact-item">
-                    <i class="fab fa-whatsapp"></i> واتساب الدعم
-                </a>
+            <div class="input-group" style="flex:1;">
+                <label>العملة</label>
+                <select id="currency">
+                    <option>USD</option>
+                    <option>SAR</option>
+                    <option>AED</option>
+                    <option>EUR</option>
+                </select>
             </div>
         </div>
 
-        <div class="footer-section legal-links">
-            <h3>الروابط القانونية</h3>
-            <div class="links-grid">
-                <a href="privacy-policy.html">سياسة الخصوصية</a>
-                <a href="terms.html">شروط الاستخدام</a>
-            </div>
+        <div class="input-group">
+            <label>الجنسية</label>
+            <input id="nationality">
         </div>
 
-        <div class="footer-divider"></div>
+        <button type="button" id="sendWhatsapp" class="submit-whatsapp-btn">
+            إرسال عبر واتساب
+        </button>
 
-        <div class="footer-bottom">
-            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
-            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
-        </div>
-    </div>
+    </form>
+
+</div>
+
+<footer class="main-footer">
+
+<div class="contact-links">
+
+    <a href="mailto:lamiamagedoffice1@gmail.com">📧 البريد الإلكتروني</a>
+
+    <a href="https://wa.me/966569872542">💬 واتساب الدعم</a>
+
+</div>
+
 </footer>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-   
-    <div id="whatsappModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: white; width: 90%; max-width: 400px; border-radius: 15px; overflow: hidden; font-family: sans-serif;">
-        <div style="background: #25d366; color: white; padding: 15px; text-align: center; font-weight: bold;">
-            صندوق الشكاوي والملاحظات
-        </div>
-        <div style="padding: 15px;">    
-            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/us.html" style="font-weight: bold;">طلب مساعدة</a></button>
-            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/donate.html" style="font-weight: bold;">طلب تبرع</a></button>
-            
-               <textarea id="userNote" rows="2" style="width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; margin-top: 15px; direction: rtl;" placeholder="اكتب ملاحظتك هنا..."></textarea>
-            <button id="btn-main" style="width: 100%; background: #98FB98; color: blacke; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer;"><a href="pages/index-ss.html">تواصل مع فريق ال</a></button>
-            <button onclick="toggleWhatsAppModal()" style="width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
-                إلغاء
-            </button>
-        </div>
-    </div>
-</div>``
+const firebaseConfig = {
+    apiKey: "AIzaSyC1-J4DSTmxUnz5dVq9XWrRHf_Lr511M",
+    authDomain: "alwaleed-3a813.firebaseapp.com",
+    projectId: "alwaleed-3a813",
+    storageBucket: "alwaleed-3a813.firebasestorage.app",
+    messagingSenderId: "966569872542",
+    appId: "1:966569872542:web:154df6466c1c89d67f4a18"
+};
 
-    <script>
-        function switchMethod(method) {
-            // 1. إزالة كلاس active من جميع الأزرار
-            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
-            // 2. إخفاء جميع صناديق التفاصيل
-            document.querySelectorAll('.details-box').forEach(box => box.classList.remove('active'));
-            
-            // 3. تفعيل الزر المختار وإظهار الصندوق الخاص به
-            document.getElementById('tab' + method).classList.add('active');
-            document.getElementById('box' + method).classList.add('active');
-        }
-    </script>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+document.getElementById('sendWhatsapp').onclick = async function () {
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC1-J4dSTmxUnz5d7dVq9XWrRHf_Lr511M",
-            authDomain: "alwaleed-3a813.firebaseapp.com",
-            projectId: "alwaleed-3a813",
-            storageBucket: "alwaleed-3a813.firebasestorage.app",
-            messagingSenderId: "966569872542",
-            appId: "1:966569872542:web:154df6466c1c89d67f4a18"
-        };
+    const name = document.getElementById('name').value;
+    const amount = document.getElementById('amount').value;
+    const currency = document.getElementById('currency').value;
+    const nationality = document.getElementById('nationality').value;
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const adminPhone = "966569872542";
 
-        document.getElementById('sendWhatsapp').onclick = async function() {
-            const name = document.getElementById('name').value;
-            const amount = document.getElementById('amount').value;
-            const currency = document.getElementById('currency').value;
-            const nationality = document.getElementById('nationality').value;
-            const method = document.querySelector('.method-btn.active').innerText;
+    let message =
+`طلب تبرع جديد
 
-            if (!name || !amount || !nationality) {
-                alert("يرجى ملء كافة البيانات أولاً");
-                return;
-            }
+الاسم: ${name}
+المبلغ: ${amount} ${currency}
+الجنسية: ${nationality}`;
 
-            try {
-                await addDoc(collection(db, "donations"), {
-                    name, amount: Number(amount), currency, nationality, method, date: new Date().toISOString()
-                });
-                
-                const adminPhone = "966569872542";
-                const message = `*طلب تقديم تبرع جديد* 🕊️\n\n*الاسم:* ${name}\n*الجنسية:* ${nationality}\n*المبلغ:* ${amount} ${currency}\n*الوسيلة:* ${method}\n\n_يرجى تزويدي بالبيانات اللازمة._`;
-                window.location.href = `https://wa.me/966569872542${adminPhone}?text=${encodeURIComponent(message)}`;
-            } catch (e) {
-                alert("حدث خطأ في الاتصال");
-            }
-        };
-    </script>
+    window.location.href =
+`https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
 
-    <script>
-        // حركة الظهور (Reveal)
-        document.addEventListener("DOMContentLoaded", () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add("active");
-                });
-            }, { threshold: 0.1 });
-            document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
-        });
+};
+</script>
 
-        function toggleWhatsAppModal() {
-            const m = document.getElementById('whatsappModal');
-            m.style.display = (m.style.display === 'none' || m.style.display === '') ? 'flex' : 'none';
-        }
-
-        function sendToWhatsApp() {
-            const note = document.getElementById('userNote').value.trim();
-            if (!note) return alert("اكتب ملاحظتك");
-            const msg = `📢 *رسالة جديدة:*\n\n${note}`;
-            window.open(`https://api.whatsapp.com/send?phone=966569872542&text=${encodeURIComponent(msg)}`, '_blank');
-            toggleWhatsAppModal();
-        }
-    </script>
 </body>
 </html>
