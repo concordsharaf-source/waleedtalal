@@ -145,6 +145,7 @@
       display: block;
       margin-bottom: 8px;
       color: var(--text-on-dark);
+      font-size: 0.95rem;
     }
 
     input, select, textarea {
@@ -152,7 +153,10 @@
       padding: 14px;
       border-radius: 12px;
       border: none;
+      font-size: 1rem;
+      box-sizing: border-box;
       background-color: var(--input-bg-light);
+      color: #222;
     }
 
     button {
@@ -165,20 +169,39 @@
       font-weight: bold;
       font-size: 1.2rem;
       cursor: pointer;
+      margin-top: 15px;
+      transition: 0.3s ease;
+      box-shadow: 0 5px 15px rgba(37,211,102,0.4);
     }
 
-    .whatsapp-float {
-      position: fixed;
-      bottom: 30px;
-      left: 30px;
-      background-color: #25D366;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    button:hover {
+      transform: scale(1.02);
     }
+
+    .note {
+      background-color: #FFF9CD;
+      color: #856404;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .main-footer {
+        background-color: #0f172a;
+        color: #f1f5f9;
+        padding: 50px 20px 20px;
+        border-top: 4px solid #38bdf8;
+    }
+
+    .contact-links {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+    }
+
   </style>
 </head>
 
@@ -229,14 +252,12 @@
 </section>
 
 <footer class="main-footer">
-  <div class="footer-section">
-    <h3>تواصل معنا</h3>
+  <div class="contact-links">
 
-    <!-- ✅ تم تغيير الإيميل فقط -->
-    <a href="mailto:lamiamagedoffice1@gmail.com">الإيميل</a>
+    <a href="mailto:lamiamagedoffice1@gmail.com">البريد الإلكتروني</a>
 
-    <!-- ✅ تم تغيير رقم الواتساب -->
     <a href="https://wa.me/966569872542">واتساب الدعم</a>
+
   </div>
 </footer>
 
@@ -258,7 +279,6 @@ const db = getFirestore(app);
 
 document.getElementById("sendBtn").onclick = async function () {
 
-  // ✅ تم تغيير الرقم فقط
   const adminPhone = "966569872542";
 
   const name = document.getElementById("name").value;
@@ -273,8 +293,7 @@ document.getElementById("sendBtn").onclick = async function () {
   });
 
   let msg =
-`📌 طلب جديد
-
+`طلب جديد
 الاسم: ${name}
 الهاتف: ${phone}
 الدولة: ${location}
@@ -284,22 +303,6 @@ document.getElementById("sendBtn").onclick = async function () {
   window.location.href =
   `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
 };
-</script>
-
-<script>
-// ✅ تم تغيير الرقم هنا أيضًا
-function sendToWhatsApp() {
-    const noteElement = document.getElementById('userNote');
-    const note = noteElement.value.trim();
-    const phoneNumber = "966569872542";
-
-    const fullMessage = "📢 رسالة جديدة\n\n" + note;
-
-    const url = "https://api.whatsapp.com/send?phone=" + phoneNumber +
-    "&text=" + encodeURIComponent(fullMessage);
-
-    window.open(url,'_blank');
-}
 </script>
 
 </body>
