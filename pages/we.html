@@ -1,16 +1,51 @@
-<!-- معلومات التواصل -->
-<a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
-    <i class="fas fa-envelope"></i> البريد الإلكتروني
-</a>
+<footer class="main-footer">
+    <div class="footer-container">
+        
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
 
-<a href="https://wa.me/966569872542" class="contact-item">
-    <i class="fab fa-whatsapp"></i> واتساب الدعم
-</a>
+            <div class="contact-links">
+
+                <!-- الإيميل الجديد -->
+                <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    البريد الإلكتروني
+                </a>
+
+                <!-- الواتساب الجديد -->
+                <a href="https://wa.me/966569872542" class="contact-item">
+                    <i class="fab fa-whatsapp"></i>
+                    واتساب الدعم
+                </a>
+
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+
+    </div>
+</footer>
 
 <script>
-// دالة فتح وإغلاق النافذة
+// فتح وإغلاق نافذة الواتساب
 function toggleWhatsAppModal() {
+
     const modal = document.getElementById('whatsappModal');
+
     if (modal.style.display === 'none' || modal.style.display === '') {
         modal.style.display = 'flex';
     } else {
@@ -18,8 +53,9 @@ function toggleWhatsAppModal() {
     }
 }
 
-// دالة إرسال الرسالة إلى واتساب
+// إرسال الرسالة إلى الواتساب
 function sendToWhatsApp() {
+
     const noteElement = document.getElementById('userNote');
     const note = noteElement.value.trim();
 
@@ -31,8 +67,11 @@ function sendToWhatsApp() {
         return;
     }
 
-    const prefix = "📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
-    const suffix = "\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
+    const prefix =
+        "📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
+
+    const suffix =
+        "\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
 
     const fullMessage = prefix + note + suffix;
 
@@ -50,217 +89,4 @@ function sendToWhatsApp() {
 
     noteElement.value = "";
 }
-</script>                <li><i class="fas fa-bars"></i></li>
-            </ul>
-        </nav>
-    </header>
-
-    <section class="about-hero reveal">
-        <h1>من نحن</h1>
-    </section>
-
-    <section class="content-section reveal">
-        <h2>رؤيتنا للعالم</h2>
-        <p>مؤسسة الوليد للإنسانية هي مؤسسة عالمية تهدف إلى بناء الجسور من أجل عالم أكثر تسامحاً وقبولاً وفهماً، ومن أجل تمكين المجتمعات ومكافحة الفقر.</p>
-        
-        <div class="info-grid reveal">
-            <div class="info-card">
-                <i class="fas fa-hands-helping"></i>
-                <h3>الإغاثة الإنسانية</h3>
-                <p>الاستجابة السريعة للكوارث الطبيعية ودعم المتضررين حول العالم.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-            
-            <div class="info-card reveal">
-                <i class="fas fa-female"></i>
-                <h3>تمكين المرأة</h3>
-                <p>دعم المبادرات التي تعزز دور المرأة في المجتمع والاقتصاد.</p>
-            </div>
-            <div class="info-card reveal">
-                <i class="fas fa-microchip"></i>
-                <h3>الابتكار والذكاء</h3>
-                <p>توظيف التكنولوجيا الحديثة لخدمة القضايا الإنسانية الملحة.</p>
-            </div>
-        </div>
-    </section>
-
-    <div style="height: 30px;"></div> 
-    <footer class="main-footer">
-    <div class="footer-container">
-        
-        <div class="footer-section contact-info">
-            <h3>تواصل معنا</h3>
-            <div class="contact-links">
-                <a href="mailto:support@alwaleed.com" class="contact-item">
-                    <i class="fas fa-envelope"></i> البريد الإلكتروني
-                </a>
-                <a href="https://wa.me/your-number" class="contact-item">
-                    <i class="fab fa-whatsapp"></i> واتساب الدعم
-                </a>
-            </div>
-        </div>
-
-        <div class="footer-section legal-links">
-            <h3>الروابط القانونية</h3>
-            <div class="links-grid">
-                <a href="privacy-policy.html">سياسة الخصوصية</a>
-                <a href="terms.html">شروط الاستخدام</a>
-            </div>
-        </div>
-
-        <div class="footer-divider"></div>
-
-        <div class="footer-bottom">
-            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
-            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
-        </div>
-    </div>
-</footer>
-
-    
-
-
-   
-    <div id="whatsappModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: white; width: 90%; max-width: 400px; border-radius: 15px; overflow: hidden; font-family: sans-serif;">
-        <div style="background: #25d366; color: white; padding: 15px; text-align: center; font-weight: bold;">
-            صندوق الشكاوي والملاحظات
-        </div>
-        <div style="padding: 15px;">    
-            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/us.html" style="font-weight: bold;">طلب مساعدة</a></button>
-            <button id="btn-main" style="width: 100%; background: #32CD32; color: white; border: 1px; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer; align-items: center;"><a href="pages/donate.html" style="font-weight: bold;">طلب تبرع</a></button>
-            
-               <textarea id="userNote" rows="2" style="width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 12px; text-align: center; margin-top: 15px; direction: rtl;" placeholder="اكتب ملاحظتك هنا..."></textarea>
-            <button id="btn-main" style="width: 100%; background: #98FB98; color: blacke; border: none; padding: 12px; border-radius: 8px; margin-top: 15px; font-weight: bold; cursor: pointer;"><a href="pages/index-ss.html">تواصل مع فريق ال</a></button>
-            <button onclick="toggleWhatsAppModal()" style="width: 100%; background: #eee; color: #333; border: none; padding: 8px; border-radius: 8px; margin-top: 10px; cursor: pointer;">
-                إلغاء
-            </button>
-        </div>
-    </div>
-</div>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const observerOptions = {
-        threshold: 0.1 // تفعيل الحركة عند ظهور 10% من العنصر
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("active");
-            } else {
-                // حذف الكلاس عند الخروج لجعل الحركة تتكرر دوماً
-                entry.target.classList.remove("active");
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
-    });
-    </script>
-
-    <script>
-// تأكد أن الدالة موجودة هنا بين وسومي السكريبت
-    function toggleWhatsAppModal() {
-        const modal = document.getElementById('whatsappModal');
-        if (modal.style.display ==='none' || modal.style.display === '') {
-            modal.style.display ='flex';
-        } else {
-            modal.style.display ='none';
-        }
-    }
-
-// دالة الإرسال بالرقم الجديد التي أعطيتك إياها
-    function sendToWhatsApp() {
-        const noteElement = document.getElementById('userNote');
-        const note = noteElement.value.trim();
-        const phoneNumber ="966567232680"; 
-
-        if (note ==="") {
-            alert("فضلاً اكتب الملاحظة أولاً");
-            return;
-        }
-        
-         const prefix="📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
-         const suffix="\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
-        
-        const fullMessage = prefix + note + suffix;
-
-
-        const encodedText = encodeURIComponent(fullMessage);
-        const whatsappUrl ="https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
-
-        window.open(whatsappUrl,'_blank');
-        toggleWhatsAppModal();
-        noteElement.value =""; 
-    }
-    
-    </script>
-
-</body>
-</html>
+</script>
