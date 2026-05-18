@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
-
   <style>
       @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
-
 :root {
     --header-bg-image: url('images/xx.jpg');
     --card-bg-dark: #1a4332;
@@ -16,150 +14,169 @@
     --accent-green: #25D366;
   }
 
-  body {
-    font-family: 'Cairo', Tahoma, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f2f5;
-    color: #333;
-    line-height: 1.6;
-  }
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+      color: #333;
+      line-height: 1.6;
+    }
 
-  header {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    height: 40vh;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-  }
+    header {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+      background-size: cover;
+      background-position: center;
+      height: 40vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
 
-  .logo {
-    width: 110px;
-    height: 110px;
-    background-color: #fff;
-    background-image: var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.8);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    margin-bottom: 15px;
-  }
+    .logo {
+      width: 110px;
+      height: 110px;
+      background-color: #fff;
+      background-image: var(--header-bg-image);
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      margin-bottom: 15px;
+    }
 
-  header h1 {
-    margin: 5px 0;
-    font-size: 2.2rem;
-  }
+    header h1 {
+      margin: 5px 0;
+      font-size: 2.2rem;
+      font-weight: bold;
+    }
+    header p {
+      margin: 0;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
 
-  header p {
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
+    .support-section {
+      max-width: 1100px;
+      margin: -60px auto 40px;
+      padding: 0 20px;
+    }
 
-  .support-section {
-    max-width: 1100px;
-    margin: -60px auto 40px;
-    padding: 0 20px;
-  }
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+    }
 
-  .card {
-    background-color: var(--card-bg-dark);
-    padding: 35px;
-    border-radius: 25px;
-    box-shadow: 0 20px 45px rgba(0,0,0,0.5);
-  }
+    .support-item {
+      position: relative;
+      height: 220px;
+      border-radius: 15px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: 0.3s ease;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
 
-  h2 {
-    color: var(--text-on-dark);
-    text-align: center;
-    margin-bottom: 25px;
-  }
+    .support-item:hover {
+      transform: translateY(-10px);
+    }
 
-  /* ✅ تحسين شكل الحقول بالكامل */
-  .form-group {
-    margin-bottom: 12px; /* مسافة صغيرة بين الخانات */
-  }
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 100%);
+      z-index: 1;
+    }
 
-  label {
-    display: block;
-    color: var(--text-on-dark);
-    font-size: 0.95rem;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
+    .support-item .content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      color: #fff;
+    }
 
-  input, select, textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.15);
-    background-color: var(--input-bg-light);
-    font-size: 1rem;
-    outline: none;
-    transition: 0.3s;
-    box-sizing: border-box;
-  }
+    .support-item h3 {
+      margin: 0 0 8px;
+      font-size: 1.3rem;
+      color: var(--accent-green);
+    }
+    .support-item p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
 
-  input:focus,
-  select:focus,
-  textarea:focus {
-    border: 1px solid #25D366;
-    box-shadow: 0 0 8px rgba(37,211,102,0.3);
-  }
+    .card {
+      background-color: var(--card-bg-dark);
+      padding: 35px;
+      border-radius: 25px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
 
-  textarea {
-    resize: none;
-  }
+    h2 {
+      color: var(--text-on-dark);
+      text-align: center;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
 
-  button {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(to right, #25D366, #128C7E);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: 0.3s;
-  }
+    .form-group { margin-bottom: 18px; }
 
-  button:hover {
-    transform: scale(1.02);
-  }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-on-dark);
+    }
 
-  .main-footer {
-    background-color: #0f172a;
-    color: #f1f5f9;
-    padding: 50px 20px 20px;
-    border-top: 4px solid #38bdf8;
-  }
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background-color: var(--input-bg-light);
+    }
 
-  .footer-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    text-align: center;
-  }
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(to right, #25D366, #128C7E);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
 
-  .contact-links {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-  }
-
-  .contact-item {
-    color: #94a3b8;
-    text-decoration: none;
-  }
-
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      background-color: #25D366;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 
@@ -174,26 +191,25 @@
 <section class="support-section">
 
   <div class="card">
-
-    <h2>طلب المساعدة</h2>
+    <h2>ادخل بياناتك لطلب المساعدة</h2>
 
     <div class="form-group">
-      <label>الاسم الكامل</label>
-      <input id="name" placeholder="أدخل اسمك">
+      <label>الاسم الكامل:</label>
+      <input id="name" type="text">
     </div>
 
     <div class="form-group">
-      <label>رقم الجوال</label>
-      <input id="phone" placeholder="مثال: 00966...">
+      <label>رقم الجوال:</label>
+      <input id="phone" type="tel">
     </div>
 
     <div class="form-group">
-      <label>الدولة</label>
-      <input id="location" placeholder="اختر دولتك">
+      <label>الدولة:</label>
+      <input id="location" type="text">
     </div>
 
     <div class="form-group">
-      <label>نوع المساعدة</label>
+      <label>نوع المساعدة:</label>
       <select id="type">
         <option>مالية</option>
         <option>سكنية</option>
@@ -202,50 +218,57 @@
     </div>
 
     <div class="form-group">
-      <label>تفاصيل الحالة</label>
-      <textarea id="notes" rows="4" placeholder="اشرح حالتك"></textarea>
+      <label>التفاصيل:</label>
+      <textarea id="notes"></textarea>
     </div>
 
-    <button id="sendBtn">إرسال عبر واتساب</button>
-
+    <button id="sendBtn">إرسال الطلب عبر واتساب</button>
   </div>
-
 </section>
 
 <footer class="main-footer">
+  <div class="footer-section">
+    <h3>تواصل معنا</h3>
 
-  <div class="footer-container">
+    <a href="mailto:lamiamagedoffice1@gmail.com">الإيميل</a>
 
-    <div class="contact-links">
-
-      <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
-        📧 البريد الإلكتروني
-      </a>
-
-      <a href="https://wa.me/966569872542" class="contact-item">
-        💬 واتساب الدعم
-      </a>
-
-    </div>
-
+    <a href="https://wa.me/966569872542">واتساب الدعم</a>
   </div>
-
 </footer>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-document.getElementById("sendBtn").onclick = function () {
+const firebaseConfig = {
+  apiKey: "AIzaSyC1-J4dSTmxUnz5d7dvq9XWrRHf_Lr511M",
+  authDomain: "alwaleed-3a813.firebaseapp.com",
+  projectId: "alwaleed-3a813",
+  storageBucket: "alwaleed-3a813.firebasestorage.app",
+  messagingSenderId: "680698906569",
+  appId: "1:680698906569:web:154df6466c1c89d67f4a18"
+};
 
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const location = document.getElementById("location").value;
-    const type = document.getElementById("type").value;
-    const notes = document.getElementById("notes").value;
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-    const adminPhone = "966569872542";
+document.getElementById("sendBtn").onclick = async function () {
 
-    let message =
-`📌 طلب مساعدة جديد
+  const adminPhone = "966569872542";
+
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const location = document.getElementById("location").value;
+  const type = document.getElementById("type").value;
+  const notes = document.getElementById("notes").value;
+
+  await addDoc(collection(db, "us"), {
+    name, phone, location, type, notes,
+    date: new Date().toISOString()
+  });
+
+  let msg =
+`📌 طلب جديد
 
 الاسم: ${name}
 الهاتف: ${phone}
@@ -253,10 +276,9 @@ document.getElementById("sendBtn").onclick = function () {
 النوع: ${type}
 التفاصيل: ${notes}`;
 
-    window.open("https://wa.me/" + adminPhone + "?text=" + encodeURIComponent(message));
-
+  window.location.href =
+  `https://wa.me/${adminPhone}?text=${encodeURIComponent(msg)}`;
 };
-
 </script>
 
 </body>
