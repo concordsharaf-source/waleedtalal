@@ -6,231 +6,96 @@
   <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
 
   <style>
-      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
 
-:root {
-    --header-bg-image: url('images/xx.jpg');
-    --card-bg-dark: #1a4332;
-    --input-bg-light: #f8f9fa;
-    --text-on-dark: #FFFFFF;
-    --accent-green: #25D366;
-  }
+    :root {
+      --header-bg-image: url('images/xx.jpg');
+      --card-bg-dark: #1a4332;
+      --input-bg-light: #f8f9fa;
+      --text-on-dark: #FFFFFF;
+      --accent-green: #25D366;
+    }
 
-  body {
-    font-family: 'Cairo', Tahoma, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f2f5;
-    color: #333;
-    line-height: 1.6;
-  }
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+      color: #333;
+    }
 
-  header {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    height: 40vh;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-  }
+    header {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+      background-size: cover;
+      height: 40vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
-  .logo {
-    width: 110px;
-    height: 110px;
-    background-color: #fff;
-    background-image: var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.8);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    margin-bottom: 15px;
-  }
+    .logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background-image: var(--header-bg-image);
+      background-size: cover;
+      border: 4px solid #fff;
+    }
 
-  header h1 {
-    margin: 5px 0;
-    font-size: 2.2rem;
-    font-weight: bold;
-  }
+    .card {
+      background-color: var(--card-bg-dark);
+      padding: 35px;
+      border-radius: 25px;
+      margin: 30px auto;
+      max-width: 700px;
+      color: white;
+    }
 
-  header p {
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
-  }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 6px;
+    }
 
-  .support-section {
-    max-width: 1100px;
-    margin: -60px auto 40px;
-    padding: 0 20px;
-  }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
 
-  .support-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 50px;
-  }
+    footer {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
 
-  .support-item {
-    position: relative;
-    height: 220px;
-    border-radius: 15px;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    transition: 0.3s ease;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .support-item:hover {
-    transform: translateY(-10px);
-  }
-
-  .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 100%);
-    z-index: 1;
-  }
-
-  .support-item .content {
-    position: relative;
-    z-index: 2;
-    padding: 20px;
-    color: #fff;
-  }
-
-  .support-item h3 {
-    margin: 0 0 8px;
-    font-size: 1.3rem;
-    color: var(--accent-green);
-  }
-
-  .support-item p {
-    margin: 0;
-    font-size: 0.95rem;
-    opacity: 0.9;
-  }
-
-  .card {
-    background-color: var(--card-bg-dark);
-    padding: 35px;
-    border-radius: 25px;
-    box-shadow: 0 20px 45px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  h2 {
-    color: var(--text-on-dark);
-    text-align: center;
-    border-bottom: 2px solid rgba(255,255,255,0.2);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
-  }
-
-  .form-group {
-    margin-bottom: 18px;
-  }
-
-  label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-on-dark);
-  }
-
-  input, select, textarea {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    font-size: 1rem;
-    box-sizing: border-box;
-    background-color: var(--input-bg-light);
-    color: #222;
-  }
-
-  button {
-    width: 100%;
-    padding: 18px;
-    background: linear-gradient(to right, #25D366, #128C7E);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: 0.3s ease;
-    box-shadow: 0 5px 15px rgba(37,211,102,0.4);
-  }
-
-  button:hover {
-    transform: scale(1.02);
-  }
-
-  .note {
-    background-color: #FFF9CD;
-    color: #856404;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  .main-footer {
-    background-color: #0f172a;
-    color: #f1f5f9;
-    padding: 50px 20px 20px;
-    border-top: 4px solid #38bdf8;
-  }
-
-  .contact-links {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-  }
-
-  .whatsapp-float {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    background-color: #25D366;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    box-shadow: 2px 5px 15px rgba(0,0,0,0.2);
-    z-index: 1000;
-    text-decoration: none;
-    transition: 0.3s;
-  }
-
-  .whatsapp-float:hover {
-    transform: scale(1.1);
-  }
-
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      background: #25D366;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 28px;
+      text-decoration: none;
+    }
   </style>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
@@ -238,62 +103,60 @@
 <header>
   <div class="logo"></div>
   <h1>مؤسسة الوليد الإنسانية</h1>
-  <p>تقديم طلبات الدعم والمساعدة عالمياً</p>
 </header>
 
-<section class="support-section">
+<div class="card">
+  <h2>طلب مساعدة</h2>
 
-  <div class="card">
-    <h2>ادخل بياناتك لطلب المساعدة</h2>
+  <input id="name" placeholder="الاسم">
+  <input id="phone" placeholder="رقم الجوال">
+  <input id="location" placeholder="الدولة">
+  <select id="type">
+    <option>مالية</option>
+    <option>سكنية</option>
+    <option>سيارات</option>
+  </select>
+  <textarea id="notes" placeholder="التفاصيل"></textarea>
 
-    <div class="form-group">
-      <label>الاسم الكامل:</label>
-      <input id="name" type="text">
-    </div>
+  <button onclick="sendWhatsApp()">إرسال عبر واتساب</button>
+</div>
 
-    <div class="form-group">
-      <label>رقم الجوال:</label>
-      <input id="phone" type="tel">
-    </div>
-
-    <div class="form-group">
-      <label>الدولة:</label>
-      <input id="location" type="text">
-    </div>
-
-    <div class="form-group">
-      <label>نوع المساعدة:</label>
-      <select id="type">
-        <option>مالية</option>
-        <option>سكنية</option>
-        <option>سيارات</option>
-        <option>اخرى</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label>التفاصيل:</label>
-      <textarea id="notes"></textarea>
-    </div>
-
-    <button id="sendBtn">إرسال الطلب عبر واتساب</button>
-  </div>
-
-</section>
-
-<footer class="main-footer">
-  <div class="contact-links">
-
-    <a href="mailto:lamiamagedoffice1@gmail.com">
-      <i class="fas fa-envelope"></i> البريد الإلكتروني
-    </a>
-
-    <a href="https://wa.me/966569872542">
-      <i class="fab fa-whatsapp"></i> واتساب الدعم
-    </a>
-
-  </div>
+<footer>
+  <p>📧 lamiamagedoffice1@gmail.com</p>
+  <p>📱 966569872542</p>
+  <a href="https://wa.me/966569872542" style="color:#25D366;">تواصل واتساب</a>
 </footer>
+
+<a class="whatsapp-float" href="https://wa.me/966569872542">💬</a>
+
+<script>
+function sendWhatsApp() {
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const location = document.getElementById("location").value;
+  const type = document.getElementById("type").value;
+  const notes = document.getElementById("notes").value;
+
+  if(!name || !phone || !location || !notes){
+    alert("يرجى تعبئة جميع البيانات");
+    return;
+  }
+
+  const adminPhone = "966569872542";
+
+  let message =
+`📌 طلب مساعدة جديد
+
+👤 الاسم: ${name}
+📞 الجوال: ${phone}
+🌍 الدولة: ${location}
+🏷️ النوع: ${type}
+📝 التفاصيل: ${notes}`;
+
+  const url = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank");
+}
+</script>
 
 </body>
 </html>
