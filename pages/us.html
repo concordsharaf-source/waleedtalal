@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
 
+    <!-- خط القاهرة -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -99,6 +100,11 @@
             background-color: var(--input-bg-light);
             font-size: 15px;
             transition: all 0.3s ease;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .form-control:focus {
@@ -229,26 +235,6 @@
         .modal-actions .btn {
             flex: 1;
         }
-
-        /* رسالة نتيجة الاستعلام */
-        #verificationResult {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-            font-weight: 600;
-            text-align: center;
-        }
-        .result-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .result-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
     </style>
 </head>
 
@@ -256,13 +242,15 @@
 
     <header>
         <h1>مؤسسة الوليد الإنسانية</h1>
-        <p>بوابة تقديم واستعلام طلبات المساعدة الإنسانية</p>
+        <p>بوابة تقديم طلبات المساعدة الإنسانية</p>
     </header>
 
     <div class="container">
+        <!-- قسم تقديم الطلب -->
         <div class="card">
             <h2>تقديم طلب مساعدة جديد</h2>
             <form id="assistanceForm" onsubmit="handleFormSubmit(event)">
+                
                 <div class="form-group">
                     <label for="fullName">الاسم الكامل (رب الأسرة):</label>
                     <input type="text" id="fullName" class="form-control" placeholder="أدخل الاسم الثلاثي أو الرباعي" required>
@@ -279,6 +267,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="email">البريد الإلكتروني:</label>
+                    <input type="email" id="email" class="form-control" placeholder="example@email.com" required>
+                </div>
+
+                <div class="form-group">
                     <label for="requestType">نوع المساعدة المطلوبة:</label>
                     <select id="requestType" class="form-control" required>
                         <option value="">-- اختر نوع المساعدة --</option>
@@ -288,38 +281,27 @@
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary">إرسال الطلب وحفظ البيانات</button>
-            </form>
-        </div>
-
-        <div class="card">
-            <h2>تأكيد والاستعلام عن حالة الطلب</h2>
-            <form id="verifyForm" onsubmit="handleVerification(event)">
                 <div class="form-group">
-                    <label for="verifyId">رقم الهوية الوطنية:</label>
-                    <input type="text" id="verifyId" class="form-control" placeholder="أدخل رقم الهوية المسجل بالطلب" required>
+                    <label for="details">تفاصيل الطلب / ملاحظات إضافية:</label>
+                    <textarea id="details" class="form-control" rows="4" placeholder="يرجى كتابة تفاصيل حالتك وأسباب طلب المساعدة هنا..." required></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="verifyCode">رمز المعاملة:</label>
-                    <input type="text" id="verifyCode" class="form-control" placeholder="مثال: A1234" required style="text-transform: uppercase;">
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="background-color: #2c3e50;">استعلام وتأكيد الطلب</button>
+                <button type="submit" class="btn btn-primary">إرسال الطلب</button>
             </form>
-
-            <div id="verificationResult"></div>
         </div>
     </div>
 
+    <!-- النافذة المنبثقة الأنيقة (Custom Modal) -->
     <div class="modal-overlay" id="customModal">
         <div class="modal-content">
             <div class="modal-icon">✓</div>
             <h3 class="modal-title">تم استلام طلبك بنجاح!</h3>
-            <p class="modal-text">يرجى الاحتفاظ برمز المعاملة ورقم الهوية لاستخدامهما في متابعة وتأكيد حالة طلبك لاحقاً.</p>
+            <p class="modal-text">يرجى الاحتفاظ برمز المعاملة ورقم الهوية لاستخدامهما في متابعة حالة طلبك عبر الصفحة الرئيسية.</p>
             
+            <!-- مربع عرض الرمز -->
             <div class="code-box" id="displayCode">A0000</div>
 
+            <!-- أزرار التفاعل -->
             <div class="modal-actions">
                 <button type="button" class="btn btn-success" id="copyBtn" onclick="copyCode()">
                     نسخ الكود 📋
@@ -344,28 +326,10 @@
         function handleFormSubmit(event) {
             event.preventDefault(); // منع تحديث الصفحة
 
-            const fullName = document.getElementById('fullName').value.trim();
-            const nationalId = document.getElementById('nationalId').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const requestType = document.getElementById('requestType').value;
-
             // توليد الرمز القصير
             const newCode = generateShortCode();
 
-            // حفظ الطلب في الذاكرة المحلية (localStorage) للمحاكاة والتأكيد لاحقاً
-            const requestData = {
-                fullName: fullName,
-                nationalId: nationalId,
-                phone: phone,
-                requestType: requestType,
-                code: newCode,
-                status: "قيد المراجعة والتدقيق"
-            };
-
-            // نحفظ البيانات باستخدام "رقم الهوية + الرمز" كمفتاح فريد
-            localStorage.setItem(`request_${nationalId}_${newCode}`, JSON.stringify(requestData));
-
-            // إظهار النافذة المنبثقة بدلاً من alert
+            // إظهار النافذة المنبثقة بنجاح الطلب
             showModal(newCode);
 
             // تفريغ حقول النموذج بعد الإرسال
@@ -380,7 +344,7 @@
 
         function closeModal() {
             document.getElementById('customModal').classList.remove('active');
-            // إعادة ضبط زر النسخ لحالته الأصلية
+            // إعادة ضبط زر النسخ لحالته الأصلية عند الإغلاق
             const copyBtn = document.getElementById('copyBtn');
             copyBtn.innerHTML = 'نسخ الكود 📋';
             copyBtn.style.backgroundColor = 'var(--accent-green)';
@@ -405,36 +369,6 @@
                 // خطأ بديل في حال كان المتصفح قديماً جداً
                 alert('حدث خطأ أثناء النسخ، يرجى نسخ الرمز يدوياً.');
             });
-        }
-
-        // 5. معالجة نموذج الاستعلام والتأكيد (برقم الهوية + الرمز)
-        function handleVerification(event) {
-            event.preventDefault();
-
-            const verifyId = document.getElementById('verifyId').value.trim();
-            const verifyCode = document.getElementById('verifyCode').value.trim().toUpperCase();
-            const resultDiv = document.getElementById('verificationResult');
-
-            // البحث عن الطلب في الذاكرة المحلية
-            const savedData = localStorage.getItem(`request_${verifyId}_${verifyCode}`);
-
-            resultDiv.style.display = 'block';
-
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                resultDiv.className = 'result-success';
-                resultDiv.innerHTML = `
-                    <strong>تم تأكيد الطلب بنجاح! ✓</strong><br>
-                    الاسم: ${data.fullName} | رقم الهوية: ${data.nationalId}<br>
-                    حالة الطلب الحالية: <span style="color:#0f5132; font-weight:bold;">${data.status}</span>
-                `;
-            } else {
-                resultDiv.className = 'result-error';
-                resultDiv.innerHTML = `
-                    <strong>عفواً، لا يوجد طلب مطابق! ✕</strong><br>
-                    يرجى التأكد من صحة رقم الهوية ورمز المعاملة والمحاولة مرة أخرى.
-                `;
-            }
         }
     </script>
 </body>
