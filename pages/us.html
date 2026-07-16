@@ -1,442 +1,590 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+<title>نظام متابعة المعاملات - تجريبي</title>
 
-    <style>
-        :root {
-            --header-bg-image: url('images/xx.jpg');
-            --card-bg-dark: #1a4332;
-            --input-bg-light: #f8f9fa;
-            --text-on-dark: #ffffff;
-            --accent-green: #25D366;
-            --whatsapp-dark: #075E54;
-            --text-dark: #2c3e50;
-            --border-color: #e2e8f0;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
+<style>
 
-        body {
-            background-color: #f0f2f5;
-            color: var(--text-dark);
-            line-height: 1.6;
-            padding-bottom: 50px;
-        }
+*{
+    box-sizing:border-box;
+    font-family:'Cairo',sans-serif;
+}
 
-        /* الترويسة */
-        header {
-            background: linear-gradient(135deg, var(--card-bg-dark), #0f281e);
-            color: var(--text-on-dark);
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-bottom: 30px;
-        }
+body{
+    margin:0;
+    background:#f5f7f6;
+    color:#333;
+}
 
-        header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
 
-        header p {
-            font-size: 16px;
-            opacity: 0.9;
-        }
+/* تنبيه تجريبي */
+.demo-alert{
+    background:#fff3cd;
+    color:#856404;
+    text-align:center;
+    padding:12px;
+    font-weight:bold;
+    border-bottom:1px solid #ffeeba;
+    font-size:14px;
+}
 
-        /* الحاوية الرئيسية */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
 
-        /* الكروت والنتوءات */
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            border-top: 5px solid var(--card-bg-dark);
-        }
+/* الهيدر */
+.header{
+    background:#008444;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
 
-        .card h2 {
-            color: var(--card-bg-dark);
-            font-size: 22px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--input-bg-light);
-        }
+.header h1{
+    margin:0;
+    font-size:24px;
+}
 
-        /* النماذج والحقول */
-        .form-group {
-            margin-bottom: 20px;
-        }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
-        }
+/* الحاوية */
+.container{
 
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--input-bg-light);
-            font-size: 15px;
-            transition: all 0.3s ease;
-        }
+    width:90%;
+    max-width:500px;
+    margin:30px auto;
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,.1);
 
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
+}
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--card-bg-dark);
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(26, 67, 50, 0.1);
-        }
 
-        /* الأزرار */
-        .btn {
-            display: inline-block;
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
+/* العناوين */
 
-        .btn-primary {
-            background-color: var(--card-bg-dark);
-            color: var(--text-on-dark);
-        }
+.title{
+    text-align:center;
+    color:#008444;
+    font-size:22px;
+    font-weight:800;
+    margin-bottom:25px;
+}
 
-        .btn-primary:hover {
-            background-color: #123023;
-        }
 
-        .btn-success {
-            background-color: var(--accent-green);
-            color: var(--text-on-dark);
-        }
+/* الحقول */
 
-        .btn-success:hover {
-            background-color: #1ebc59;
-        }
+.input-group{
+    margin-bottom:18px;
+}
 
-        /* زر الواتساب الأكبر والأبرز */
-        .btn-whatsapp-large {
-            background: linear-gradient(135deg, #128C7E, var(--whatsapp-dark));
-            color: var(--text-on-dark);
-            font-size: 18px;
-            padding: 18px 20px;
-            box-shadow: 0 6px 15px rgba(7, 94, 84, 0.3);
-            border-radius: 10px;
-            margin-top: 5px;
-        }
 
-        .btn-whatsapp-large:hover {
-            background: linear-gradient(135deg, #0f7a6e, #054c44);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(7, 94, 84, 0.4);
-        }
+.input-group label{
 
-        .btn:active {
-            transform: scale(0.98);
-        }
+    display:block;
+    margin-bottom:7px;
+    font-weight:bold;
+    color:#444;
 
-        /* النافذة المنبثقة (Modal) بديل الـ Alert */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
+}
 
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
 
-        .modal-content {
-            background: #ffffff;
-            width: 90%;
-            max-width: 480px;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
-        }
+.input-group input{
 
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    outline:none;
+    font-size:16px;
+    text-align:right;
 
-        .modal-icon {
-            width: 60px;
-            height: 60px;
-            background: #e8f8f0;
-            color: var(--accent-green);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            margin: 0 auto 15px auto;
-        }
+}
 
-        .modal-title {
-            font-size: 22px;
-            color: var(--card-bg-dark);
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
 
-        .modal-text {
-            font-size: 15px;
-            color: #666;
-            margin-bottom: 20px;
-        }
+.input-group input:focus{
 
-        .code-box {
-            background: var(--input-bg-light);
-            border: 2px dashed var(--card-bg-dark);
-            padding: 15px;
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--card-bg-dark);
-            letter-spacing: 3px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            user-select: all;
-        }
+    border-color:#008444;
 
-        .modal-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .btn-close-link {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 5px;
-            text-decoration: underline;
-        }
-        .btn-close-link:hover {
-            color: #333;
-        }
-    </style>
+}
+
+
+
+/* زر */
+
+.main-btn{
+
+    width:100%;
+    padding:15px;
+    background:#008444;
+    color:white;
+    border:none;
+    border-radius:30px;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+
+}
+
+
+.main-btn:hover{
+
+    background:#006d38;
+
+}
+
+
+
+/* صندوق النتيجة */
+
+.result-box{
+
+    display:none;
+    margin-top:25px;
+    background:#f8fff9;
+    border:1px solid #b7e4c7;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+
+}
+
+
+.code-box{
+
+    background:white;
+    border:2px dashed #008444;
+    border-radius:12px;
+    padding:15px;
+    font-size:28px;
+    font-weight:800;
+    color:#008444;
+    letter-spacing:3px;
+    margin:15px 0;
+
+}
+
+
+
+/* زر النسخ */
+
+.copy-btn{
+
+    background:#008444;
+    color:white;
+    border:none;
+    padding:12px 30px;
+    border-radius:25px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+
+}
+
+
+.copy-btn:active{
+
+    transform:scale(.96);
+
+}
+
+
+.footer-note{
+
+    text-align:center;
+    color:#777;
+    font-size:13px;
+    margin-top:20px;
+
+}
+
+
+</style>
+
 </head>
 
 <body>
 
-    <header>
-        <h1>مؤسسة الوليد الإنسانية</h1>
-        <p>بوابة تقديم طلبات المساعدة الإنسانية</p>
-    </header>
 
-    <div class="container">
-        <div class="card">
-            <h2>تقديم طلب مساعدة جديد</h2>
-            <form id="assistanceForm" onsubmit="handleFormSubmit(event)">
-                
-                <div class="form-group">
-                    <label for="fullName">الاسم الكامل (رب الأسرة):</label>
-                    <input type="text" id="fullName" class="form-control" placeholder="أدخل الاسم الثلاثي أو الرباعي" required>
-                </div>
+<div class="demo-alert">
 
-                <div class="form-group">
-                    <label for="nationalId">رقم الهوية الوطنية / الإقامة:</label>
-                    <input type="text" id="nationalId" class="form-control" placeholder="أدخل رقم الهوية (مثال: 1023456789)" pattern="[0-9]{10}" title="يرجى إدخال 10 أرقام" required>
-                </div>
+⚠️ موقع تجريبي للتدريب والمحاكاة فقط - ليس نظاماً مالياً حقيقياً
 
-                <div class="form-group">
-                    <label for="phone">رقم الهاتف الجوال:</label>
-                    <input type="tel" id="phone" class="form-control" placeholder="05xxxxxxxx" required>
-                </div>
+</div>
 
-                <div class="form-group">
-                    <label for="email">البريد الإلكتروني:</label>
-                    <input type="email" id="email" class="form-control" placeholder="example@email.com" required>
-                </div>
 
-                <div class="form-group">
-                    <label for="requestType">نوع المساعدة المطلوبة:</label>
-                    <select id="requestType" class="form-control" required>
-                        <option value="">-- اختر نوع المساعدة --</option>
-                        <option value="مساعدة سكنية">مساعدة سكنية</option>
-                        <option value="مساعدة وسيلة نقل (سيارة)">مساعدة وسيلة نقل (سيارة)</option>
-                        <option value="مساعدة مالية علاجية / طارئة">مساعدة مالية علاجية / طارئة</option>
-                    </select>
-                </div>
+<div class="header">
 
-                <div class="form-group">
-                    <label for="details">تفاصيل الطلب / ملاحظات إضافية:</label>
-                    <textarea id="details" class="form-control" rows="4" placeholder="يرجى كتابة تفاصيل حالتك وأسباب طلب المساعدة هنا..." required></textarea>
-                </div>
+<h1>
+نظام متابعة المعاملات
+</h1>
 
-                <button type="submit" class="btn btn-primary">إرسال الطلب</button>
-            </form>
-        </div>
-    </div>
+</div>
 
-    <div class="modal-overlay" id="customModal">
-        <div class="modal-content">
-            <div class="modal-icon">✓</div>
-            <h3 class="modal-title">تم تجهيز طلبك بنجاح!</h3>
-            <p class="modal-text">انسخ رمز المعاملة، ثم اضغط على زر الإرسال عبر الواتساب لتأكيد وإرسال بياناتك فوراً.</p>
-            
-            <div class="code-box" id="displayCode">A0000</div>
 
-            <div class="modal-actions">
-                <button type="button" class="btn btn-success" id="copyBtn" onclick="copyCode()">
-                    نسخ الكود 📋
-                </button>
-                
-                <button type="button" class="btn btn-whatsapp-large" onclick="sendToWhatsApp()">
-                    إرسال الطلب عبر الواتساب 💬
-                </button>
-            </div>
+<div class="container">
 
-            <button type="button" class="btn-close-link" onclick="closeModal()">إغلاق النافذة</button>
-        </div>
-    </div>
+<h2 class="title">
+بيانات المستفيد
+</h2>
 
-    <script>
-        // ==========================================
-        // ضع رقم الواتساب الخاص بالصفحة هنا (مع رمز الدولة بدون أصفار أو +)
-        // مثال: 966500000000
-        const WHATSAPP_NUMBER = "966500000000"; 
-        // ==========================================
 
-        // متغير لتخزين بيانات الطلب الحالي مؤقتاً لإرسالها للواتساب
-        let currentFormData = {};
+<div class="input-group">
 
-        // 1. دالة توليد رمز قصير (حرف واحد + 4 أرقام)
-        function generateShortCode() {
-            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-            const randomNumbers = Math.floor(1000 + Math.random() * 9000); // يولد 4 أرقام
-            return randomLetter + randomNumbers;
-        }
+<label>
+الاسم الكامل
+</label>
 
-        // 2. معالجة إرسال نموذج تقديم الطلب
-        function handleFormSubmit(event) {
-            event.preventDefault(); // منع تحديث الصفحة
+<input type="text" id="name" placeholder="اكتب الاسم">
 
-            // توليد الرمز القصير
-            const newCode = generateShortCode();
+</div>
 
-            // حفظ البيانات في المتغير لاستخدامها عند فتح الواتساب
-            currentFormData = {
-                code: newCode,
-                fullName: document.getElementById('fullName').value.trim(),
-                nationalId: document.getElementById('nationalId').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                requestType: document.getElementById('requestType').value,
-                details: document.getElementById('details').value.trim()
-            };
 
-            // إظهار النافذة المنبثقة بنجاح الطلب
-            showModal(newCode);
+<div class="input-group">
 
-            // تفريغ حقول النموذج بعد الإرسال
-            document.getElementById('assistanceForm').reset();
-        }
+<label>
+رقم الهوية
+</label>
 
-        // 3. التحكم في النافذة المنبثقة (Modal)
-        function showModal(code) {
-            document.getElementById('displayCode').innerText = code;
-            document.getElementById('customModal').classList.add('active');
-        }
+<input type="text" id="idNumber" placeholder="اكتب رقم الهوية">
 
-        function closeModal() {
-            document.getElementById('customModal').classList.remove('active');
-            // إعادة ضبط زر النسخ لحالته الأصلية عند الإغلاق
-            const copyBtn = document.getElementById('copyBtn');
-            copyBtn.innerHTML = 'نسخ الكود 📋';
-            copyBtn.style.backgroundColor = 'var(--accent-green)';
-        }
+</div>
 
-        // 4. دالة نسخ الكود للحافظة مع تأثير بصري جذاب
-        function copyCode() {
-            const codeText = document.getElementById('displayCode').innerText;
 
-            navigator.clipboard.writeText(codeText).then(() => {
-                const copyBtn = document.getElementById('copyBtn');
-                copyBtn.innerHTML = 'تم النسخ بنجاح! ✓';
-                copyBtn.style.backgroundColor = '#188c41'; // درجة أغمق قليلاً للتأكيد
+<div class="input-group">
 
-                setTimeout(() => {
-                    copyBtn.innerHTML = 'نسخ الكود 📋';
-                    copyBtn.style.backgroundColor = 'var(--accent-green)';
-                }, 2000);
-            }).catch(err => {
-                alert('حدث خطأ أثناء النسخ، يرجى نسخ الرمز يدوياً.');
-            });
-        }
+<label>
+رقم الجوال
+</label>
 
-        // 5. دالة إرسال المعلومات تلقائياً لتطبيق الواتساب
-        function sendToWhatsApp() {
-            // تجهيز نص الرسالة وتنسيقه بشكل أنيق
-            const message = `*طلب مساعدة إنسانية جديد* 🌐\n` +
-                            `--------------------------\n` +
-                            `*رمز المعاملة:* ${currentFormData.code}\n` +
-                            `*الاسم الكامل:* ${currentFormData.fullName}\n` +
-                            `*رقم الهوية:* ${currentFormData.nationalId}\n` +
-                            `*رقم الجوال:* ${currentFormData.phone}\n` +
-                            `*البريد الإلكتروني:* ${currentFormData.email}\n` +
-                            `*نوع المساعدة:* ${currentFormData.requestType}\n` +
-                            `--------------------------\n` +
-                            `*تفاصيل الطلب / الملاحظات:*\n` +
-                            `${currentFormData.details}`;
+<input type="tel" id="phone" placeholder="اكتب رقم الجوال">
 
-            // تحويل النص ليكون صالحاً للاستخدام في روابط المتصفح
-            const encodedMessage = encodeURIComponent(message);
+</div>
 
-            // فتح تطبيق الواتساب مباشرة بالرقم والرسالة المجهزة
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-            window.open(whatsappUrl, '_blank');
-        }
-    </script>
+
+<button class="main-btn" onclick="generateCode()">
+
+تأكيد البيانات
+
+</button>
+
+
+<div class="result-box" id="result">
+
+
+<h3>
+تم إنشاء رمز المعاملة التجريبي
+</h3>
+
+
+<div class="code-box" id="transactionCode">
+
+</div>
+
+
+<button class="copy-btn" onclick="copyCode()">
+
+نسخ الكود
+
+</button>
+
+
+<p class="footer-note">
+احتفظ بالرمز لاستخدامه في صفحة المتابعة التجريبية
+</p>
+
+
+</div>
+
+
+</div>
+<script>
+
+
+// إنشاء رمز معاملة تجريبي (حرف + 4 أرقام)
+function generateCode(){
+
+    let name = document.getElementById("name").value.trim();
+    let idNumber = document.getElementById("idNumber").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+
+
+    if(name === "" || idNumber === "" || phone === ""){
+
+        alert("يرجى تعبئة جميع البيانات");
+        return;
+
+    }
+
+
+
+    // حرف عشوائي + 4 أرقام
+    let letter = String.fromCharCode(
+        65 + Math.floor(Math.random() * 26)
+    );
+
+
+    let numbers = Math.floor(
+        1000 + Math.random() * 9000
+    );
+
+
+    let code = letter + numbers;
+
+
+
+    // حفظ بيانات تجريبية داخل المتصفح
+    localStorage.setItem(
+        "demoTransaction",
+        JSON.stringify({
+
+            name:name,
+            id:idNumber,
+            phone:phone,
+            code:code
+
+        })
+    );
+
+
+
+    document.getElementById("transactionCode").innerText = code;
+
+
+    document.getElementById("result").style.display="block";
+
+
+}
+
+
+
+// نسخ الكود للحافظة
+function copyCode(){
+
+    let code =
+    document.getElementById("transactionCode").innerText;
+
+
+    navigator.clipboard.writeText(code)
+    .then(function(){
+
+        alert("تم نسخ رمز المعاملة: " + code);
+
+    })
+    .catch(function(){
+
+        alert("تعذر النسخ، قم بالنسخ يدوياً");
+
+    });
+
+
+}
+
+
+</script>
+<!-- صفحة التحقق التجريبية -->
+
+<div class="container" style="margin-top:40px;">
+
+<h2 class="title">
+متابعة المعاملة
+</h2>
+
+
+<div class="input-group">
+
+<label>
+رقم الهوية
+</label>
+
+<input 
+type="text" 
+id="checkId" 
+placeholder="أدخل رقم الهوية">
+
+</div>
+
+
+
+<div class="input-group">
+
+<label>
+رمز المعاملة
+</label>
+
+<input 
+type="text" 
+id="checkCode" 
+placeholder="مثال A1234">
+
+</div>
+
+
+
+<button class="main-btn" onclick="checkTransaction()">
+
+متابعة الحالة
+
+</button>
+
+
+
+<div 
+class="result-box" 
+id="checkResult"
+>
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+function checkTransaction(){
+
+
+let savedData = localStorage.getItem("demoTransaction");
+
+
+let resultBox =
+document.getElementById("checkResult");
+
+
+if(!savedData){
+
+    resultBox.style.display="block";
+
+    resultBox.innerHTML =
+    `
+    <h3 style="color:#d9534f">
+    لا توجد معاملة تجريبية محفوظة
+    </h3>
+    `;
+
+    return;
+
+}
+
+
+
+let data = JSON.parse(savedData);
+
+
+
+let enteredId =
+document.getElementById("checkId").value.trim();
+
+
+let enteredCode =
+document.getElementById("checkCode").value.trim()
+.toUpperCase();
+
+
+
+if(
+enteredId === data.id &&
+enteredCode === data.code
+){
+
+
+resultBox.style.display="block";
+
+
+resultBox.innerHTML =
+
+`
+
+<h3 style="color:#008444">
+
+تم التحقق بنجاح ✓
+
+</h3>
+
+
+<p>
+
+اسم المستفيد:
+<br>
+
+<b>${data.name}</b>
+
+</p>
+
+
+<p>
+
+رمز المعاملة:
+<br>
+
+<b style="color:#008444;font-size:22px">
+
+${data.code}
+
+</b>
+
+</p>
+
+
+<p>
+
+حالة الطلب:
+<br>
+
+<span style="color:#e6a700;font-weight:bold">
+
+قيد المراجعة (تجريبي)
+
+</span>
+
+</p>
+
+
+`;
+
+
+}
+
+else{
+
+
+resultBox.style.display="block";
+
+
+resultBox.innerHTML =
+
+`
+
+<h3 style="color:#d9534f">
+
+بيانات غير صحيحة
+
+</h3>
+
+
+<p>
+
+تأكد من رقم الهوية ورمز المعاملة
+
+</p>
+
+`;
+
+}
+
+
+}
+
+
+
+</script>
+
+
 </body>
 
 </html>
