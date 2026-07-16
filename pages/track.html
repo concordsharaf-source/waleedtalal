@@ -4,165 +4,88 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>متابعة الطلب</title>
+<title>تتبع المعاملة</title>
 
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
 
-*{
-box-sizing:border-box;
-}
-
-
 body{
 
 margin:0;
-
 font-family:'Cairo',sans-serif;
-
 background:#f0f2f5;
-
-color:#333;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
 
 }
 
 
+.card{
 
-header{
-
-height:35vh;
-
-background:
-linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
-url('images/xx.jpg');
-
-background-size:cover;
-
-background-position:center;
-
-display:flex;
-
-flex-direction:column;
-
-align-items:center;
-
-justify-content:center;
-
+width:90%;
+max-width:420px;
+background:#1a4332;
+padding:35px;
+border-radius:25px;
+box-shadow:0 15px 40px rgba(0,0,0,.3);
 color:white;
-
 text-align:center;
 
 }
-
 
 
 .logo{
 
 width:100px;
-
 height:100px;
-
 border-radius:50%;
-
 background:url('images/xx.jpg');
-
 background-size:cover;
-
+margin:auto;
 border:4px solid white;
 
-margin-bottom:15px;
+}
+
+
+h1{
+
+font-size:28px;
+margin:20px 0;
 
 }
 
 
+p{
 
-header h1{
-
-margin:5px;
-
-font-size:2rem;
+opacity:.9;
 
 }
-
-
-
-header p{
-
-margin:0;
-
-}
-
-
-
-
-.container{
-
-max-width:600px;
-
-margin:-40px auto 40px;
-
-padding:20px;
-
-}
-
-
-
-.card{
-
-background:#1a4332;
-
-padding:35px;
-
-border-radius:25px;
-
-box-shadow:0 15px 40px rgba(0,0,0,.3);
-
-}
-
-
-
-h2{
-
-color:white;
-
-text-align:center;
-
-}
-
 
 
 label{
 
 display:block;
-
-color:white;
-
+text-align:right;
+margin:15px 0 7px;
 font-weight:bold;
 
-margin-bottom:8px;
-
 }
-
 
 
 input{
 
 width:100%;
-
 padding:15px;
-
 border-radius:12px;
-
 border:none;
-
-margin-bottom:20px;
-
 font-size:16px;
+box-sizing:border-box;
 
 }
 
@@ -171,60 +94,28 @@ font-size:16px;
 button{
 
 width:100%;
-
 padding:16px;
-
-border:0;
-
+margin-top:25px;
+border:none;
 border-radius:15px;
-
-background:#25D366;
-
+background:linear-gradient(to right,#25D366,#128C7E);
 color:white;
-
 font-size:18px;
-
 font-weight:bold;
-
 cursor:pointer;
 
 }
 
 
-
-#result{
-
-margin-top:25px;
-
-background:white;
-
-border-radius:15px;
-
-padding:20px;
+.result{
 
 display:none;
-
-line-height:2;
-
-}
-
-
-
-.success{
-
-color:#128C7E;
-
-font-weight:bold;
-
-}
-
-
-
-.error{
-
-color:red;
-
-font-weight:bold;
+margin-top:25px;
+background:white;
+color:#333;
+padding:20px;
+border-radius:15px;
+text-align:right;
 
 }
 
@@ -237,400 +128,58 @@ font-weight:bold;
 <body>
 
 
-<header>
-
-<div class="logo"></div>
-
-<h1>متابعة الطلب</h1>
-
-<p>أدخل بياناتك لمعرفة حالة المعاملة</p>
-
-</header>
-<div class="container">
-
-
 <div class="card">
 
 
-<h2>
-متابعة المعاملة
-</h2>
+<div class="logo"></div>
+
+
+<h1>
+تتبع المعاملة
+</h1>
+
+
+<p>
+أدخل بياناتك لمعرفة حالة الطلب
+</p>
 
 
 
 <label>
-رقم الجوال:
+رقم المعاملة
 </label>
 
 <input 
-type="tel"
-id="phone"
-placeholder="أدخل رقم الجوال المسجل">
-
-
-
-
-
-<label>
-رقم المعاملة:
-</label>
-
-<input 
+id="transactionId"
 type="text"
-id="transactionNumber"
-placeholder="مثال: TEST-20260716-123456">
+placeholder="مثال: 4827">
 
 
 
+<label>
+رقم الهوية
+</label>
+
+<input 
+id="idNumber"
+type="text"
+placeholder="رقم الهوية">
 
 
-<button id="searchBtn">
 
+<button>
 بحث عن المعاملة
-
 </button>
 
 
 
-
-<div id="result"></div>
-
-
-
-</div>
-
+<div class="result" id="result">
 
 </div>
 
 
 
-
-
-
-<script type="module">
-
-
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-
-
-import {
-
-getFirestore,
-
-collection,
-
-query,
-
-where,
-
-getDocs
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-
-
-
-const firebaseConfig = {
-
-
-apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
-
-
-authDomain: "smartx-5cfb1.firebaseapp.com",
-
-
-projectId: "smartx-5cfb1",
-
-
-storageBucket: "smartx-5cfb1.firebasestorage.app",
-
-
-messagingSenderId: "429730063200",
-
-
-appId: "1:429730063200:web:3e84e8d5bee4a755f97405"
-
-
-};
-
-
-
-
-
-const app = initializeApp(firebaseConfig);
-
-
-const db = getFirestore(app);
-
-
-
-
-
-const searchBtn = document.getElementById("searchBtn");
-
-
-const result = document.getElementById("result");
-
-
-
-
-
-searchBtn.onclick = async function(){
-
-
-
-const phone =
-
-document.getElementById("phone").value.trim();
-
-
-
-const transactionNumber =
-
-document.getElementById("transactionNumber").value.trim();
-
-
-
-
-
-if(!phone || !transactionNumber){
-
-
-alert("أدخل رقم الجوال ورقم المعاملة");
-
-
-return;
-
-
-}
-
-
-
-
-
-searchBtn.innerHTML="جاري البحث...";
-
-
-
-
-
-try{
-
-
-
-const q = query(
-
-collection(db,"transactions"),
-
-where("phone","==",phone),
-
-where("transactionNumber","==",transactionNumber)
-
-);
-
-
-
-
-
-const snapshot = await getDocs(q);
-
-
-
-
-
-if(snapshot.empty){
-
-
-result.style.display="block";
-
-
-result.innerHTML=
-
-`
-<p class="error">
-❌ لم يتم العثور على معاملة بهذه البيانات
-</p>
-`;
-
-
-
-}
-
-else{
-
-
-
-snapshot.forEach(doc=>{
-
-
-const data = doc.data();
-
-
-
-
-result.style.display="block";
-
-
-result.innerHTML=
-
-`
-
-<p class="success">
-✅ تم العثور على المعاملة
-</p>
-
-
-<hr>
-
-
-<p>
-🔢 رقم المعاملة:
-<br>
-${data.transactionNumber}
-</p>
-
-
-<p>
-👤 الاسم:
-<br>
-${data.name}
-</p>
-
-
-<p>
-📂 نوع الطلب:
-<br>
-${data.type}
-</p>
-
-
-<p>
-📌 الحالة:
-<br>
-${data.status}
-</p>
-
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-}
-
-catch(error){
-
-
-console.error(error);
-
-
-result.style.display="block";
-
-
-result.innerHTML=
-
-`
-<p class="error">
-حدث خطأ أثناء البحث
-</p>
-`;
-
-
-
-}
-
-
-
-searchBtn.innerHTML="بحث عن المعاملة";
-
-
-
-};
-
-
-
-</script>
-<footer class="main-footer">
-
-
-<div style="
-background:#123324;
-color:white;
-text-align:center;
-padding:30px 20px;
-margin-top:40px;
-font-family:'Cairo',sans-serif;
-">
-
-
-<div style="
-color:#25D366;
-font-size:1.1rem;
-font-weight:bold;
-margin-bottom:15px;
-">
-
-
-<a href="mailto:lamiamagedoffice1@gmail.com"
-style="
-color:#25D366;
-text-decoration:none;
-margin:10px;
-">
-
-<i class="fas fa-envelope"></i>
-
-البريد الإلكتروني
-
-</a>
-
-
-
-<a href="https://wa.me/966580272758"
-style="
-color:#25D366;
-text-decoration:none;
-margin:10px;
-">
-
-<i class="fab fa-whatsapp"></i>
-
-دعم واتساب
-
-</a>
-
-
 </div>
-
-
-
-<p style="
-color:#ddd;
-font-size:.9rem;
-">
-
-جميع حقوق النشر والطبع محفوظة © 2026
-
-</p>
-
-
-</div>
-
-
-</footer>
-
 
 
 </body>
