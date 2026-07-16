@@ -22,6 +22,7 @@ align-items:center;
 min-height:100vh;
 }
 
+
 .card{
 width:90%;
 max-width:420px;
@@ -32,6 +33,7 @@ box-shadow:0 15px 40px rgba(0,0,0,.3);
 color:white;
 text-align:center;
 }
+
 
 .logo{
 width:100px;
@@ -44,14 +46,17 @@ margin:auto;
 border:4px solid white;
 }
 
+
 h1{
 font-size:28px;
 margin:20px 0;
 }
 
+
 p{
 opacity:.9;
 }
+
 
 label{
 display:block;
@@ -59,6 +64,7 @@ text-align:right;
 margin:15px 0 7px;
 font-weight:bold;
 }
+
 
 input{
 width:100%;
@@ -68,6 +74,7 @@ border:none;
 font-size:16px;
 box-sizing:border-box;
 }
+
 
 button{
 width:100%;
@@ -82,6 +89,7 @@ font-weight:bold;
 cursor:pointer;
 }
 
+
 .result{
 display:none;
 margin-top:25px;
@@ -89,8 +97,8 @@ background:white;
 color:#333;
 padding:20px;
 border-radius:15px;
-text-align:right;
 }
+
 
 </style>
 
@@ -116,15 +124,11 @@ text-align:right;
 </p>
 
 
-
 <label>
 رقم المعاملة
 </label>
 
-<input 
-id="transactionId"
-type="text"
-placeholder="مثال: 4827">
+<input id="transactionId" type="text" placeholder="مثال: 4827">
 
 
 
@@ -132,10 +136,7 @@ placeholder="مثال: 4827">
 رقم الهوية
 </label>
 
-<input 
-id="idNumber"
-type="text"
-placeholder="رقم الهوية">
+<input id="idNumber" type="text" placeholder="رقم الهوية">
 
 
 
@@ -157,35 +158,42 @@ placeholder="رقم الهوية">
 function checkTransaction(){
 
 
-let transactionId = document.getElementById("transactionId").value.trim();
+let transactionId=document.getElementById("transactionId").value.trim();
 
-let idNumber = document.getElementById("idNumber").value.trim();
+let idNumber=document.getElementById("idNumber").value.trim();
 
 
 // البيانات الصحيحة
-let correctTransaction = "4827";
 
-let correctId = "123456789";
+let correctTransaction="4827";
+
+let correctId="123456789";
 
 
 
 // تحويل الأرقام العربية إلى إنجليزية
 
-transactionId = transactionId.replace(/[٠-٩]/g, function(d){
-return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+transactionId=transactionId.replace(/[٠-٩]/g,function(x){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+
 });
 
 
-idNumber = idNumber.replace(/[٠-٩]/g, function(d){
-return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+idNumber=idNumber.replace(/[٠-٩]/g,function(x){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+
 });
 
 
 
-if(transactionId == correctTransaction && idNumber == correctId){
+// مقارنة البيانات
+
+if(transactionId === correctTransaction && idNumber === correctId){
 
 
-window.location.href = "status.html";
+window.location.href="status.html";
 
 
 }
@@ -193,28 +201,25 @@ window.location.href = "status.html";
 else{
 
 
-let result = document.getElementById("result");
+let result=document.getElementById("result");
 
 result.style.display="block";
 
-
-result.innerHTML = `
-
-<h3 style="color:red;text-align:center;">
+result.innerHTML=
+`
+<h3 style="color:red;text-align:center">
 خطأ
 </h3>
 
-<p style="text-align:center;">
+<p style="text-align:center">
 رقم المعاملة أو رقم الهوية غير صحيح
 </p>
-
 `;
 
 }
 
 
 }
-
 
 </script>
 
