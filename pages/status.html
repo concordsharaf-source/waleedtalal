@@ -1,201 +1,253 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+<head>
 
-import { 
-getFirestore,
-collection,
-query,
-where,
-getDocs
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>تتبع المعاملة</title>
 
-// إعدادات Firebase
+<style>
 
-const firebaseConfig = {
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
-apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
-
-authDomain: "smartx-5cfb1.firebaseapp.com",
-
-projectId: "smartx-5cfb1",
-
-storageBucket: "smartx-5cfb1.firebasestorage.app",
-
-messagingSenderId: "429730063200",
-
-appId: "1:429730063200:web:03524aef653c3ed6f97405",
-
-measurementId: "G-S4V29MRQJM"
-
-};
-
-
-// تشغيل Firebase
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-
-
-// دالة البحث
-
-async function searchTransaction(transactionId, idNumber){
-
-
-const q = query(
-
-collection(db,"requests"),
-
-where("transactionId","==",transactionId),
-
-where("idNumber","==",idNumber)
-
-);
-
-
-
-const result = await getDocs(q);
-
-
-
-if(result.empty){
-
-alert("لم يتم العثور على المعاملة");
-
-return;
-
+body{
+    margin:0;
+    font-family:'Cairo',sans-serif;
+    background:#f0f2f5;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
 }
 
 
-
-result.forEach((doc)=>{
-
-
-const data = doc.data();
-
-
-// حفظ البيانات مؤقتًا للجزء القادم
-
-window.requestData = data;
-
-
-console.log("بيانات المعاملة:",data);
+.card{
+    width:90%;
+    max-width:420px;
+    background:#1a4332;
+    padding:35px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,.3);
+    color:white;
+    text-align:center;
+}
 
 
-});
+.logo{
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    background:url('images/xx.jpg');
+    background-size:cover;
+    background-position:center;
+    margin:auto;
+    border:4px solid white;
+}
 
+
+h1{
+    font-size:28px;
+    margin:20px 0;
+}
+
+
+p{
+    opacity:.9;
+}
+
+
+label{
+    display:block;
+    text-align:right;
+    margin:15px 0 7px;
+    font-weight:bold;
+}
+
+
+input{
+
+    width:100%;
+    padding:15px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+    box-sizing:border-box;
 
 }
 
 
-// جاهزة للاستخدام من صفحة البحث
+button{
 
-window.searchTransaction = searchTransaction;
+    width:100%;
+    padding:16px;
+    margin-top:25px;
+    border:none;
+    border-radius:15px;
+    background:linear-gradient(to right,#25D366,#128C7E);
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
 
-
-</script>
-<div class="details-grid">
-
-<div class="detail-card">
-<span class="label">نوع الطلب:</span>
-<span class="value" id="requestType">---</span>
-</div>
-
-
-<div class="detail-card">
-<span class="label">حالة الطلب:</span>
-<span class="value" id="status">---</span>
-</div>
+}
 
 
-<div class="detail-card">
-<span class="label">اسم المستفيد:</span>
-<span class="value" id="name">---</span>
-</div>
+.result{
+
+    display:none;
+    margin-top:25px;
+    background:white;
+    color:#333;
+    padding:20px;
+    border-radius:15px;
+
+}
 
 
-<div class="detail-card">
-<span class="label">رقم الهوية:</span>
-<span class="value" id="idNumber">---</span>
-</div>
+</style>
+
+</head>
+<body>
 
 
-<div class="detail-card">
-<span class="label">رقم الجوال:</span>
-<span class="value" id="phone">---</span>
-</div>
+<div class="card">
 
 
-<div class="detail-card">
-<span class="label">الدولة:</span>
-<span class="value" id="country">---</span>
-</div>
+<div class="logo"></div>
 
 
-<div class="detail-card">
-<span class="label">نوع المساعدة:</span>
-<span class="value" id="helpType">---</span>
-</div>
+<h1>
+تتبع المعاملة
+</h1>
 
 
-<div class="detail-card">
-<span class="label">رقم الحساب:</span>
-<span class="value" id="accountNumber">---</span>
-</div>
+<p>
+أدخل بياناتك لمعرفة حالة الطلب
+</p>
+
+
+
+<label>
+رقم المعاملة
+</label>
+
+<input 
+id="transactionId"
+type="text"
+placeholder="مثال: 4827">
+
+
+
+<label>
+رقم الهوية
+</label>
+
+<input 
+id="idNumber"
+type="text"
+placeholder="رقم الهوية">
+
+
+
+<button onclick="checkTransaction()">
+بحث عن المعاملة
+</button>
+
+
+
+<div class="result" id="result"></div>
 
 
 </div>
 <script>
 
-// تعبئة البيانات بعد جلبها من Firebase
 
-function showRequestData(data){
-
-
-document.getElementById("requestType").innerText =
-data.helpType || "---";
+function checkTransaction(){
 
 
-document.getElementById("status").innerText =
-data.status || "قيد المراجعة";
+let transactionId =
+document.getElementById("transactionId").value.trim();
 
 
-document.getElementById("name").innerText =
-data.name || "---";
+let idNumber =
+document.getElementById("idNumber").value.trim();
 
 
-document.getElementById("idNumber").innerText =
-maskId(data.idNumber);
+
+// البيانات الصحيحة
+
+let correctTransaction = "4827";
+
+let correctId = "123456789";
 
 
-document.getElementById("phone").innerText =
-maskPhone(data.phone);
+
+// إزالة المسافات
+
+transactionId = transactionId.replace(/\s/g,'');
+
+idNumber = idNumber.replace(/\s/g,'');
 
 
-document.getElementById("country").innerText =
-data.country || "---";
+
+// تحويل الأرقام العربية إلى إنجليزية
+
+transactionId = transactionId.replace(/[٠-٩]/g,function(x){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+
+});
 
 
-document.getElementById("helpType").innerText =
-data.helpType || "---";
+idNumber = idNumber.replace(/[٠-٩]/g,function(x){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+
+});
 
 
-document.getElementById("accountNumber").innerText =
-maskAccount(data.accountNumber);
 
+
+if(transactionId === correctTransaction && idNumber === correctId){
+
+
+window.location.href = "./status.html";
+
+
+}
+
+else{
+
+
+document.getElementById("result").style.display="block";
+
+
+document.getElementById("result").innerHTML =
+
+`
+<h3 style="color:red;text-align:center">
+خطأ
+</h3>
+
+<p style="text-align:center">
+رقم المعاملة أو رقم الهوية غير صحيح
+</p>
+`;
+
+}
 
 
 }
 
 
-// إخفاء البيانات
+</script>
 
-function maskId(value){
+
+</body>
+
+</html>e){
 
 if(!value) return "---";
 
