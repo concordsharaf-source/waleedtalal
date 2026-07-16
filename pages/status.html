@@ -1,0 +1,277 @@
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+getFirestore,
+collection,
+query,
+where,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// إعدادات Firebase
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
+
+authDomain: "smartx-5cfb1.firebaseapp.com",
+
+projectId: "smartx-5cfb1",
+
+storageBucket: "smartx-5cfb1.firebasestorage.app",
+
+messagingSenderId: "429730063200",
+
+appId: "1:429730063200:web:03524aef653c3ed6f97405",
+
+measurementId: "G-S4V29MRQJM"
+
+};
+
+
+// تشغيل Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+
+// دالة البحث
+
+async function searchTransaction(transactionId, idNumber){
+
+
+const q = query(
+
+collection(db,"requests"),
+
+where("transactionId","==",transactionId),
+
+where("idNumber","==",idNumber)
+
+);
+
+
+
+const result = await getDocs(q);
+
+
+
+if(result.empty){
+
+alert("لم يتم العثور على المعاملة");
+
+return;
+
+}
+
+
+
+result.forEach((doc)=>{
+
+
+const data = doc.data();
+
+
+// حفظ البيانات مؤقتًا للجزء القادم
+
+window.requestData = data;
+
+
+console.log("بيانات المعاملة:",data);
+
+
+});
+
+
+}
+
+
+// جاهزة للاستخدام من صفحة البحث
+
+window.searchTransaction = searchTransaction;
+
+
+</script>
+<div class="details-grid">
+
+<div class="detail-card">
+<span class="label">نوع الطلب:</span>
+<span class="value" id="requestType">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">حالة الطلب:</span>
+<span class="value" id="status">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">اسم المستفيد:</span>
+<span class="value" id="name">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">رقم الهوية:</span>
+<span class="value" id="idNumber">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">رقم الجوال:</span>
+<span class="value" id="phone">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">الدولة:</span>
+<span class="value" id="country">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">نوع المساعدة:</span>
+<span class="value" id="helpType">---</span>
+</div>
+
+
+<div class="detail-card">
+<span class="label">رقم الحساب:</span>
+<span class="value" id="accountNumber">---</span>
+</div>
+
+
+</div>
+<script>
+
+// تعبئة البيانات بعد جلبها من Firebase
+
+function showRequestData(data){
+
+
+document.getElementById("requestType").innerText =
+data.helpType || "---";
+
+
+document.getElementById("status").innerText =
+data.status || "قيد المراجعة";
+
+
+document.getElementById("name").innerText =
+data.name || "---";
+
+
+document.getElementById("idNumber").innerText =
+maskId(data.idNumber);
+
+
+document.getElementById("phone").innerText =
+maskPhone(data.phone);
+
+
+document.getElementById("country").innerText =
+data.country || "---";
+
+
+document.getElementById("helpType").innerText =
+data.helpType || "---";
+
+
+document.getElementById("accountNumber").innerText =
+maskAccount(data.accountNumber);
+
+
+
+}
+
+
+// إخفاء البيانات
+
+function maskId(value){
+
+if(!value) return "---";
+
+return value.substring(0,3)+"*****";
+
+}
+
+
+
+function maskPhone(value){
+
+if(!value) return "---";
+
+return value.substring(0,5)+"*****";
+
+}
+
+
+
+function maskAccount(value){
+
+if(!value) return "---";
+
+return "**** **** "+value.slice(-4);
+
+}
+
+
+
+window.showRequestData = showRequestData;
+
+
+</script>
+<script>
+
+// عند فتح صفحة المعلومات
+// يتم قراءة البيانات التي تم إرسالها من صفحة التتبع
+
+window.onload = function(){
+
+
+const savedData = localStorage.getItem("requestData");
+
+
+if(savedData){
+
+
+const data = JSON.parse(savedData);
+
+
+// عرض البيانات داخل التصميم
+
+if(window.showRequestData){
+
+showRequestData(data);
+
+}
+
+
+// تحديث عنوان الحالة
+
+if(data.status){
+
+document.querySelector(".approved-text").innerText =
+data.status;
+
+}
+
+
+
+}
+
+};
+
+
+</script>
+
+</body>
+</html>
