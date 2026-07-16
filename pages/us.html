@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
+  <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+:root {
+    --header-bg-image: url('images/xx.jpg');
+    --card-bg-dark: #1a4332;
+    --input-bg-light: #f8f9fa;
+    --text-on-dark: #FFFFFF;
+    --accent-green: #25D366;
+  }
+
+    body {
+      font-family: 'Cairo', Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
+      background-size: cover;
+      background-position: center;
+      height: 40vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .logo {
+      width: 110px;
+      height: 110px;
+      background-color: #fff;
+      background-image: var(--header-bg-image);
+      background-size: cover;
+      background-position: center;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      margin-bottom: 15px;
+    }
+
+    header h1 {
+      margin: 5px 0;
+      font-size: 2.2rem;
+      font-weight: bold;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .support-section {
+      max-width: 1100px;
+      margin: -60px auto 40px;
+      padding: 0 20px;
+    }
+
+    .support-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 50px;
+    }
+
+    .support-item {
+      position: relative;
+      height: 220px;
+      border-radius: 15px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      transition: 0.3s ease;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .support-item:hover {
+      transform: translateY(-10px);
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 100%);
+      z-index: 1;
+    }
+
+    .support-item .content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .support-item h3 {
+      margin: 0 0 8px;
+      font-size: 1.3rem;
+      color: var(--accent-green);
+    }
+
+    .support-item p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .card {
+      background-color: var(--card-bg-dark);
+      padding: 35px;
+      border-radius: 25px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    h2 {
+      color: var(--text-on-dark);
+      text-align: center;
+      border-bottom: 2px solid rgba(255,255,255,0.2);
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-on-dark);
+      font-size: 0.95rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      box-sizing: border-box;
+      background-color: var(--input-bg-light);
+      color: #222;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(to right, #25D366, #128C7E);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.3s ease;
+      box-shadow: 0 5px 15px rgba(37,211,102,0.4);
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    .note {
+      background-color: #FFF9CD;
+      color: #856404;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      background-color: #25D366;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 2px 5px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+
+<header>
+  <div class="logo"></div>
+  <h1>مؤسسة الوليد الإنسانية</h1>
+  <p>تقديم طلبات الدعم والمساعدة عالمياً</p>
+</header>
+
+<div style="height: 50px;"></div>
+
+<section class="support-section">
+
+  <div class="support-grid">
+
+    <div class="support-item" style="background-image: url('images/de.jpg');">
+      <div class="overlay"></div>
+      <div class="content">
+        <h3>مساعدة مالية</h3>
+        <p>نقدم الدعم المالي للمحتاجين حول العالم بآلية منظمة إسحب للأعلى لتعبئة البيانات.</p>
+      </div>
+    </div>
+
+    <div class="support-item" style="background-image: url('images/ds.jpg');">
+      <div class="overlay"></div>
+      <div class="content">
+        <h3>سيارات</h3>
+        <p>مبادرات لتوفير وسائل النقل للأسر والأيتام لتسهيل حياتهم.</p>
+      </div>
+    </div>
+
+    <div class="support-item" style="background-image: url('images/dx.jpg');">
+      <div class="overlay"></div>
+      <div class="content">
+        <h3>وحدات سكنية</h3>
+        <p>مشاريع لإعمار المنازل وتوفير المسكن الملائم للمستحقين.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="container">
+    <div class="card">
+
+      <h2>ادخل بياناتك لطلب المساعدة</h2>
+
+      <div class="note">
+        💡 قم بتسجيل بياناتك بشكل سليم، ثم اكتب اسم دولتك للبحث السريع.
+      </div>
+
+      <div class="note">
+        💡 قم برفع صورة الهوية من واتساب بعد ارسال بياناتك.
+      </div>
+
+      <div class="form-group">
+        <label>الاسم الكامل:</label>
+        <input type="text" id="name" placeholder="الاسم كما في الهوية" required>
+      </div>
+
+      <div class="form-group">
+        <label>رقم الجوال:</label>
+        <input type="tel" id="phone" placeholder="مع مفتاح الدولة (00966...)" required>
+      </div>
+
+      <div class="form-group">
+        <label>الجنسية:</label>
+        <input type="text" id="location" placeholder="الدولة" required>
+      </div>
+
+      <div class="form-group">
+        <label>نوع المساعدة:</label>
+        <select id="type" required>
+          <option value="" disabled selected>-- اختر النوع --</option>
+          <option value="مالية">مالية</option>
+          <option value="سكنية">توفير وحدات سكنية</option>
+          <option value="سيارات">طلب وسيلة نقل</option>
+          <option value="اخرى">أخرى</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>شرح الحالة:</label>
+        <textarea id="notes" rows="4" placeholder="اشرح ظروفك بوضوح..." required></textarea>
+      </div>
+
+      <button type="button" id="sendBtn">إرسال الطلب عبر واتساب</button>
+
+    </div>
+  </div>
+
+</section>
+
+<footer class="main-footer">
+  <div class="footer-container">
+
+    <div class="footer-section contact-info">
+      <h3>تواصل معنا</h3>
+
+      <div class="contact-links">
+
+        <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+          <i class="fas fa-envelope"></i>
+          البريد الإلكتروني......
+        </a>
+
+        <a href="https://wa.me/966580272758" class="contact-item">
+          <i class="fab fa-whatsapp"></i>
+          واتساب الدعم
+        </a>
+
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
+
+    <div class="footer-bottom">
+      <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+const sendBtn = document.getElementById('sendBtn');
+
+sendBtn.onclick = function () {
+  const adminPhone = "966580272758";
+
+  const name = document.getElementById('name').value;
+  const phone = document.getElementById('phone').value;
+  const location = document.getElementById('location').value;
+  const type = document.getElementById('type').value;
+  const notes = document.getElementById('notes').value;
+
+  if (!name || !phone || !location || !type || !notes) {
+    alert("يرجى إكمال جميع الحقول");
+    return;
+  }
+
+  let message = "📌 *طلب مساعدة جديد* 📌\n\n";
+  message += "• الاسم: " + name + "\n";
+  message += "• الهاتف: " + phone + "\n";
+  message += "• الدولة: " + location + "\n";
+  message += "• نوع المساعدة: " + type + "\n";
+  message += "• التفاصيل: " + notes;
+
+  window.location.href =
+    `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+};
+</script>
+
+<script>
+function toggleWhatsAppModal() {
+  const modal = document.getElementById('whatsappModal');
+  if (modal.style.display === 'none' || modal.style.display === '') {
+    modal.style.display = 'flex';
+  } else {
+    modal.style.display = 'none';
+  }
+}
+
+function sendToWhatsApp() {
+  const noteElement = document.getElementById('userNote');
+  const note = noteElement.value.trim();
+  const phoneNumber = "966580272758";
+
+  if (note === "") {
+    alert("فضلاً اكتب الملاحظة أولاً");
+    return;
+  }
+
+  const fullMessage = "📢 *رسالة جديدة من الموقع الرسمي:*\n\n" + note;
+  const encodedText = encodeURIComponent(fullMessage);
+  const whatsappUrl = "https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
+
+  window.open(whatsappUrl, '_blank');
+  toggleWhatsAppModal();
+  noteElement.value = "";
+}
+</script>
+
+</body>
+</html>
