@@ -479,6 +479,62 @@ function createTransactionNumber(){
 
 
 
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
+
+  authDomain: "smartx-5cfb1.firebaseapp.com",
+
+  projectId: "smartx-5cfb1",
+
+  storageBucket: "smartx-5cfb1.firebasestorage.app",
+
+  messagingSenderId: "429730063200",
+
+  appId: "1:429730063200:web:3e84e8d5bee4a755f97405"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+
+function createTransactionNumber(){
+
+    const now = new Date();
+
+    const date =
+    now.getFullYear() +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0');
+
+
+    const random =
+    Math.floor(100000 + Math.random()*900000);
+
+
+    return "WL-" + date + "-" + random;
+
+}
+
+
+
+
 const sendBtn = document.getElementById("sendBtn");
 
 
@@ -488,19 +544,32 @@ sendBtn.onclick = async function(){
     const adminPhone = "966580272758";
 
 
-    const name = document.getElementById('name').value.trim();
-
-    const phone = document.getElementById('phone').value.trim();
-
-    const location = document.getElementById('location').value.trim();
-
-    const type = document.getElementById('type').value;
-
-    const notes = document.getElementById('notes').value.trim();
+    const name =
+    document.getElementById("name").value.trim();
 
 
+    const phone =
+    document.getElementById("phone").value.trim();
 
-    if(!name || !phone || !location || !type || !notes){
+
+    const email =
+    document.getElementById("email").value.trim();
+
+
+    const location =
+    document.getElementById("location").value.trim();
+
+
+    const type =
+    document.getElementById("type").value;
+
+
+    const notes =
+    document.getElementById("notes").value.trim();
+
+
+
+    if(!name || !phone || !email || !location || !type || !notes){
 
         alert("يرجى إكمال جميع الحقول");
 
@@ -516,10 +585,11 @@ sendBtn.onclick = async function(){
 
 
 
-    try{
+    try {
 
 
-        const transactionNumber = createTransactionNumber();
+        const transactionNumber =
+        createTransactionNumber();
 
 
 
@@ -532,15 +602,15 @@ sendBtn.onclick = async function(){
 
             phone: phone,
 
+            email: email,
+
             location: location,
 
             type: type,
 
             notes: notes,
 
-
             status: "قيد المراجعة",
-
 
             createdAt: serverTimestamp()
 
@@ -549,9 +619,30 @@ sendBtn.onclick = async function(){
 
 
 
+        const copy =
+        confirm(
+        "✅ تم تسجيل طلبك بنجاح\n\n" +
+        "🔢 رقم المعاملة:\n" +
+        transactionNumber +
+        "\n\nاضغط موافق لنسخ الرقم"
+        );
 
 
-        let message = 
+
+        if(copy){
+
+            navigator.clipboard.writeText(transactionNumber)
+            .then(()=>{
+
+                alert("تم نسخ رقم المعاملة ✅");
+
+            });
+
+        }
+
+
+
+        let message =
 `📌 *طلب مساعدة جديد* 📌
 
 🔢 رقم المعاملة:
@@ -562,6 +653,9 @@ ${name}
 
 📱 الهاتف:
 ${phone}
+
+📧 البريد:
+${email}
 
 🌍 الدولة:
 ${location}
@@ -574,30 +668,35 @@ ${notes}`;
 
 
 
-        alert(
-        "تم تسجيل طلبك بنجاح\n\nرقم المعاملة:\n"+transactionNumber+
-        "\n\nاحتفظ بالرقم لمتابعة معاملتك"
-        );
+        const whatsappUrl =
+        "https://api.whatsapp.com/send?phone=" +
+        adminPhone +
+        "&text=" +
+        encodeURIComponent(message);
 
 
 
-        window.location.href =
-        `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`;
+        setTimeout(()=>{
+
+            window.location.href = whatsappUrl;
+
+        },800);
 
 
 
-    }catch(error){
+    } catch(error){
 
 
         console.error(error);
 
 
-        alert("حدث خطأ أثناء تسجيل الطلب، حاول مرة أخرى");
+        alert("حدث خطأ أثناء تسجيل الطلب");
 
 
         sendBtn.disabled = false;
 
-        sendBtn.innerHTML="إرسال الطلب عبر واتساب";
+        sendBtn.innerHTML =
+        "إرسال الطلب عبر واتساب";
 
 
     }
@@ -606,40 +705,45 @@ ${notes}`;
 };
 
 
-
 </script>
 <script>
 function toggleWhatsAppModal() {
 
   const modal = document.getElementById('whatsappModal');
 
-  if (modal && (modal.style.display === 'none' || modal.style.display === '')) {
+  if (modal) {
 
-    modal.style.display = 'flex';
+    if (modal.style.display === 'none' || modal.style.display === '') {
 
-  } else if (modal) {
+      modal.style.display = 'flex';
 
-    modal.style.display = 'none';
+    } else {
+
+      modal.style.display = 'none';
+
+    }
 
   }
 
 }
 
 
-
 function sendToWhatsApp() {
 
 
-  const noteElement = document.getElementById('userNote');
+  const noteElement =
+  document.getElementById('userNote');
 
 
-  if(!noteElement) return;
+  if (!noteElement) return;
 
 
-  const note = noteElement.value.trim();
+  const note =
+  noteElement.value.trim();
 
 
-  const phoneNumber = "966580272758";
+  const phoneNumber =
+  "966580272758";
 
 
 
@@ -658,24 +762,22 @@ function sendToWhatsApp() {
 
 
 
-  const encodedText = encodeURIComponent(fullMessage);
-
-
   const whatsappUrl =
-  "https://api.whatsapp.com/send?phone=" 
-  + phoneNumber 
-  + "&text=" 
-  + encodedText;
+  "https://api.whatsapp.com/send?phone=" +
+  phoneNumber +
+  "&text=" +
+  encodeURIComponent(fullMessage);
 
 
 
-  window.open(whatsappUrl,'_blank');
+  window.location.href = whatsappUrl;
 
 
   toggleWhatsAppModal();
 
 
-  noteElement.value="";
+  noteElement.value = "";
+
 
 }
 
