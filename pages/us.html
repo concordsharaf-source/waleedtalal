@@ -1,448 +1,741 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
 
-  <style>
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
+
+
+<style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
 
+
 :root {
-    --header-bg-image: url('images/xx.jpg');
-    --card-bg-dark: #1a4332;
-    --input-bg-light: #f8f9fa;
-    --text-on-dark: #FFFFFF;
-    --accent-green: #25D366;
+
+--header-bg-image: url('images/xx.jpg');
+
+--card-bg-dark:#1a4332;
+
+--input-bg-light:#f8f9fa;
+
+--text-on-dark:#ffffff;
+
+--accent-green:#25D366;
+
 }
 
-body {
-    font-family: 'Cairo', Tahoma, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f2f5;
-    color: #333;
-    line-height: 1.6;
+
+
+*{
+box-sizing:border-box;
 }
 
-header {
-    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    height: 40vh;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
+
+body{
+
+font-family:'Cairo',Tahoma,sans-serif;
+
+margin:0;
+
+padding:0;
+
+background:#f0f2f5;
+
+color:#333;
+
+line-height:1.6;
+
 }
 
-.logo {
-    width: 110px;
-    height: 110px;
-    background-color: #fff;
-    background-image: var(--header-bg-image);
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.8);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    margin-bottom: 15px;
+
+
+header{
+
+background:
+linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+var(--header-bg-image);
+
+background-size:cover;
+
+background-position:center;
+
+height:40vh;
+
+color:white;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+text-align:center;
+
+padding:20px;
+
 }
 
-header h1 {
-    margin: 5px 0;
-    font-size: 2.2rem;
-    font-weight: bold;
+
+
+.logo{
+
+width:110px;
+
+height:110px;
+
+background:white;
+
+background-image:var(--header-bg-image);
+
+background-size:cover;
+
+background-position:center;
+
+border-radius:50%;
+
+border:4px solid rgba(255,255,255,.8);
+
+box-shadow:0 4px 15px rgba(0,0,0,.3);
+
+margin-bottom:15px;
+
 }
 
-header p {
-    margin: 0;
-    font-size: 1.1rem;
-    opacity: 0.9;
+
+
+header h1{
+
+margin:5px 0;
+
+font-size:2.2rem;
+
+font-weight:bold;
+
 }
 
-.support-section {
-    max-width: 1100px;
-    margin: -60px auto 40px;
-    padding: 0 20px;
+
+
+header p{
+
+margin:0;
+
+font-size:1.1rem;
+
+opacity:.9;
+
 }
 
-.support-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 50px;
+
+
+.support-section{
+
+max-width:1100px;
+
+margin:-60px auto 40px;
+
+padding:0 20px;
+
 }
 
-.support-item {
-    position: relative;
-    height: 220px;
-    border-radius: 15px;
-    overflow: hidden;
-    display: flex;
-    align-items: flex-end;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    transition: 0.3s ease;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
+
+
+.support-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+gap:25px;
+
+margin-bottom:50px;
+
 }
 
-.support-item:hover {
-    transform: translateY(-10px);
+
+
+.support-item{
+
+position:relative;
+
+height:220px;
+
+border-radius:15px;
+
+overflow:hidden;
+
+display:flex;
+
+align-items:flex-end;
+
+box-shadow:0 10px 25px rgba(0,0,0,.1);
+
+transition:.3s;
+
+background-size:cover;
+
+background-position:center;
+
 }
 
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 10%, rgba(0,0,0,0.2) 100%);
-    z-index: 1;
+
+
+.support-item:hover{
+
+transform:translateY(-10px);
+
 }
 
-.support-item .content {
-    position: relative;
-    z-index: 2;
-    padding: 20px;
-    color: #fff;
+
+
+.overlay{
+
+position:absolute;
+
+top:0;
+
+left:0;
+
+width:100%;
+
+height:100%;
+
+background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.2));
+
 }
 
-.support-item h3 {
-    margin: 0 0 8px;
-    font-size: 1.3rem;
-    color: var(--accent-green);
+
+
+.content{
+
+position:relative;
+
+z-index:2;
+
+padding:20px;
+
+color:white;
+
 }
 
-.support-item p {
-    margin: 0;
-    font-size: 0.95rem;
-    opacity: 0.9;
+
+
+.support-item h3{
+
+margin:0 0 8px;
+
+color:#25D366;
+
+font-size:1.3rem;
+
 }
 
-.card {
-    background-color: var(--card-bg-dark);
-    padding: 35px;
-    border-radius: 25px;
-    box-shadow: 0 20px 45px rgba(0,0,0,0.5);
-    border: 1px solid rgba(255,255,255,0.1);
+
+
+.support-item p{
+
+margin:0;
+
+font-size:.95rem;
+
 }
 
-h2 {
-    color: var(--text-on-dark);
-    text-align: center;
-    border-bottom: 2px solid rgba(255,255,255,0.2);
-    padding-bottom: 15px;
-    margin-bottom: 25px;
+
+
+.card{
+
+background:#1a4332;
+
+padding:35px;
+
+border-radius:25px;
+
+box-shadow:0 20px 45px rgba(0,0,0,.5);
+
 }
 
-.form-group {
-    margin-bottom: 18px;
+
+
+h2{
+
+color:white;
+
+text-align:center;
+
+border-bottom:2px solid rgba(255,255,255,.2);
+
+padding-bottom:15px;
+
 }
 
-label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-on-dark);
-    font-size: 0.95rem;
+
+
+.form-group{
+
+margin-bottom:18px;
+
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    font-size: 1rem;
-    box-sizing: border-box;
-    background-color: var(--input-bg-light);
-    color: #222;
+
+
+label{
+
+display:block;
+
+color:white;
+
+font-weight:bold;
+
+margin-bottom:8px;
+
 }
 
-button {
-    width: 100%;
-    padding: 18px;
-    background: linear-gradient(to right, #25D366, #128C7E);
-    color: white;
-    border: none;
-    border-radius: 15px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: 0.3s ease;
-    box-shadow: 0 5px 15px rgba(37,211,102,0.4);
+
+
+input,select,textarea{
+
+width:100%;
+
+padding:14px;
+
+border-radius:12px;
+
+border:none;
+
+font-size:1rem;
+
+background:#f8f9fa;
+
 }
 
-button:hover {
-    transform: scale(1.02);
+
+
+button{
+
+width:100%;
+
+padding:18px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+border:none;
+
+border-radius:15px;
+
+font-size:1.2rem;
+
+font-weight:bold;
+
+cursor:pointer;
+
 }
 
-.note {
-    background-color: #FFF9CD;
-    color: #856404;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    margin-bottom: 20px;
-    text-align: center;
+
+
+.note{
+
+background:#FFF9CD;
+
+color:#856404;
+
+padding:12px;
+
+border-radius:12px;
+
+text-align:center;
+
+font-size:.85rem;
+
+margin-bottom:20px;
+
 }
 
-.whatsapp-float {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    background-color: #25D366;
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    box-shadow: 2px 5px 15px rgba(0,0,0,0.2);
-    z-index: 1000;
-    text-decoration: none;
+
+
+.main-footer{
+
+background:#123324;
+
+padding:35px 20px;
+
+text-align:center;
+
 }
 
-  </style>
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+.footer-contact a{
+
+font-family:'Cairo';
+
+font-weight:700;
+
+font-size:1.1rem;
+
+color:#25D366;
+
+text-decoration:none;
+
+margin:15px;
+
+}
+
+
+
+.footer-bottom{
+
+color:#ddd;
+
+margin-top:20px;
+
+}
+
+
+
+</style>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 
 </head>
 
+
 <body>
 <header>
-  <div class="logo"></div>
-  <h1>مؤسسة الوليد الإنسانية</h1>
-  <p>تقديم طلبات الدعم والمساعدة عالمياً</p>
+
+<div class="logo"></div>
+
+<h1>مؤسسة الوليد الإنسانية</h1>
+
+<p>تقديم طلبات الدعم والمساعدة عالمياً</p>
+
 </header>
 
-<div style="height: 50px;"></div>
+
+<div style="height:50px;"></div>
+
+
 
 <section class="support-section">
 
-  <div class="support-grid">
 
-    <div class="support-item" style="background-image: url('images/de.jpg');">
-      <div class="overlay"></div>
-      <div class="content">
-        <h3>مساعدة مالية</h3>
-        <p>نقدم الدعم المالي للمحتاجين حول العالم بآلية منظمة إسحب للأعلى لتعبئة البيانات.</p>
-      </div>
-    </div>
-
-    <div class="support-item" style="background-image: url('images/ds.jpg');">
-      <div class="overlay"></div>
-      <div class="content">
-        <h3>سيارات</h3>
-        <p>مبادرات لتوفير وسائل النقل للأسر والأيتام لتسهيل حياتهم.</p>
-      </div>
-    </div>
-
-    <div class="support-item" style="background-image: url('images/dx.jpg');">
-      <div class="overlay"></div>
-      <div class="content">
-        <h3>وحدات سكنية</h3>
-        <p>مشاريع لإعمار المنازل وتوفير المسكن الملائم للمستحقين.</p>
-      </div>
-    </div>
-
-  </div>
-
-
-  <div class="container">
-
-    <div class="card">
-
-      <h2>ادخل بياناتك لطلب المساعدة</h2>
-
-
-      <div class="note">
-        💡 قم بتسجيل بياناتك بشكل سليم، ثم اكتب اسم دولتك للبحث السريع.
-      </div>
-
-
-      <div class="note">
-        💡 قم برفع صورة الهوية من واتساب بعد ارسال بياناتك.
-      </div>
+<div class="support-grid">
 
 
 
-      <div class="form-group">
-        <label>الاسم الكامل:</label>
-        <input type="text" id="name" placeholder="الاسم كما في الهوية" required>
-      </div>
+<div class="support-item" style="background-image:url('images/de.jpg');">
 
+<div class="overlay"></div>
 
-      <div class="form-group">
-        <label>رقم الجوال:</label>
-        <input type="tel" id="phone" placeholder="مع مفتاح الدولة (00966...)" required>
-      </div>
+<div class="content">
 
-<div class="form-group">
-  <label>البريد الإلكتروني:</label>
-  <input type="email" id="email" placeholder="example@gmail.com" required>
+<h3>مساعدة مالية</h3>
+
+<p>
+نقدم الدعم المالي للمحتاجين حول العالم بآلية منظمة.
+</p>
+
 </div>
 
-      <div class="form-group">
-        <label>الجنسية:</label>
-        <input type="text" id="location" placeholder="الدولة" required>
-      </div>
-
-
-      <div class="form-group">
-        <label>نوع المساعدة:</label>
-
-        <select id="type" required>
-
-          <option value="" disabled selected>
-            -- اختر النوع --
-          </option>
-
-          <option value="مالية">
-            مالية
-          </option>
-
-          <option value="سكنية">
-            توفير وحدات سكنية
-          </option>
-
-          <option value="سيارات">
-            طلب وسيلة نقل
-          </option>
-
-          <option value="اخرى">
-            أخرى
-          </option>
-
-        </select>
-
-      </div>
+</div>
 
 
 
-      <div class="form-group">
+<div class="support-item" style="background-image:url('images/ds.jpg');">
 
-        <label>شرح الحالة:</label>
+<div class="overlay"></div>
 
-        <textarea 
-        id="notes" 
-        rows="4" 
-        placeholder="اشرح ظروفك بوضوح..."
-        required></textarea>
+<div class="content">
 
-      </div>
+<h3>سيارات</h3>
 
+<p>
+مبادرات لتوفير وسائل النقل للأسر والأيتام.
+</p>
 
+</div>
 
-      <button type="button" id="sendBtn">
-        إرسال الطلب عبر واتساب
-      </button>
+</div>
 
 
-    </div>
 
-  </div>
+
+<div class="support-item" style="background-image:url('images/dx.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>وحدات سكنية</h3>
+
+<p>
+مشاريع لتوفير المسكن الملائم للمستحقين.
+</p>
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+ادخل بياناتك لطلب المساعدة
+</h2>
+
+
+
+<div class="note">
+💡 قم بتسجيل بياناتك بشكل صحيح.
+</div>
+
+
+<div class="note">
+💡 هذه نسخة تجريبية لاختبار النظام.
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+الاسم الكامل:
+</label>
+
+<input 
+type="text" 
+id="name"
+placeholder="الاسم كما في الهوية">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم الجوال:
+</label>
+
+<input 
+type="tel"
+id="phone"
+placeholder="مع مفتاح الدولة">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+البريد الإلكتروني:
+</label>
+
+<input
+type="email"
+id="email"
+placeholder="example@gmail.com">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+الدولة:
+</label>
+
+<input
+type="text"
+id="location"
+placeholder="الدولة">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+نوع المساعدة:
+</label>
+
+
+<select id="type">
+
+
+<option value="">
+-- اختر النوع --
+</option>
+
+
+<option value="مالية">
+مالية
+</option>
+
+
+<option value="سكنية">
+وحدات سكنية
+</option>
+
+
+<option value="سيارات">
+سيارات
+</option>
+
+
+<option value="اخرى">
+أخرى
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+شرح الحالة:
+</label>
+
+
+<textarea 
+id="notes"
+rows="4"
+placeholder="اشرح الحالة">
+</textarea>
+
+
+</div>
+
+
+
+
+<button id="sendBtn">
+
+إرسال الطلب عبر واتساب
+
+</button>
+
+
+
+</div>
 
 
 </section>
 
 
 
+
+
 <footer class="main-footer">
 
-  <div class="footer-container">
+
+<div class="footer-contact">
 
 
-    <div class="footer-section contact-info">
+<a href="mailto:lamiamagedoffice1@gmail.com">
 
-      <h3>
-        تواصل معنا
-      </h3>
+<i class="fas fa-envelope"></i>
 
+البريد الإلكتروني
 
-      <div class="contact-links">
-
-
-        <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
-
-          <i class="fas fa-envelope"></i>
-
-          البريد الإلكتروني......
-
-        </a>
+</a>
 
 
 
-        <a href="https://wa.me/966580272758" class="contact-item">
+<a href="https://wa.me/966580272758">
 
-          <i class="fab fa-whatsapp"></i>
+<i class="fab fa-whatsapp"></i>
 
-          واتساب الدعم
+دعم واتساب
 
-        </a>
-
-
-      </div>
+</a>
 
 
-    </div>
+</div>
 
 
 
-    <div class="footer-divider"></div>
 
+<div class="footer-bottom">
 
-    <div class="footer-bottom">
+جميع حقوق النشر والطبع محفوظة © 2026
 
-      <p>
-        جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026
-      </p>
+</div>
 
-    </div>
-
-
-  </div>
 
 
 </footer>
-<!-- Firebase -->
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 
 import { 
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+getFirestore,
+collection,
+addDoc,
+serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-// إعداد Firebase الخاص بمشروع smartx
+
+// إعداد Firebase التجريبي
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
+apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
 
-  authDomain: "smartx-5cfb1.firebaseapp.com",
+authDomain: "smartx-5cfb1.firebaseapp.com",
 
-  projectId: "smartx-5cfb1",
+projectId: "smartx-5cfb1",
 
-  storageBucket: "smartx-5cfb1.firebasestorage.app",
+storageBucket: "smartx-5cfb1.firebasestorage.app",
 
-  messagingSenderId: "429730063200",
+messagingSenderId: "429730063200",
 
-  appId: "1:429730063200:web:3e84e8d5bee4a755f97405"
+appId: "1:429730063200:web:3e84e8d5bee4a755f97405"
 
 };
+
 
 
 // تشغيل Firebase
@@ -450,9 +743,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 
-// تشغيل Firestore
-
 const db = getFirestore(app);
+
+
 
 
 
@@ -460,77 +753,31 @@ const db = getFirestore(app);
 
 function createTransactionNumber(){
 
-    const date = new Date();
 
-    const year = date.getFullYear();
-
-    const month = String(date.getMonth()+1).padStart(2,'0');
-
-    const day = String(date.getDate()).padStart(2,'0');
+const now = new Date();
 
 
-    const random = Math.floor(100000 + Math.random()*900000);
+const date =
+
+now.getFullYear() +
+
+String(now.getMonth()+1).padStart(2,'0') +
+
+String(now.getDate()).padStart(2,'0');
 
 
-    return `WL-${year}${month}${day}-${random}`;
+
+const random =
+
+Math.floor(100000 + Math.random()*900000);
+
+
+
+return "TEST-" + date + "-" + random;
+
 
 }
 
-
-
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { 
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-const firebaseConfig = {
-
-  apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
-
-  authDomain: "smartx-5cfb1.firebaseapp.com",
-
-  projectId: "smartx-5cfb1",
-
-  storageBucket: "smartx-5cfb1.firebasestorage.app",
-
-  messagingSenderId: "429730063200",
-
-  appId: "1:429730063200:web:3e84e8d5bee4a755f97405"
-
-};
-
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-
-
-function createTransactionNumber(){
-
-    const now = new Date();
-
-    const date =
-    now.getFullYear() +
-    String(now.getMonth()+1).padStart(2,'0') +
-    String(now.getDate()).padStart(2,'0');
-
-
-    const random =
-    Math.floor(100000 + Math.random()*900000);
-
-
-    return "WL-" + date + "-" + random;
-
-}
 
 
 
@@ -538,112 +785,146 @@ function createTransactionNumber(){
 const sendBtn = document.getElementById("sendBtn");
 
 
-sendBtn.onclick = async function(){
 
-
-    const adminPhone = "966580272758";
-
-
-    const name =
-    document.getElementById("name").value.trim();
-
-
-    const phone =
-    document.getElementById("phone").value.trim();
-
-
-    const email =
-    document.getElementById("email").value.trim();
-
-
-    const location =
-    document.getElementById("location").value.trim();
-
-
-    const type =
-    document.getElementById("type").value;
-
-
-    const notes =
-    document.getElementById("notes").value.trim();
+sendBtn.addEventListener("click", async ()=>{
 
 
 
-    if(!name || !phone || !email || !location || !type || !notes){
-
-        alert("يرجى إكمال جميع الحقول");
-
-        return;
-
-    }
+const name =
+document.getElementById("name").value.trim();
 
 
-
-    sendBtn.disabled = true;
-
-    sendBtn.innerHTML = "جاري تسجيل الطلب...";
+const phone =
+document.getElementById("phone").value.trim();
 
 
-
-    try {
-
-
-        const transactionNumber =
-        createTransactionNumber();
+const email =
+document.getElementById("email").value.trim();
 
 
-
-        await addDoc(collection(db,"transactions"),{
-
-
-            transactionNumber: transactionNumber,
-
-            name: name,
-
-            phone: phone,
-
-            email: email,
-
-            location: location,
-
-            type: type,
-
-            notes: notes,
-
-            status: "قيد المراجعة",
-
-            createdAt: serverTimestamp()
+const location =
+document.getElementById("location").value.trim();
 
 
-        });
+const type =
+document.getElementById("type").value;
+
+
+const notes =
+document.getElementById("notes").value.trim();
 
 
 
-        const copy =
-        confirm(
-        "✅ تم تسجيل طلبك بنجاح\n\n" +
-        "🔢 رقم المعاملة:\n" +
-        transactionNumber +
-        "\n\nاضغط موافق لنسخ الرقم"
-        );
+
+
+if(!name || !phone || !email || !location || !type || !notes){
+
+
+alert("يرجى تعبئة جميع البيانات");
+
+
+return;
+
+
+}
 
 
 
-        if(copy){
 
-            navigator.clipboard.writeText(transactionNumber)
-            .then(()=>{
+sendBtn.disabled = true;
 
-                alert("تم نسخ رقم المعاملة ✅");
-
-            });
-
-        }
+sendBtn.innerHTML = "جاري الحفظ...";
 
 
 
-        let message =
-`📌 *طلب مساعدة جديد* 📌
+
+
+try {
+
+
+
+const transactionNumber =
+createTransactionNumber();
+
+
+
+
+
+await addDoc(
+collection(db,"transactions"),
+{
+
+
+transactionNumber,
+
+
+name,
+
+
+phone,
+
+
+email,
+
+
+location,
+
+
+type,
+
+
+notes,
+
+
+status:"قيد المراجعة",
+
+
+createdAt:serverTimestamp()
+
+
+}
+
+);
+
+
+
+
+
+const copy = confirm(
+
+"تم تسجيل الطلب بنجاح ✅\n\n"+
+
+"رقم المعاملة:\n"+
+
+transactionNumber+
+
+"\n\nاضغط موافق لنسخ الرقم"
+
+);
+
+
+
+
+
+if(copy){
+
+
+navigator.clipboard.writeText(transactionNumber);
+
+
+alert("تم نسخ رقم المعاملة ✅");
+
+
+}
+
+
+
+
+
+
+const message =
+
+`📌 طلب تجريبي جديد
 
 🔢 رقم المعاملة:
 ${transactionNumber}
@@ -660,7 +941,7 @@ ${email}
 🌍 الدولة:
 ${location}
 
-📂 نوع المساعدة:
+📂 النوع:
 ${type}
 
 📝 التفاصيل:
@@ -668,122 +949,57 @@ ${notes}`;
 
 
 
-        const whatsappUrl =
-        "https://api.whatsapp.com/send?phone=" +
-        adminPhone +
-        "&text=" +
-        encodeURIComponent(message);
+
+const whatsappUrl =
+
+"https://api.whatsapp.com/send?phone=966580272758&text="
+
++
+
+encodeURIComponent(message);
 
 
 
-        setTimeout(()=>{
-
-            window.location.href = whatsappUrl;
-
-        },800);
 
 
-
-    } catch(error){
-
-
-        console.error(error);
+setTimeout(()=>{
 
 
-        alert("حدث خطأ أثناء تسجيل الطلب");
+window.location.href = whatsappUrl;
 
 
-        sendBtn.disabled = false;
-
-        sendBtn.innerHTML =
-        "إرسال الطلب عبر واتساب";
-
-
-    }
-
-
-};
-
-
-</script>
-<script>
-function toggleWhatsAppModal() {
-
-  const modal = document.getElementById('whatsappModal');
-
-  if (modal) {
-
-    if (modal.style.display === 'none' || modal.style.display === '') {
-
-      modal.style.display = 'flex';
-
-    } else {
-
-      modal.style.display = 'none';
-
-    }
-
-  }
-
-}
-
-
-function sendToWhatsApp() {
-
-
-  const noteElement =
-  document.getElementById('userNote');
-
-
-  if (!noteElement) return;
-
-
-  const note =
-  noteElement.value.trim();
-
-
-  const phoneNumber =
-  "966580272758";
+},700);
 
 
 
-  if(note === ""){
-
-    alert("فضلاً اكتب الملاحظة أولاً");
-
-    return;
-
-  }
-
-
-
-  const fullMessage =
-  "📢 *رسالة جديدة من الموقع الرسمي:*\n\n" + note;
-
-
-
-  const whatsappUrl =
-  "https://api.whatsapp.com/send?phone=" +
-  phoneNumber +
-  "&text=" +
-  encodeURIComponent(fullMessage);
-
-
-
-  window.location.href = whatsappUrl;
-
-
-  toggleWhatsAppModal();
-
-
-  noteElement.value = "";
 
 
 }
 
+catch(error){
+
+
+console.error(error);
+
+
+alert("حدث خطأ أثناء الحفظ");
+
+
+sendBtn.disabled=false;
+
+
+sendBtn.innerHTML="إرسال الطلب عبر واتساب";
+
+
+}
+
+
+
+});
+
+
+
 </script>
-
-
 </body>
 
 </html>
