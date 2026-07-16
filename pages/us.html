@@ -4,491 +4,306 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>نظام طلب المساعدة - </title>
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<title>طلب مساعدة -  </title>
 
 <style>
-
 *{
-    box-sizing:border-box;
-    font-family:'Cairo',sans-serif;
+ box-sizing:border-box;
+ font-family:Tajawal,Arial;
 }
 
 body{
-    margin:0;
-    background:#f5f7f6;
-    direction:rtl;
+ margin:0;
+ background:#f4f7f5;
+ color:#222;
 }
 
-
-/* الهيدر */
 .header{
-    background:white;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 3px 15px rgba(0,0,0,.08);
+ background:#087f3d;
+ color:white;
+ padding:18px;
+ text-align:center;
+ font-size:22px;
+ font-weight:bold;
 }
 
-.header h1{
-    color:#008444;
-    margin:0;
-    font-size:24px;
+.demo{
+ background:#fff3cd;
+ color:#856404;
+ text-align:center;
+ padding:10px;
+ font-size:15px;
 }
 
-
-/* صندوق النموذج */
 .container{
+ width:92%;
+ max-width:500px;
+ margin:20px auto;
+ background:white;
+ padding:20px;
+ border-radius:18px;
+ box-shadow:0 5px 20px #0002;
+}
 
-    width:95%;
-    max-width:520px;
-    margin:30px auto;
+label{
+ display:block;
+ margin-top:12px;
+ font-weight:bold;
+}
 
+input,select,textarea{
+ width:100%;
+ padding:13px;
+ margin-top:6px;
+ border-radius:12px;
+ border:1px solid #ddd;
+ outline:none;
+ font-size:15px;
+}
+
+textarea{
+ height:100px;
+ resize:none;
 }
 
 
-.card{
-
-    background:white;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.12);
-
+button{
+ width:100%;
+ border:none;
+ padding:14px;
+ margin-top:15px;
+ border-radius:12px;
+ font-size:16px;
+ cursor:pointer;
+ font-weight:bold;
 }
 
 
-.card h2{
+.send{
+ background:#087f3d;
+ color:white;
+}
 
-    text-align:center;
-    color:#008444;
-    margin-bottom:10px;
 
+.result{
+ display:none;
+ margin-top:20px;
+ background:#f8f8f8;
+ padding:18px;
+ border-radius:15px;
+ text-align:center;
+}
+
+
+.code{
+ font-size:28px;
+ color:#087f3d;
+ letter-spacing:3px;
+ font-weight:bold;
+}
+
+
+.actions{
+ display:flex;
+ gap:10px;
+}
+
+
+.actions button{
+ flex:1;
+}
+
+
+.copy{
+ background:#0a9b4b;
+ color:white;
+}
+
+
+.whatsapp{
+ background:#25d366;
+ color:white;
 }
 
 
 .note{
-
-    text-align:center;
-    color:#777;
-    font-size:14px;
-    margin-bottom:25px;
-
+ position:fixed;
+ top:20px;
+ right:50%;
+ transform:translateX(50%);
+ background:#087f3d;
+ color:white;
+ padding:12px 20px;
+ border-radius:30px;
+ display:none;
 }
-
-
-/* الحقول */
-
-.group{
-
-    margin-bottom:15px;
-
-}
-
-
-.group label{
-
-    display:block;
-    margin-bottom:7px;
-    font-weight:bold;
-    color:#333;
-
-}
-
-
-.group input,
-.group select,
-.group textarea{
-
-    width:100%;
-    padding:13px;
-    border:1px solid #ddd;
-    border-radius:12px;
-    outline:none;
-    font-size:15px;
-    background:#fafafa;
-
-}
-
-
-.group input:focus,
-.group select:focus,
-.group textarea:focus{
-
-    border-color:#008444;
-    background:white;
-
-}
-
-
-
-/* زر واتساب */
-
-.whatsapp-btn{
-
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:30px;
-    background:#25D366;
-    color:white;
-    font-size:17px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:10px;
-
-}
-
-
-.whatsapp-btn:hover{
-
-    opacity:.9;
-
-}
-
-
-/* زر ارسال عادي */
-
-.submit-btn{
-
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:30px;
-    background:#008444;
-    color:white;
-    font-size:17px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:10px;
-
-}
-
-
-
-/* إشعار النسخ */
-
-.toast{
-
-    position:fixed;
-    top:20px;
-    right:50%;
-    transform:translateX(50%);
-    background:#008444;
-    color:white;
-    padding:12px 25px;
-    border-radius:30px;
-    display:none;
-    z-index:9999;
-    box-shadow:0 5px 20px rgba(0,0,0,.2);
-
-}
-
-
-/* صفحة التأكيد */
-
-.confirm-box{
-
-    display:none;
-    background:white;
-    padding:25px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.15);
-    text-align:center;
-
-}
-
-
-.code-box{
-
-    background:#f1f8f3;
-    border:2px dashed #008444;
-    padding:15px;
-    font-size:28px;
-    font-weight:bold;
-    color:#008444;
-    border-radius:15px;
-    margin:20px 0;
-
-}
-
-
-.copy-btn{
-
-    background:#008444;
-    color:white;
-    border:none;
-    padding:13px 30px;
-    border-radius:25px;
-    font-weight:bold;
-    cursor:pointer;
-
-}
-
 
 </style>
+
+
+<!-- Firebase -->
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { getFirestore, collection, addDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// ضع بيانات مشروعك هنا
+
+const firebaseConfig = {
+
+apiKey: "ضع_API_KEY",
+
+authDomain: "ضع_AUTH_DOMAIN",
+
+projectId: "ضع_PROJECT_ID",
+
+storageBucket: "ضع_STORAGE_BUCKET",
+
+messagingSenderId: "ضع_SENDER_ID",
+
+appId: "ضع_APP_ID"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+window.db = getFirestore(app);
+
+</script>
+
+
 </head>
+
 <body>
 
 
 <div class="header">
-<h1>
-نظام طلب المساعدة
-</h1>
+موقع طلب المساعدة
 </div>
+
+
+<div class="demo">
+⚠️     
+</div
 
 
 <div class="container">
 
-<div class="card" id="requestCard">
 
-<h2>تقديم طلب مساعدة</h2>
-
-<p class="note">
-يرجى تعبئة البيانات التالية لإرسال الطلب
-</p>
-
-
-<div class="group">
 <label>الاسم الكامل</label>
-<input id="name" type="text" placeholder="اكتب الاسم الكامل">
-</div>
+<input id="name">
 
 
-
-<div class="group">
 <label>رقم الجوال</label>
-<input id="phone" type="tel" placeholder="اكتب رقم الجوال">
-</div>
+<input id="phone" type="tel">
 
 
-
-<div class="group">
-<label>رقم الهوية</label>
-<input id="idNumber" type="text" placeholder="اكتب رقم الهوية">
-</div>
-
-
-
-<div class="group">
 <label>البريد الإلكتروني</label>
-<input id="email" type="email" placeholder="example@email.com">
-</div>
+<input id="email" type="email">
 
 
+<label>رقم الهوية</label>
+<input id="idNumber">
 
-<div class="group">
+
 <label>نوع المساعدة</label>
 
-<select id="helpType">
+<select id="help">
 
-<option value="">
-اختر نوع المساعدة
-</option>
+<option>اختر نوع المساعدة</option>
 
-<option>
-مساعدة مالية
-</option>
+<option>مساعدة مالية</option>
 
-<option>
-مساعدة سكنية
-</option>
+<option>مساعدة علاجية</option>
 
-<option>
-مساعدة علاجية
-</option>
+<option>مساعدة تعليمية</option>
 
-<option>
-مساعدة تعليمية
-</option>
-
-<option>
-أخرى
-</option>
+<option>أخرى</option>
 
 </select>
 
-</div>
+
+<label>تفاصيل الطلب</label>
+
+<textarea id="details"></textarea>
 
 
-
-
-<div class="group">
-
-<label>
-تفاصيل الطلب
-</label>
-
-<textarea 
-id="details"
-rows="4"
-placeholder="اكتب تفاصيل طلبك">
-</textarea>
-
-</div>
-
-
-
-<button class="submit-btn" onclick="sendRequest()">
+<button class="send" onclick="sendData()">
 إرسال الطلب
 </button>
 
 
-
-<button class="whatsapp-btn" onclick="sendWhatsApp()">
-🟢 إرسال التفاصيل عبر واتساب
-</button>
+<div class="result" id="result">
 
 
-</div>
+<h3>تم استقبال طلبك</h3>
 
 
+<p>رمز المعاملة</p>
+
+<div class="code" id="code"></div>
 
 
-<!-- صندوق التأكيد -->
+<div class="actions">
 
-<div class="confirm-box" id="confirmBox">
-
-<h2 style="color:#008444">
-تم تسجيل الطلب بنجاح
-</h2>
-
-
-<p>
-رقم المعاملة الخاص بك:
-</p>
-
-
-<div class="code-box" id="transactionCode">
-A0000
-</div>
-
-
-
-<button class="copy-btn" onclick="copyCode()">
+<button class="copy" onclick="copyCode()">
 نسخ الكود
 </button>
 
 
+<button class="whatsapp" id="wa" onclick="sendWhatsApp()" disabled>
+إرسال واتساب
+</button>
+
+
 </div>
 
 
+</div>
 
 
 </div>
 
 
-
-<div class="toast" id="toast">
+<div class="note" id="note">
 تم النسخ بنجاح
 </div>
+<script type="module">
 
-<script>
-
-
-// إنشاء رقم معاملة قصير
-function createCode(){
-
-    let letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    let randomLetter =
-    letter[Math.floor(Math.random()*letter.length)];
+import { collection, addDoc }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-    let numbers =
-    Math.floor(1000 + Math.random()*9000);
+// توليد كود مثل A1234
 
+function generateCode(){
 
-    return randomLetter + numbers;
+let letter = String.fromCharCode(
+65 + Math.floor(Math.random()*26)
+);
 
-}
+let numbers = Math.floor(
+1000 + Math.random()*9000
+);
 
-
-
-
-// إرسال الطلب وعرض التأكيد
-
-function sendRequest(){
-
-
-let name =
-document.getElementById("name").value.trim();
-
-let phone =
-document.getElementById("phone").value.trim();
-
-let idNumber =
-document.getElementById("idNumber").value.trim();
-
-
-
-if(name==="" || phone==="" || idNumber===""){
-
-alert("يرجى تعبئة الاسم ورقم الجوال ورقم الهوية");
-
-return;
+return letter + numbers;
 
 }
 
 
 
-let code=createCode();
+let transactionCode = "";
 
-
-document.getElementById("transactionCode").innerText=code;
-
-
-
-document.getElementById("requestCard").style.display="none";
-
-
-document.getElementById("confirmBox").style.display="block";
-
-
-}
+let copied = false;
 
 
 
-
-// نسخ الكود
-
-function copyCode(){
-
-
-let code =
-document.getElementById("transactionCode").innerText;
-
-
-navigator.clipboard.writeText(code)
-.then(()=>{
-
-
-let toast =
-document.getElementById("toast");
-
-
-toast.style.display="block";
-
-
-setTimeout(()=>{
-
-toast.style.display="none";
-
-},2000);
-
-
-
-});
-
-
-}
-
-
-
-
-// إرسال واتساب
-
-function sendWhatsApp(){
-
+window.sendData = async function(){
 
 
 let name =
@@ -497,18 +312,18 @@ document.getElementById("name").value.trim();
 
 let phone =
 document.getElementById("phone").value.trim();
-
-
-let idNumber =
-document.getElementById("idNumber").value.trim();
 
 
 let email =
 document.getElementById("email").value.trim();
 
 
+let idNumber =
+document.getElementById("idNumber").value.trim();
+
+
 let help =
-document.getElementById("helpType").value;
+document.getElementById("help").value;
 
 
 let details =
@@ -516,10 +331,16 @@ document.getElementById("details").value.trim();
 
 
 
+if(
+!name ||
+!phone ||
+!email ||
+!idNumber ||
+help==="اختر نوع المساعدة" ||
+!details
+){
 
-if(name==="" || phone==="" || idNumber===""){
-
-alert("يرجى إدخال الاسم ورقم الجوال ورقم الهوية");
+alert("يرجى تعبئة جميع البيانات");
 
 return;
 
@@ -527,52 +348,157 @@ return;
 
 
 
-
-let message =
-
-"📌 طلب تجريبي جديد\n\n"+
-
-"👤 الاسم: "+name+"\n"+
-
-"📱 الجوال: "+phone+"\n"+
-
-"🪪 الهوية: "+idNumber+"\n"+
-
-"📧 البريد: "+email+"\n"+
-
-"📂 نوع المساعدة: "+help+"\n"+
-
-"📝 التفاصيل: "+details+"\n\n"+
-
-"⚠️ نموذج تجريبي للتدريب فقط";
+transactionCode = generateCode();
 
 
 
-
-let whatsappNumber="966580272758";
-
+try{
 
 
-let url=
+await addDoc(
+collection(window.db,"requests"),
+{
 
-"https://wa.me/"+
+name:name,
 
-whatsappNumber+
+phone:phone,
 
-"?text="+
+email:email,
 
-encodeURIComponent(message);
+idNumber:idNumber,
+
+helpType:help,
+
+details:details,
+
+code:transactionCode,
+
+date:new Date()
+
+}
+
+);
 
 
 
-window.open(url,"_blank");
+document.getElementById("code").innerText =
+transactionCode;
+
+
+document.getElementById("result").style.display =
+"block";
+
+
+
+}
+catch(error){
+
+alert("حدث خطأ في إرسال البيانات");
+
+console.log(error);
 
 }
 
 
 
+};
+
+
+
+
+// نسخ الكود
+
+window.copyCode=function(){
+
+
+navigator.clipboard.writeText(transactionCode)
+.then(()=>{
+
+
+copied=true;
+
+
+document.getElementById("wa").disabled=false;
+
+
+let note=document.getElementById("note");
+
+note.style.display="block";
+
+
+setTimeout(()=>{
+
+note.style.display="none";
+
+},2500);
+
+
+
+});
+
+
+};
+
+
+
+
+// إرسال واتساب
+
+window.sendWhatsApp=function(){
+
+
+if(!copied){
+
+return;
+
+}
+
+
+
+let phoneNumber="ضع_رقم_الواتساب_هنا";
+
+
+
+let message=
+`
+طلب مساعدة جديد
+
+الاسم:
+${document.getElementById("name").value}
+
+رقم الجوال:
+${document.getElementById("phone").value}
+
+البريد:
+${document.getElementById("email").value}
+
+رقم الهوية:
+${document.getElementById("idNumber").value}
+
+نوع المساعدة:
+${document.getElementById("help").value}
+
+التفاصيل:
+${document.getElementById("details").value}
+
+رمز المعاملة:
+${transactionCode}
+`;
+
+
+
+let url=
+"https://wa.me/"+phoneNumber+
+"?text="+encodeURIComponent(message);
+
+
+
+window.open(url,"_blank");
+
+
+};
+
+
 </script>
-
-
 </body>
 </html>
