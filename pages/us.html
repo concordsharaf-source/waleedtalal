@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
 
-    <!-- خط القاهرة -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -16,6 +15,7 @@
             --input-bg-light: #f8f9fa;
             --text-on-dark: #ffffff;
             --accent-green: #25D366;
+            --whatsapp-dark: #075E54;
             --text-dark: #2c3e50;
             --border-color: #e2e8f0;
         }
@@ -124,7 +124,7 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.1s ease;
+            transition: all 0.3s ease;
             text-align: center;
         }
 
@@ -144,6 +144,23 @@
 
         .btn-success:hover {
             background-color: #1ebc59;
+        }
+
+        /* زر الواتساب الأكبر والأبرز */
+        .btn-whatsapp-large {
+            background: linear-gradient(135deg, #128C7E, var(--whatsapp-dark));
+            color: var(--text-on-dark);
+            font-size: 18px;
+            padding: 18px 20px;
+            box-shadow: 0 6px 15px rgba(7, 94, 84, 0.3);
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .btn-whatsapp-large:hover {
+            background: linear-gradient(135deg, #0f7a6e, #054c44);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(7, 94, 84, 0.4);
         }
 
         .btn:active {
@@ -175,7 +192,7 @@
         .modal-content {
             background: #ffffff;
             width: 90%;
-            max-width: 450px;
+            max-width: 480px;
             border-radius: 15px;
             padding: 30px;
             text-align: center;
@@ -202,7 +219,7 @@
         }
 
         .modal-title {
-            font-size: 20px;
+            font-size: 22px;
             color: var(--card-bg-dark);
             margin-bottom: 10px;
             font-weight: 700;
@@ -218,7 +235,7 @@
             background: var(--input-bg-light);
             border: 2px dashed var(--card-bg-dark);
             padding: 15px;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             color: var(--card-bg-dark);
             letter-spacing: 3px;
@@ -229,11 +246,21 @@
 
         .modal-actions {
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
         }
-
-        .modal-actions .btn {
-            flex: 1;
+        
+        .btn-close-link {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 5px;
+            text-decoration: underline;
+        }
+        .btn-close-link:hover {
+            color: #333;
         }
     </style>
 </head>
@@ -246,7 +273,6 @@
     </header>
 
     <div class="container">
-        <!-- قسم تقديم الطلب -->
         <div class="card">
             <h2>تقديم طلب مساعدة جديد</h2>
             <form id="assistanceForm" onsubmit="handleFormSubmit(event)">
@@ -275,9 +301,9 @@
                     <label for="requestType">نوع المساعدة المطلوبة:</label>
                     <select id="requestType" class="form-control" required>
                         <option value="">-- اختر نوع المساعدة --</option>
-                        <option value="housing">مساعدة سكنية</option>
-                        <option value="car">مساعدة وسيلة نقل (سيارة)</option>
-                        <option value="financial">مساعدة مالية علاجية / طارئة</option>
+                        <option value="مساعدة سكنية">مساعدة سكنية</option>
+                        <option value="مساعدة وسيلة نقل (سيارة)">مساعدة وسيلة نقل (سيارة)</option>
+                        <option value="مساعدة مالية علاجية / طارئة">مساعدة مالية علاجية / طارئة</option>
                     </select>
                 </div>
 
@@ -291,34 +317,43 @@
         </div>
     </div>
 
-    <!-- النافذة المنبثقة الأنيقة (Custom Modal) -->
     <div class="modal-overlay" id="customModal">
         <div class="modal-content">
             <div class="modal-icon">✓</div>
-            <h3 class="modal-title">تم استلام طلبك بنجاح!</h3>
-            <p class="modal-text">يرجى الاحتفاظ برمز المعاملة ورقم الهوية لاستخدامهما في متابعة حالة طلبك عبر الصفحة الرئيسية.</p>
+            <h3 class="modal-title">تم تجهيز طلبك بنجاح!</h3>
+            <p class="modal-text">انسخ رمز المعاملة، ثم اضغط على زر الإرسال عبر الواتساب لتأكيد وإرسال بياناتك فوراً.</p>
             
-            <!-- مربع عرض الرمز -->
             <div class="code-box" id="displayCode">A0000</div>
 
-            <!-- أزرار التفاعل -->
             <div class="modal-actions">
                 <button type="button" class="btn btn-success" id="copyBtn" onclick="copyCode()">
                     نسخ الكود 📋
                 </button>
-                <button type="button" class="btn btn-primary" onclick="closeModal()">
-                    إغلاق
+                
+                <button type="button" class="btn btn-whatsapp-large" onclick="sendToWhatsApp()">
+                    إرسال الطلب عبر الواتساب 💬
                 </button>
             </div>
+
+            <button type="button" class="btn-close-link" onclick="closeModal()">إغلاق النافذة</button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // ضع رقم الواتساب الخاص بالصفحة هنا (مع رمز الدولة بدون أصفار أو +)
+        // مثال: 966500000000
+        const WHATSAPP_NUMBER = "966500000000"; 
+        // ==========================================
+
+        // متغير لتخزين بيانات الطلب الحالي مؤقتاً لإرسالها للواتساب
+        let currentFormData = {};
+
         // 1. دالة توليد رمز قصير (حرف واحد + 4 أرقام)
         function generateShortCode() {
             const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-            const randomNumbers = Math.floor(1000 + Math.random() * 9000); // يولد 4 أرقام من 1000 إلى 9999
+            const randomNumbers = Math.floor(1000 + Math.random() * 9000); // يولد 4 أرقام
             return randomLetter + randomNumbers;
         }
 
@@ -328,6 +363,17 @@
 
             // توليد الرمز القصير
             const newCode = generateShortCode();
+
+            // حفظ البيانات في المتغير لاستخدامها عند فتح الواتساب
+            currentFormData = {
+                code: newCode,
+                fullName: document.getElementById('fullName').value.trim(),
+                nationalId: document.getElementById('nationalId').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                requestType: document.getElementById('requestType').value,
+                details: document.getElementById('details').value.trim()
+            };
 
             // إظهار النافذة المنبثقة بنجاح الطلب
             showModal(newCode);
@@ -354,21 +400,41 @@
         function copyCode() {
             const codeText = document.getElementById('displayCode').innerText;
 
-            // استخدام واجهة الحافظة الحديثة (Clipboard API)
             navigator.clipboard.writeText(codeText).then(() => {
                 const copyBtn = document.getElementById('copyBtn');
                 copyBtn.innerHTML = 'تم النسخ بنجاح! ✓';
                 copyBtn.style.backgroundColor = '#188c41'; // درجة أغمق قليلاً للتأكيد
 
-                // إعادة النص الأصلي بعد ثانيتين
                 setTimeout(() => {
                     copyBtn.innerHTML = 'نسخ الكود 📋';
                     copyBtn.style.backgroundColor = 'var(--accent-green)';
                 }, 2000);
             }).catch(err => {
-                // خطأ بديل في حال كان المتصفح قديماً جداً
                 alert('حدث خطأ أثناء النسخ، يرجى نسخ الرمز يدوياً.');
             });
+        }
+
+        // 5. دالة إرسال المعلومات تلقائياً لتطبيق الواتساب
+        function sendToWhatsApp() {
+            // تجهيز نص الرسالة وتنسيقه بشكل أنيق
+            const message = `*طلب مساعدة إنسانية جديد* 🌐\n` +
+                            `--------------------------\n` +
+                            `*رمز المعاملة:* ${currentFormData.code}\n` +
+                            `*الاسم الكامل:* ${currentFormData.fullName}\n` +
+                            `*رقم الهوية:* ${currentFormData.nationalId}\n` +
+                            `*رقم الجوال:* ${currentFormData.phone}\n` +
+                            `*البريد الإلكتروني:* ${currentFormData.email}\n` +
+                            `*نوع المساعدة:* ${currentFormData.requestType}\n` +
+                            `--------------------------\n` +
+                            `*تفاصيل الطلب / الملاحظات:*\n` +
+                            `${currentFormData.details}`;
+
+            // تحويل النص ليكون صالحاً للاستخدام في روابط المتصفح
+            const encodedMessage = encodeURIComponent(message);
+
+            // فتح تطبيق الواتساب مباشرة بالرقم والرسالة المجهزة
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
         }
     </script>
 </body>
