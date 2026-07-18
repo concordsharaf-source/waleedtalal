@@ -173,7 +173,7 @@ margin-top: 8px;
 font-weight: 500;
 }
 
-/* التفاصيل - تأثير زجاجي (Glassmorphism) */
+/* التفاصيل - تأثير زجاجي بخلفية بيضاء 85% */
 .details-title{
 font-size: 15px;
 font-weight: bold;
@@ -187,24 +187,25 @@ gap: 12px;
 }
 
 .detail-card{
-background: var(--glass-bg);
+background: rgba(255, 255, 255, 0.85); /* أبيض بشفافية 85% */
 backdrop-filter: blur(12px);
 -webkit-backdrop-filter: blur(12px);
-border: 1px solid var(--glass-border);
+border: 1px solid rgba(255, 255, 255, 0.5);
 padding: 12px;
 border-radius: 12px;
-box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* ظل خفيف لإبراز البطاقات */
 }
 
 .detail-label{
-font-size: 11px;
-color: #b3c2bc;
+font-size: 13px; /* تكبير الخط */
+font-weight: 700; /* جعل الخط سميك */
+color: #4a5c54; /* لون واضح ومقروء */
 }
 
 .detail-value{
-font-size: 13px;
-color: var(--white);
-font-weight: bold;
+font-size: 15px; /* تكبير الخط */
+color: #06140e; /* لون داكن جداً ليكون واضحاً وقوياً */
+font-weight: 800; /* خط سميك جداً */
 margin-top: 5px;
 }
 
@@ -466,7 +467,6 @@ const snapshot = await getDocs(q);
 
 if(snapshot.empty){
 document.getElementById("statusTitle").innerHTML = "خطأ";
-// Handle reference error safely
 if (typeof data !== 'undefined' && data.approved === true) {
 document.getElementById("approvedMessage").style.display="block";
 }
