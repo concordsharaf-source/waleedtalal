@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>تم إرسال الطلب</title>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+
+<style>
+
+
+:root{
+
+--primary:#007c4b;
+
+--dark:#1b212c;
+
+--gray:#6b7280;
+
+--bg:#f4f5f7;
+
+--white:#ffffff;
+
+--gold:#d4af37;
+
+}
+
+
+
+*{
+
+box-sizing:border-box;
+
+margin:0;
+
+padding:0;
+
+font-family:'Cairo',sans-serif;
+
+}
+
+
+
+body{
+
+background:var(--bg);
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+}
+
+
+
+.mobile-container{
+
+width:100%;
+
+max-width:420px;
+
+position:relative;
+
+padding-bottom:70px;
+
+}
+
+
+
+.main-card{
+
+background:white;
+
+border-radius:25px;
+
+padding:20px;
+
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+
+text-align:center;
+
+margin-top:50px;
+
+}
+
+
+
+
+
+.status-header{
+
+background:white;
+
+border-radius:20px;
+
+padding:25px;
+
+margin:-60px auto 25px;
+
+width:85%;
+
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+
+position:relative;
+
+}
+
+
+
+
+
+.success-icon{
+
+width:65px;
+
+height:65px;
+
+border-radius:50%;
+
+background:#e8fff4;
+
+border:3px solid var(--primary);
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+margin:-55px auto 15px;
+
+font-size:35px;
+
+color:var(--primary);
+
+font-weight:bold;
+
+}
+
+
+
+
+
+.status-header h2{
+
+font-size:20px;
+
+color:var(--dark);
+
+}
+
+
+
+
+
+.text{
+
+color:var(--gray);
+
+font-size:15px;
+
+line-height:1.8;
+
+margin-bottom:20px;
+
+}
+
+
+
+
+
+.order-title{
+
+font-weight:bold;
+
+color:var(--dark);
+
+margin-bottom:10px;
+
+}
+
+
+
+
+.order-box{
+
+border:1px solid #ddd;
+
+border-radius:12px;
+
+padding:15px;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:20px;
+
+}
+
+
+
+.order-number{
+
+font-size:22px;
+
+font-weight:bold;
+
+color:var(--primary);
+
+}
+
+
+
+
+
+.copy-btn{
+
+border:none;
+
+background:#eee;
+
+padding:8px 12px;
+
+border-radius:8px;
+
+cursor:pointer;
+
+}
+
+
+
+</style>
+<!-- بداية الصفحة -->
+
+</head>
+
+
+<body>
+
+
+<div class="mobile-container">
+
+
+<div class="main-card">
+
+
+
+<div class="status-header">
+
+
+<div class="success-icon">
+
+✓
+
+</div>
+
+
+
+<h2>
+لقد تم رفع الطلب بنجاح
+</h2>
+
+
+</div>
+
+
+
+
+
+<p class="text">
+
+مرحباً بك عزيزي العميل،
+
+<br>
+
+لقد تم استلام طلبك بنجاح وسيتم مراجعته من قبل الإدارة.
+
+</p>
+
+
+
+
+
+
+<div class="order-title">
+
+رقم المعاملة الخاص بك
+
+</div>
+
+
+
+
+
+<div class="order-box">
+
+
+<div class="order-number" id="transactionNumber">
+
+----
+
+</div>
+
+
+
+<button class="copy-btn" onclick="copyNumber()">
+
+📋 نسخ
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="text">
+
+
+نوع الطلب:
+
+<br>
+
+
+<strong id="requestType">
+
+----
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+
+<div style="
+background:#fff8df;
+border:1px solid #d4af37;
+border-radius:15px;
+padding:15px;
+margin:20px 0;
+color:#6b4d00;
+font-weight:bold;
+font-size:14px;
+">
+
+⚠️ احتفظ برقم المعاملة، ستحتاج إليه لمتابعة حالة طلبك.
+
+
+</div>
+
+
+
+
+
+
+
+
+<div style="margin-top:20px;">
+
+
+
+<button onclick="goTrack()" style="
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:#007c4b;
+color:white;
+font-size:16px;
+font-weight:bold;
+margin-bottom:12px;
+cursor:pointer;
+">
+
+🔍 متابعة الطلب
+
+</button>
+
+
+
+
+
+<button onclick="sendWhatsApp()" style="
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:#25D366;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+">
+
+💬 إرسال عبر واتساب
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<div style="
+position:fixed;
+bottom:20px;
+left:20px;
+right:20px;
+display:flex;
+justify-content:center;
+">
+
+
+<button onclick="goHome()" style="
+background:#007c4b;
+color:white;
+border:none;
+padding:12px 35px;
+border-radius:12px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+">
+
+العودة للرئيسية
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+</div>
+<script type="module">
+
+
+import { initializeApp }
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+
+getFirestore,
+
+collection,
+
+query,
+
+where,
+
+getDocs
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+
+
+const firebaseConfig = {
+
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getFirestore(app);
+
+
+
+
+
+
+// قراءة بيانات الطلب المحفوظة مؤقتاً
+
+const transactionId =
+sessionStorage.getItem("transactionId");
+
+
+const phone =
+sessionStorage.getItem("phone");
+
+
+
+
+
+let orderData = null;
+
+
+
+
+
+
+
+async function loadOrder(){
+
+
+
+if(!transactionId || !phone){
+
+
+alert("لم يتم العثور على بيانات الطلب");
+
+
+return;
+
+
+}
+
+
+
+
+
+try{
+
+
+
+const q = query(
+
+collection(db,"orders"),
+
+where("transactionId","==",transactionId),
+
+where("phone","==",phone)
+
+);
+
+
+
+
+
+const snapshot = await getDocs(q);
+
+
+
+
+
+if(snapshot.empty){
+
+
+alert("لم يتم العثور على الطلب");
+
+
+return;
+
+
+}
+
+
+
+
+
+snapshot.forEach((doc)=>{
+
+
+orderData = doc.data();
+
+
+});
+
+
+
+
+
+
+document.getElementById("transactionNumber").innerText =
+
+orderData.transactionId;
+
+
+
+document.getElementById("requestType").innerText =
+
+orderData.type || "طلب قطع غيار";
+
+
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+alert("حدث خطأ أثناء تحميل البيانات");
+
+
+}
+
+
+
+}
+
+
+
+
+
+loadOrder();
+
+
+
+
+</script>
+<script>
+
+
+// نسخ رقم المعاملة
+
+function copyNumber(){
+
+
+const number =
+document.getElementById("transactionNumber").innerText;
+
+
+
+navigator.clipboard.writeText(number);
+
+
+
+alert("تم نسخ رقم المعاملة: " + number);
+
+
+
+}
+
+
+
+
+
+
+
+
+// الانتقال إلى صفحة التتبع
+
+function goTrack(){
+
+
+const transactionId =
+sessionStorage.getItem("transactionId");
+
+
+const phone =
+sessionStorage.getItem("phone");
+
+
+
+window.location.href =
+"track.html?transaction="
++ transactionId
++
+"&phone="
++
+phone;
+
+
+
+}
+
+
+
+
+
+
+
+
+// إرسال واتساب
+
+function sendWhatsApp(){
+
+
+
+if(!orderData){
+
+
+alert("انتظر حتى يتم تحميل البيانات");
+
+
+return;
+
+
+}
+
+
+
+const adminPhone =
+"966580272758";
+
+
+
+let message =
+
+"📌 طلب جديد\n\n";
+
+
+
+message +=
+
+"رقم المعاملة: "
++
+orderData.transactionId
++
+"\n";
+
+
+
+message +=
+
+"الاسم: "
++
+orderData.name
++
+"\n";
+
+
+
+message +=
+
+"الجوال: "
++
+orderData.phone
++
+"\n";
+
+
+
+message +=
+
+"نوع الطلب: "
++
+orderData.type
++
+"\n";
+
+
+
+message +=
+
+"رقم القطعة: "
++
+(orderData.partNumber || "")
++
+"\n";
+
+
+
+message +=
+
+"التفاصيل: "
++
+orderData.notes;
+
+
+
+window.location.href =
+
+"https://wa.me/"
++
+adminPhone
++
+"?text="
++
+encodeURIComponent(message);
+
+
+
+}
+
+
+
+
+
+
+
+// العودة للرئيسية
+
+
+function goHome(){
+
+
+window.location.href="index.html";
+
+
+}
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
