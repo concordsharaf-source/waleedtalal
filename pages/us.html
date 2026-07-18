@@ -793,12 +793,11 @@ message +=
 
 
 
-window.location.href =
-"https://wa.me/"
-+adminPhone+
-"?text="
-+encodeURIComponent(message);
+sessionStorage.setItem("transactionId", transactionId);
 
+sessionStorage.setItem("phone", phone);
+
+window.location.href="success.html";
 
 
 }
