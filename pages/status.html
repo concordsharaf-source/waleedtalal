@@ -983,7 +983,11 @@ if(snapshot.empty){
 
 document.getElementById("statusTitle").innerHTML =
 "خطأ";
+if(data.approved === true){
 
+document.getElementById("approvedMessage").style.display="block";
+
+}
 
 document.getElementById("statusText").innerHTML =
 "رقم المعاملة أو الجوال غير صحيح";
