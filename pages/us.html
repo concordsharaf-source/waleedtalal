@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -17,7 +17,7 @@
 
 :root {
 
---header-bg-image: url('images/xx.jpg');
+--header-bg-image:url('images/xx.jpg');
 
 --card-bg-dark:#1a4332;
 
@@ -52,6 +52,7 @@ line-height:1.6;
 }
 
 
+
 header{
 
 background:
@@ -81,6 +82,7 @@ padding:20px;
 }
 
 
+
 .logo{
 
 width:110px;
@@ -106,6 +108,7 @@ margin-bottom:15px;
 }
 
 
+
 header h1{
 
 margin:5px 0;
@@ -113,6 +116,7 @@ margin:5px 0;
 font-size:2.2rem;
 
 }
+
 
 
 header p{
@@ -136,6 +140,7 @@ margin:-60px auto 40px;
 padding:0 20px;
 
 }
+
 
 
 .support-grid{
@@ -175,6 +180,7 @@ position:relative;
 }
 
 
+
 .overlay{
 
 position:absolute;
@@ -190,6 +196,7 @@ rgba(0,0,0,.2)
 }
 
 
+
 .content{
 
 position:relative;
@@ -201,6 +208,7 @@ padding:20px;
 color:white;
 
 }
+
 
 
 .content h3{
@@ -226,6 +234,7 @@ box-shadow:0 20px 45px rgba(0,0,0,.5);
 }
 
 
+
 h2{
 
 color:white;
@@ -247,6 +256,7 @@ margin-bottom:18px;
 }
 
 
+
 label{
 
 display:block;
@@ -258,6 +268,7 @@ color:white;
 margin-bottom:8px;
 
 }
+
 
 
 input,
@@ -306,6 +317,16 @@ margin-top:15px;
 
 
 
+button:disabled{
+
+opacity:.6;
+
+cursor:not-allowed;
+
+}
+
+
+
 .note{
 
 background:#fff9cd;
@@ -323,12 +344,14 @@ margin-bottom:20px;
 }
 
 
+
 </style>
 
 </head>
 
 
 <body>
+
 <header>
 
 <div class="logo"></div>
@@ -340,13 +363,17 @@ margin-bottom:20px;
 </header>
 
 
+
 <div style="height:50px;"></div>
+
 
 
 <section class="support-section">
 
 
+
 <div class="support-grid">
+
 
 
 <div class="support-item" style="background-image:url('images/de.jpg');">
@@ -364,6 +391,8 @@ margin-bottom:20px;
 </div>
 
 </div>
+
+
 
 
 
@@ -386,6 +415,7 @@ margin-bottom:20px;
 
 
 
+
 <div class="support-item" style="background-image:url('images/dx.jpg');">
 
 <div class="overlay"></div>
@@ -401,6 +431,7 @@ margin-bottom:20px;
 </div>
 
 </div>
+
 
 
 </div>
@@ -426,6 +457,7 @@ margin-bottom:20px;
 
 
 
+
 <div class="form-group">
 
 <label>
@@ -438,6 +470,7 @@ id="name"
 placeholder="الاسم">
 
 </div>
+
 
 
 
@@ -458,6 +491,7 @@ placeholder="مع مفتاح الدولة">
 
 
 
+
 <div class="form-group">
 
 <label>
@@ -470,6 +504,7 @@ id="email"
 placeholder="example@gmail.com">
 
 </div>
+
 
 
 
@@ -490,6 +525,7 @@ placeholder="رقم الهوية أو السجل">
 
 
 
+
 <div class="form-group">
 
 <label>
@@ -506,6 +542,7 @@ placeholder="رقم الحساب البنكي">
 
 
 
+
 <div class="form-group">
 
 <label>
@@ -518,6 +555,7 @@ id="country"
 placeholder="الدولة">
 
 </div>
+
 
 
 
@@ -540,12 +578,13 @@ placeholder="الدولة">
 </option>
 
 <option value="مساعدة زواج">
-زواج
+مساعدة زواج
 </option>
 
 <option value="أخرى">
 أخرى
 </option>
+
 
 </select>
 
@@ -564,13 +603,18 @@ placeholder="الدولة">
 
 
 <textarea
+
 id="notes"
+
 rows="4"
-placeholder="اكتب تفاصيل القطعة المطلوبة">
+
+placeholder="اكتب تفاصيل الطلب">
+
 </textarea>
 
 
 </div>
+
 
 
 
@@ -588,8 +632,6 @@ placeholder="اكتب تفاصيل القطعة المطلوبة">
 
 </section>
 
-
-
 <script type="module">
 
 import { initializeApp } 
@@ -606,7 +648,8 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
-// إعدادات Firebase الخاصة بك
+
+// إعدادات Firebase
 
 const firebaseConfig = {
 
@@ -634,7 +677,20 @@ const db = getFirestore(app);
 
 
 
-document.getElementById("sendBtn").onclick = async function(){
+const sendBtn = document.getElementById("sendBtn");
+
+
+
+sendBtn.onclick = async function(){
+
+
+
+// منع الضغط المتكرر
+
+sendBtn.disabled = true;
+
+sendBtn.innerText = "جاري إرسال الطلب...";
+
 
 
 const adminPhone = "966580272758";
@@ -642,27 +698,27 @@ const adminPhone = "966580272758";
 
 
 const name =
-document.getElementById("name").value;
+document.getElementById("name").value.trim();
 
 
 const phone =
-document.getElementById("phone").value;
+document.getElementById("phone").value.trim();
 
 
 const email =
-document.getElementById("email").value;
+document.getElementById("email").value.trim();
 
 
 const idNumber =
-document.getElementById("idNumber").value;
+document.getElementById("idNumber").value.trim();
 
 
 const partNumber =
-document.getElementById("partNumber").value;
+document.getElementById("partNumber").value.trim();
 
 
 const country =
-document.getElementById("country").value;
+document.getElementById("country").value.trim();
 
 
 const type =
@@ -670,7 +726,9 @@ document.getElementById("type").value;
 
 
 const notes =
-document.getElementById("notes").value;
+document.getElementById("notes").value.trim();
+
+
 
 
 
@@ -685,20 +743,28 @@ if(
 
 alert("يرجى تعبئة جميع البيانات المطلوبة");
 
+sendBtn.disabled=false;
+
+sendBtn.innerText="إرسال الطلب عبر واتساب";
+
 return;
 
 }
 
 
 
-// رقم معاملة 4 أرقام فقط
+
+
+// رقم معاملة 4 أرقام
 
 const transactionId =
 Math.floor(1000 + Math.random()*9000);
 
 
 
+
 try{
+
 
 
 await addDoc(collection(db,"orders"),{
@@ -735,66 +801,90 @@ createdAt:serverTimestamp()
 
 
 
-// رسالة نجاح
+
+
+
+let message =
+
+"📌 طلب مساعدة جديد\n\n"+
+
+"رقم المعاملة: "+transactionId+"\n\n"+
+
+"الاسم: "+name+"\n"+
+
+"الجوال: "+phone+"\n"+
+
+"البريد: "+email+"\n"+
+
+"الدولة: "+country+"\n"+
+
+"نوع المساعدة: "+type+"\n"+
+
+"رقم الهوية: "+idNumber+"\n"+
+
+"رقم الحساب: "+partNumber+"\n"+
+
+"التفاصيل: "+notes;
+
+
+
+
+
+
+// رسالة للمستخدم
 
 alert(
-"تم إرسال طلبك بنجاح ✅\n\nرقم معاملتك: "
-+transactionId+
+
+"تم إرسال طلبك بنجاح ✅\n\n"+
+
+"رقم معاملتك: "+transactionId+
+
 "\n\nاحتفظ بالرقم لمتابعة الطلب."
+
 );
 
 
 
 
-// واتساب
-
-let message =
-"📌 طلب جديد\n\n";
-
-
-message +=
-"رقم المعاملة: "
-+transactionId+"\n\n";
-
-
-message +=
-"الاسم: "
-+name+"\n";
-
-
-message +=
-"الجوال: "
-+phone+"\n";
-
-
-message +=
-"البريد: "
-+email+"\n";
-
-
-message +=
-"الدولة: "
-+country+"\n";
-
-
-message +=
-"النوع: "
-+type+"\n";
-
-
-message +=
-"الهوية: "
-+partNumber+"\n";
-
-
-message +=
-"التفاصيل: "
-+notes;
 
 
 
-window.location.href =
-"https://wa.me/"+adminPhone+"?text="+encodeURIComponent(message);
+// فتح واتساب مباشرة
+
+const whatsappApp =
+
+"whatsapp://send?phone="+adminPhone+
+
+"&text="+encodeURIComponent(message);
+
+
+
+const whatsappWeb =
+
+"https://wa.me/"+adminPhone+
+
+"?text="+encodeURIComponent(message);
+
+
+
+
+
+// محاولة فتح التطبيق
+
+window.location.href = whatsappApp;
+
+
+
+
+// في حال عدم وجود التطبيق
+
+setTimeout(()=>{
+
+window.open(whatsappWeb,"_blank");
+
+},1200);
+
+
 
 
 
@@ -802,14 +892,24 @@ window.location.href =
 
 catch(error){
 
+
 console.log(error);
 
+
 alert("حدث خطأ أثناء حفظ الطلب");
+
+
+sendBtn.disabled=false;
+
+sendBtn.innerText="إرسال الطلب عبر واتساب";
+
 
 }
 
 
+
 };
+
 
 
 </script>
