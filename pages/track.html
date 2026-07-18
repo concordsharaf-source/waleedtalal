@@ -153,34 +153,73 @@ border-radius:15px;
 
 
 
-<script>
+<script type="module">
 
-function checkTransaction(){
-
-
-let transactionId=document.getElementById("transactionId").value.trim();
-
-let idNumber=document.getElementById("idNumber").value.trim();
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
-// البيانات الصحيحة
+import { 
+getFirestore,
+collection,
+query,
+where,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-let correctTransaction="4827";
 
-let correctId="123456789";
+
+// إعدادات Firebase
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+
+
+
+window.checkTransaction = async function(){
+
+
+let transactionId =
+document.getElementById("transactionId").value.trim();
+
+
+let phone =
+document.getElementById("idNumber").value.trim();
 
 
 
 // تحويل الأرقام العربية إلى إنجليزية
 
-transactionId=transactionId.replace(/[٠-٩]/g,function(x){
+transactionId = transactionId.replace(/[٠-٩]/g,function(x){
 
 return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
 
 });
 
 
-idNumber=idNumber.replace(/[٠-٩]/g,function(x){
+phone = phone.replace(/[٠-٩]/g,function(x){
 
 return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
 
@@ -188,41 +227,215 @@ return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
 
 
 
-// مقارنة البيانات
+let result =
+document.getElementById("result");
 
-if(transactionId === correctTransaction && idNumber === correctId){
-
-
-window.location.href="status.html";
-
-
-}
-
-else{
-
-
-let result=document.getElementById("result");
 
 result.style.display="block";
 
-result.innerHTML=
-`
-<h3 style="color:red;text-align:center">
+
+
+if(!transactionId || !phone){
+
+result.innerHTML=`
+
+<h3 style="color:red">
+تنبيه
+</h3>
+
+<p>
+أدخل رقم المعاملة ورقم الجوال
+</p>
+
+`;
+
+return;
+
+}
+
+
+
+
+try{
+
+
+const q = query(
+
+collection(db,"orders"),
+
+where("transactionId","==",transactionId),
+
+where("phone","==",phone)
+
+);
+
+
+
+const snapshot = await getDocs(q);
+
+
+
+if(snapshot.empty){
+
+
+result.innerHTML=`
+
+<h3 style="color:red">
 خطأ
 </h3>
 
-<p style="text-align:center">
-رقم المعاملة أو رقم الهوية غير صحيح
+<p>
+رقم المعاملة أو رقم الجوال غير صحيح
 </p>
+
+`;
+
+return;
+
+}
+
+
+
+snapshot.forEach((doc)=>{
+
+
+let data = doc.data();
+
+
+
+if(data.approved === false){
+
+
+
+result.innerHTML=`
+
+<h3 style="color:#856404">
+⏳ طلبك قيد المراجعة
+</h3>
+
+
+<p>
+تم استلام طلبك بنجاح.
+</p>
+
+
+<p>
+سيتم تحديث حالة الطلب بعد المراجعة.
+</p>
+
+
+<p>
+رقم المعاملة:
+<b>${data.transactionId}</b>
+</p>
+
+`;
+
+
+
+}else{
+
+
+
+result.innerHTML=`
+
+<h3 style="color:#128C7E">
+✅ تم اعتماد الطلب
+</h3>
+
+
+<p>
+<b>رقم المعاملة:</b>
+${data.transactionId}
+</p>
+
+
+<p>
+<b>الاسم:</b>
+${data.name}
+</p>
+
+
+<p>
+<b>الجوال:</b>
+${data.phone}
+</p>
+
+
+<p>
+<b>البريد:</b>
+${data.email}
+</p>
+
+
+<p>
+<b>الدولة:</b>
+${data.country}
+</p>
+
+
+<p>
+<b>القطعة:</b>
+${data.partNumber}
+</p>
+
+
+<p>
+<b>نوع الطلب:</b>
+${data.type}
+</p>
+
+
+<p>
+<b>الحالة:</b>
+${data.status}
+</p>
+
+
+<p>
+<b>الملاحظات:</b>
+${data.notes}
+</p>
+
+
 `;
 
 }
 
 
+});
+
+
+
 }
 
-</script>
+catch(error){
 
+
+console.log(error);
+
+
+result.innerHTML=`
+
+<h3 style="color:red">
+حدث خطأ
+</h3>
+
+<p>
+تعذر الاتصال بقاعدة البيانات
+</p>
+
+`;
+
+}
+
+
+
+}
+
+
+
+</script>
 
 </body>
 
