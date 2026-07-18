@@ -7,33 +7,60 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>تم إرسال الطلب</title>
-
-
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<title>مؤسسة الوليد للمساعدات الإنسانية | طلب مساعدة</title>
 
 
 <style>
 
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+
+
 *{
 box-sizing:border-box;
-margin:0;
-padding:0;
-font-family:'Cairo',sans-serif;
 }
 
 
 body{
 
-background:#f4f5f7;
+font-family:'Cairo',Tahoma,sans-serif;
 
-min-height:100vh;
+margin:0;
+
+padding:0;
+
+background:#f0f2f5;
+
+color:#333;
+
+line-height:1.6;
+
+}
+
+
+
+header{
+
+background:
+linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+url('images/xx.jpg');
+
+background-size:cover;
+
+background-position:center;
+
+height:40vh;
+
+color:white;
 
 display:flex;
+
+flex-direction:column;
 
 justify-content:center;
 
 align-items:center;
+
+text-align:center;
 
 padding:20px;
 
@@ -41,11 +68,118 @@ padding:20px;
 
 
 
-.container{
+.logo{
 
-width:100%;
+width:110px;
 
-max-width:420px;
+height:110px;
+
+background:white;
+
+background-image:url('images/xx.jpg');
+
+background-size:cover;
+
+background-position:center;
+
+border-radius:50%;
+
+border:4px solid white;
+
+margin-bottom:15px;
+
+}
+
+
+
+header h1{
+
+font-size:2.2rem;
+
+margin:5px;
+
+}
+
+
+header p{
+
+font-size:1.1rem;
+
+}
+
+
+
+.support-section{
+
+max-width:1100px;
+
+margin:-60px auto 40px;
+
+padding:0 20px;
+
+}
+
+
+
+.support-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+gap:25px;
+
+}
+
+
+
+.support-item{
+
+height:220px;
+
+border-radius:15px;
+
+overflow:hidden;
+
+position:relative;
+
+background-size:cover;
+
+background-position:center;
+
+}
+
+
+
+.overlay{
+
+position:absolute;
+
+inset:0;
+
+background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,.2));
+
+}
+
+
+
+.content{
+
+position:absolute;
+
+bottom:20px;
+
+right:20px;
+
+color:white;
+
+}
+
+
+
+.content h3{
+
+color:#25D366;
 
 }
 
@@ -53,66 +187,15 @@ max-width:420px;
 
 .card{
 
-background:#fff;
+background:#1a4332;
+
+padding:35px;
 
 border-radius:25px;
 
-padding:25px;
+box-shadow:0 20px 45px rgba(0,0,0,.4);
 
-box-shadow:0 10px 30px rgba(0,0,0,.08);
-
-text-align:center;
-
-margin-top:50px;
-
-}
-
-
-
-
-.success-box{
-
-background:#fff;
-
-border-radius:20px;
-
-padding:25px;
-
-width:85%;
-
-margin:-60px auto 25px;
-
-box-shadow:0 5px 20px rgba(0,0,0,.08);
-
-}
-
-
-
-.icon{
-
-width:65px;
-
-height:65px;
-
-background:#e8fff4;
-
-border:3px solid #007c4b;
-
-border-radius:50%;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-font-size:35px;
-
-font-weight:bold;
-
-color:#007c4b;
-
-margin:-60px auto 15px;
+margin-top:40px;
 
 }
 
@@ -120,116 +203,41 @@ margin:-60px auto 15px;
 
 h2{
 
-font-size:20px;
+color:white;
 
-color:#1b212c;
-
-}
-
-
-
-.text{
-
-color:#6b7280;
-
-font-size:15px;
-
-line-height:1.8;
-
-margin-bottom:20px;
+text-align:center;
 
 }
 
 
+.form-group{
+
+margin-bottom:18px;
+
+}
 
 
-.order-title{
+label{
+
+display:block;
+
+color:white;
 
 font-weight:bold;
 
-color:#1b212c;
-
-margin-top:20px;
+margin-bottom:8px;
 
 }
 
 
 
-.order-box{
-
-display:flex;
-
-align-items:center;
-
-justify-content:space-between;
-
-border:1px solid #ddd;
-
-border-radius:12px;
-
-padding:15px;
-
-margin-top:10px;
-
-}
-
-
-
-#transaction{
-
-font-size:24px;
-
-font-weight:bold;
-
-color:#007c4b;
-
-}
-
-
-
-.copy-btn{
-
-background:#eee;
-
-border:0;
-
-padding:8px 12px;
-
-border-radius:8px;
-
-cursor:pointer;
-
-}
-
-
-
-.warning{
-
-background:#fff8df;
-
-border:1px solid #d4af37;
-
-border-radius:15px;
-
-padding:15px;
-
-margin-top:20px;
-
-color:#6b4d00;
-
-font-weight:bold;
-
-font-size:14px;
-
-}
-
-
-
-.btn{
+input,
+select,
+textarea{
 
 width:100%;
 
-padding:15px;
+padding:14px;
 
 border:0;
 
@@ -237,44 +245,51 @@ border-radius:12px;
 
 font-size:16px;
 
+background:#f8f9fa;
+
+}
+
+
+
+button{
+
+width:100%;
+
+padding:18px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+border:0;
+
+border-radius:15px;
+
+font-size:18px;
+
 font-weight:bold;
 
 cursor:pointer;
 
-margin-top:12px;
-
 }
 
 
 
-.track{
+.note{
 
-background:#007c4b;
+background:#fff9cd;
 
-color:white;
+color:#856404;
 
-}
+padding:12px;
 
+border-radius:12px;
 
+text-align:center;
 
-.whatsapp{
-
-background:#25D366;
-
-color:white;
+margin-bottom:20px;
 
 }
-
-
-
-.home{
-
-background:#1b212c;
-
-color:white;
-
-}
-
 
 
 </style>
@@ -284,67 +299,278 @@ color:white;
 
 <body>
 
+<header>
 
-<div class="container">
+<div class="logo"></div>
+
+<h1>
+مؤسسة الوليد للمعدات
+</h1>
+
+<p>
+طلب قطع الغيار والمعدات
+</p>
+
+</header>
+
+
+
+
+<section class="support-section">
+
+
+
+<div class="support-grid">
+
+
+
+<div class="support-item" style="background-image:url('images/de.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>قطع غيار</h3>
+
+<p>
+نوفر طلبات قطع الغيار والمعدات.
+</p>
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="support-item" style="background-image:url('images/ds.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>معدات</h3>
+
+<p>
+طلبات المعدات المختلفة.
+</p>
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="support-item" style="background-image:url('images/dx.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>خدمات أخرى</h3>
+
+<p>
+حلول وتجهيزات حسب الطلب.
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
 
 
 <div class="card">
 
 
-<div class="success-box">
-
-
-<div class="icon">
-
-✓
-
-</div>
-
 
 <h2>
-
-لقد تم رفع الطلب بنجاح
-
+تسجيل طلب جديد
 </h2>
 
 
-</div>
 
+<div class="note">
 
-
-<p class="text">
-
-مرحباً بك عزيزي العميل
-
-<br>
-
-تم استلام طلبك بنجاح وسيتم مراجعته من قبل الإدارة.
-
-</p>
-
-
-
-<div class="order-title">
-
-رقم المعاملة الخاص بك
+💡 بعد إرسال الطلب سيتم إنشاء رقم معاملة لمتابعته لاحقاً.
 
 </div>
 
 
 
-<div class="order-box">
 
 
-<div id="transaction">
+<div class="form-group">
 
-----
+<label>
+الاسم الكامل:
+</label>
+
+<input 
+id="name"
+type="text"
+placeholder="الاسم">
 
 </div>
 
 
-<button class="copy-btn" onclick="copyNumber()">
 
-📋 نسخ
+
+
+<div class="form-group">
+
+<label>
+رقم الجوال:
+</label>
+
+<input 
+id="phone"
+type="tel"
+placeholder="مع مفتاح الدولة">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+البريد الإلكتروني:
+</label>
+
+<input 
+id="email"
+type="email"
+placeholder="example@gmail.com">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم الهوية:
+</label>
+
+<input 
+id="idNumber"
+type="text"
+placeholder="رقم الهوية">
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم القطعة:
+</label>
+
+<input 
+id="partNumber"
+type="text"
+placeholder="رقم القطعة المطلوبة">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+الدولة:
+</label>
+
+<input 
+id="country"
+type="text"
+placeholder="الدولة">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+نوع الطلب:
+</label>
+
+
+<select id="type">
+
+
+<option value="">
+اختر النوع
+</option>
+
+
+<option value="قطع غيار">
+قطع غيار
+</option>
+
+
+<option value="معدات">
+معدات
+</option>
+
+
+<option value="أخرى">
+أخرى
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+تفاصيل الطلب:
+</label>
+
+
+<textarea
+id="notes"
+rows="4"
+placeholder="اكتب تفاصيل الطلب">
+</textarea>
+
+
+</div>
+
+
+
+
+
+<button id="sendBtn">
+
+إرسال الطلب
 
 </button>
 
@@ -352,105 +578,103 @@ color:white;
 </div>
 
 
+</section>
 
-<div class="warning">
-
-⚠️ احتفظ برقم المعاملة لمتابعة حالة طلبك.
-
-</div>
+<script type="module">
 
 
-<button class="btn track" onclick="trackOrder()">
-
-🔍 متابعة الطلب
-
-</button>
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
+import { 
+getFirestore,
+collection,
+addDoc,
+serverTimestamp
 
-<button class="btn whatsapp" onclick="sendWhatsApp()">
-
-💬 إرسال عبر واتساب
-
-</button>
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
-<button class="btn home" onclick="goHome()">
 
-العودة للرئيسية
+// إعدادات Firebase الخاصة بمشروعك
 
-</button>
-
-
-</div>
+const firebaseConfig = {
 
 
-</div>
-<script>
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
 
-// قراءة بيانات العميل
+};
 
-const transactionId =
-sessionStorage.getItem("transactionId") || "----";
+
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getFirestore(app);
+
+
+
+
+
+
+
+document.getElementById("sendBtn").onclick = async function(){
+
 
 
 const name =
-sessionStorage.getItem("name") || "";
+document.getElementById("name").value.trim();
+
 
 
 const phone =
-sessionStorage.getItem("phone") || "";
+document.getElementById("phone").value.trim();
+
 
 
 const email =
-sessionStorage.getItem("email") || "";
+document.getElementById("email").value.trim();
+
 
 
 const idNumber =
-sessionStorage.getItem("idNumber") || "";
+document.getElementById("idNumber").value.trim();
+
 
 
 const partNumber =
-sessionStorage.getItem("partNumber") || "";
+document.getElementById("partNumber").value.trim();
+
 
 
 const country =
-sessionStorage.getItem("country") || "";
+document.getElementById("country").value.trim();
+
 
 
 const type =
-sessionStorage.getItem("type") || "";
+document.getElementById("type").value;
+
 
 
 const notes =
-sessionStorage.getItem("notes") || "";
-
-
-
-
-// عرض رقم المعاملة
-
-document.getElementById("transaction").innerText = transactionId;
-
-
-
-
-
-
-// نسخ رقم المعاملة
-
-function copyNumber(){
-
-
-navigator.clipboard.writeText(transactionId);
-
-
-alert("تم نسخ رقم المعاملة: " + transactionId);
-
-
-}
+document.getElementById("notes").value.trim();
 
 
 
@@ -458,52 +682,22 @@ alert("تم نسخ رقم المعاملة: " + transactionId);
 
 
 
-// إرسال واتساب
+if(
+!name ||
+!phone ||
+!email ||
+!idNumber ||
+!partNumber ||
+!country ||
+!type ||
+!notes
 
-function sendWhatsApp(){
-
-
-
-const adminPhone = "966580272758";
-
-
-
-let message =
-
-"📌 طلب جديد\n\n";
+){
 
 
+alert("يرجى تعبئة جميع البيانات");
 
-message += "رقم المعاملة: " + transactionId + "\n\n";
-
-message += "الاسم: " + name + "\n";
-
-message += "الجوال: " + phone + "\n";
-
-message += "البريد: " + email + "\n";
-
-message += "رقم الهوية: " + idNumber + "\n";
-
-message += "رقم القطعة: " + partNumber + "\n";
-
-message += "الدولة: " + country + "\n";
-
-message += "نوع الطلب: " + type + "\n";
-
-message += "التفاصيل: " + notes;
-
-
-
-window.location.href =
-
-"https://wa.me/" +
-
-adminPhone +
-
-"?text=" +
-
-encodeURIComponent(message);
-
+return;
 
 
 }
@@ -513,46 +707,113 @@ encodeURIComponent(message);
 
 
 
+// إنشاء رقم معاملة 4 أرقام
+
+const transactionId =
+
+Math.floor(1000 + Math.random() * 9000)
+
+.toString();
 
 
-// متابعة الطلب
-
-function trackOrder(){
 
 
-window.location.href =
 
-"track.html?transaction=" +
 
-transactionId +
 
-"&phone=" +
+try{
 
-phone;
+
+
+await addDoc(collection(db,"requests"),{
+
+
+transactionId:transactionId,
+
+name:name,
+
+phone:phone,
+
+email:email,
+
+idNumber:idNumber,
+
+partNumber:partNumber,
+
+country:country,
+
+type:type,
+
+notes:notes,
+
+
+status:"قيد المراجعة",
+
+approved:false,
+
+createdAt:serverTimestamp()
+
+
+});
+
+
+
+
+
+// حفظ البيانات لصفحة النجاح
+
+sessionStorage.setItem("transactionId",transactionId);
+
+sessionStorage.setItem("name",name);
+
+sessionStorage.setItem("phone",phone);
+
+sessionStorage.setItem("email",email);
+
+sessionStorage.setItem("idNumber",idNumber);
+
+sessionStorage.setItem("partNumber",partNumber);
+
+sessionStorage.setItem("country",country);
+
+sessionStorage.setItem("type",type);
+
+sessionStorage.setItem("notes",notes);
+
+
+
+
+
+
+// الانتقال لصفحة النجاح
+
+window.location.href="success.html";
+
+
+
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+alert("حدث خطأ أثناء إرسال الطلب");
 
 
 }
 
 
 
-
-
-
-
-// العودة للرئيسية
-
-function goHome(){
-
-
-window.location.href="index.html";
-
-
-}
+};
 
 
 
 </script>
-
 
 </body>
 
