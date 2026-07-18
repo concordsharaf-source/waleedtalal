@@ -7,7 +7,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>لوحة إدارة الطلبات</title>
+<title>إدارة الطلبات</title>
 
 
 <style>
@@ -45,6 +45,8 @@ padding:20px;
 
 
 
+
+
 .header{
 
 background:#1a4332;
@@ -57,7 +59,7 @@ border-radius:20px;
 
 text-align:center;
 
-margin-bottom:25px;
+margin-bottom:20px;
 
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 
@@ -69,17 +71,7 @@ box-shadow:0 10px 30px rgba(0,0,0,.2);
 
 margin:0;
 
-font-size:30px;
-
-}
-
-
-
-.header p{
-
-margin:10px 0 0;
-
-opacity:.9;
+font-size:28px;
 
 }
 
@@ -87,7 +79,69 @@ opacity:.9;
 
 
 
-.card{
+.search-box{
+
+background:white;
+
+padding:20px;
+
+border-radius:20px;
+
+box-shadow:0 5px 20px rgba(0,0,0,.1);
+
+margin-bottom:20px;
+
+display:flex;
+
+gap:10px;
+
+}
+
+
+
+.search-box input{
+
+flex:1;
+
+padding:15px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-family:inherit;
+
+font-size:16px;
+
+}
+
+
+
+
+
+.search-box button{
+
+padding:15px 25px;
+
+border:none;
+
+border-radius:12px;
+
+background:#25D366;
+
+color:white;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+
+
+
+
+.order-card{
 
 background:white;
 
@@ -105,13 +159,7 @@ box-shadow:0 8px 25px rgba(0,0,0,.1);
 
 
 
-.order-header{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
+.order-title{
 
 background:#1a4332;
 
@@ -121,19 +169,25 @@ padding:15px;
 
 border-radius:15px;
 
-margin-bottom:15px;
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
 
 }
 
 
 
-.transaction{
 
-font-size:20px;
 
-font-weight:bold;
+.order-title span{
 
 color:#d4af37;
+
+font-size:22px;
+
+font-weight:bold;
 
 }
 
@@ -145,9 +199,11 @@ color:#d4af37;
 
 display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
 
 gap:12px;
+
+margin-top:20px;
 
 }
 
@@ -155,7 +211,7 @@ gap:12px;
 
 
 
-.item{
+.field{
 
 background:#f8f9fa;
 
@@ -190,53 +246,21 @@ margin-top:5px;
 
 
 
-
-select,
-textarea{
-
+.edit-btn{
 
 width:100%;
 
-padding:12px;
-
-border-radius:10px;
-
-border:1px solid #ddd;
-
-font-family:inherit;
-
-margin-top:8px;
-
-}
-
-
-
-
-textarea{
-
-height:80px;
-
-resize:none;
-
-}
-
-
-
-
-button{
-
-
-width:100%;
+margin-top:20px;
 
 padding:14px;
+
+background:#1a4332;
+
+color:white;
 
 border:none;
 
 border-radius:12px;
-
-background:linear-gradient(to right,#25D366,#128C7E);
-
-color:white;
 
 font-size:17px;
 
@@ -244,16 +268,15 @@ font-weight:bold;
 
 cursor:pointer;
 
-margin-top:15px;
-
 }
-
 
 
 
 .loading{
 
 text-align:center;
+
+padding:30px;
 
 font-size:20px;
 
@@ -280,13 +303,34 @@ color:#1a4332;
 لوحة إدارة الطلبات
 </h1>
 
-
 <p>
-إدارة ومتابعة طلبات العملاء
+عرض وتعديل جميع طلبات العملاء
 </p>
+
+</div>
+
+
+
+
+
+<div class="search-box">
+
+
+<input 
+id="searchInput"
+placeholder="بحث برقم المعاملة أو الجوال">
+
+
+<button onclick="searchOrders()">
+
+بحث
+
+</button>
+
 
 
 </div>
+
 
 
 
@@ -294,21 +338,340 @@ color:#1a4332;
 
 <div id="orders">
 
+
 <div class="loading">
 
 جاري تحميل الطلبات...
 
 </div>
 
+
+</div>
+
+
+
+
+
 </div>
 
 
 
 
+
+
+<!-- نافذة التعديل -->
+
+
+<div id="editModal" style="display:none;">
+
+
+<div class="modal-box">
+
+
+<h2>
+تعديل الطلب
+</h2>
+
+
+
+<input id="editId" type="hidden">
+
+
+
+<label>
+الاسم
+</label>
+
+<input id="editName">
+
+
+
+<label>
+رقم الجوال
+</label>
+
+<input id="editPhone">
+
+
+
+<label>
+البريد الإلكتروني
+</label>
+
+<input id="editEmail">
+
+
+
+<label>
+رقم الهوية
+</label>
+
+<input id="editIdNumber">
+
+
+
+<label>
+الدولة
+</label>
+
+<input id="editCountry">
+
+
+
+<label>
+رقم القطعة
+</label>
+
+<input id="editPartNumber">
+
+
+
+<label>
+نوع الطلب
+</label>
+
+<input id="editType">
+
+
+
+<label>
+الحالة
+</label>
+
+<select id="editStatus">
+
+<option>
+قيد المراجعة
+</option>
+
+<option>
+جاري التجهيز
+</option>
+
+<option>
+تم توفير القطعة
+</option>
+
+<option>
+تم التسليم
+</option>
+
+<option>
+مرفوض
+</option>
+
+
+</select>
+
+
+
+
+<label>
+ملاحظات الإدارة
+</label>
+
+<textarea id="editNotes"></textarea>
+
+
+
+
+<label>
+
+حالة الاعتماد
+
+</label>
+
+
+<select id="editApproved">
+
+
+<option value="false">
+غير معتمد
+</option>
+
+
+<option value="true">
+معتمد
+</option>
+
+
+</select>
+
+
+
+
+
+<button onclick="saveEdit()">
+
+💾 حفظ التعديلات
+
+</button>
+
+
+
+<button onclick="closeEdit()"
+style="background:#777;">
+
+إلغاء
+
+</button>
+
+
+
 </div>
+
+
+</div>
+<style>
+
+
+#editModal{
+
+position:fixed;
+
+top:0;
+
+left:0;
+
+right:0;
+
+bottom:0;
+
+background:rgba(0,0,0,.6);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+z-index:999;
+
+}
+
+
+
+
+.modal-box{
+
+background:white;
+
+width:100%;
+
+max-width:500px;
+
+max-height:90vh;
+
+overflow-y:auto;
+
+padding:25px;
+
+border-radius:20px;
+
+box-shadow:0 15px 40px rgba(0,0,0,.4);
+
+}
+
+
+
+
+
+.modal-box h2{
+
+text-align:center;
+
+color:#1a4332;
+
+margin-top:0;
+
+}
+
+
+
+
+.modal-box label{
+
+display:block;
+
+margin-top:12px;
+
+margin-bottom:5px;
+
+font-weight:bold;
+
+color:#333;
+
+}
+
+
+
+
+.modal-box input,
+.modal-box select,
+.modal-box textarea{
+
+
+width:100%;
+
+padding:12px;
+
+border-radius:10px;
+
+border:1px solid #ddd;
+
+font-family:inherit;
+
+font-size:15px;
+
+}
+
+
+
+.modal-box textarea{
+
+height:90px;
+
+resize:none;
+
+}
+
+
+
+
+
+.modal-box button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:#25D366;
+
+color:white;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+
+
+</style>
 <script type="module">
 
-import { initializeApp } 
+import { initializeApp }
+
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
@@ -322,11 +685,7 @@ getDocs,
 
 doc,
 
-updateDoc,
-
-orderBy,
-
-query
+updateDoc
 
 }
 
@@ -356,7 +715,6 @@ appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
 
 
-
 const app = initializeApp(firebaseConfig);
 
 
@@ -364,7 +722,14 @@ const db = getFirestore(app);
 
 
 
-const ordersDiv = document.getElementById("orders");
+let allOrders = [];
+
+
+
+
+
+const ordersDiv =
+document.getElementById("orders");
 
 
 
@@ -376,293 +741,32 @@ async function loadOrders(){
 try{
 
 
-const q = query(
-
-collection(db,"orders"),
-
-orderBy("createdAt","desc")
-
+const snapshot = await getDocs(
+collection(db,"orders")
 );
 
 
 
-const snapshot = await getDocs(q);
-
-
-
-if(snapshot.empty){
-
-
-ordersDiv.innerHTML = `
-
-<div class="card">
-
-لا توجد طلبات حالياً
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-
-
-ordersDiv.innerHTML="";
-
-
+allOrders=[];
 
 
 snapshot.forEach((item)=>{
 
 
-const data = item.data();
+allOrders.push({
 
+id:item.id,
 
-const id = item.id;
+...item.data()
 
-
-
-
-let approvedText = data.approved 
-? "✅ معتمد"
-: "⏳ بانتظار الاعتماد";
-
-
-
-
-ordersDiv.innerHTML += `
-
-
-<div class="card">
-
-
-
-<div class="order-header">
-
-
-<div>
-رقم المعاملة
-</div>
-
-
-<div class="transaction">
-
-${data.transactionId}
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="grid">
-
-
-
-<div class="item">
-
-<div class="label">
-الاسم
-</div>
-
-<div class="value">
-${data.name || "-"}
-</div>
-
-</div>
-
-
-
-
-<div class="item">
-
-<div class="label">
-الجوال
-</div>
-
-<div class="value">
-${data.phone || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="item">
-
-<div class="label">
-الدولة
-</div>
-
-<div class="value">
-${data.country || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="item">
-
-<div class="label">
-نوع الطلب
-</div>
-
-<div class="value">
-${data.type || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="item">
-
-<div class="label">
-القطعة المطلوبة
-</div>
-
-<div class="value">
-${data.partNumber || "-"}
-</div>
-
-</div>
-
-
-
-
-<div class="item">
-
-<div class="label">
-الحالة الحالية
-</div>
-
-<div class="value">
-${data.status || "-"}
-</div>
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-<div class="item" style="margin-top:15px">
-
-<div class="label">
-الحالة الجديدة
-</div>
-
-
-
-<select id="status-${id}">
-
-
-<option value="قيد المراجعة">
-قيد المراجعة
-</option>
-
-
-<option value="جاري التجهيز">
-جاري التجهيز
-</option>
-
-
-<option value="تم توفير القطعة">
-تم توفير القطعة
-</option>
-
-
-<option value="تم التسليم">
-تم التسليم
-</option>
-
-
-<option value="مرفوض">
-مرفوض
-</option>
-
-
-</select>
-
-
-</div>
-
-
-
-
-
-
-<div class="item" style="margin-top:15px">
-
-
-<div class="label">
-ملاحظات الإدارة
-</div>
-
-
-<textarea id="notes-${id}">
-${data.notes || ""}
-</textarea>
-
-
-
-</div>
-
-
-
-
-
-<div class="item" style="margin-top:15px">
-
-الحالة الحالية:
-
-<b>
-${approvedText}
-</b>
-
-
-</div>
-
-
-
-
-
-<button onclick="saveOrder('${id}')">
-
-💾 حفظ التعديلات واعتماد الطلب
-
-</button>
-
-
-
-
-
-</div>
-
-
-`;
-
+});
 
 
 });
+
+
+
+displayOrders(allOrders);
 
 
 
@@ -688,19 +792,299 @@ ordersDiv.innerHTML =
 
 
 
-window.saveOrder = async function(id){
+
+
+function displayOrders(list){
 
 
 
-const status =
-
-document.getElementById("status-"+id).value;
+ordersDiv.innerHTML="";
 
 
 
-const notes =
+if(list.length===0){
 
-document.getElementById("notes-"+id).value;
+
+ordersDiv.innerHTML =
+"<div class='order-card'>لا توجد طلبات</div>";
+
+
+return;
+
+
+}
+
+
+
+
+
+list.forEach(data=>{
+
+
+
+ordersDiv.innerHTML += `
+
+
+<div class="order-card">
+
+
+
+<div class="order-title">
+
+
+<div>
+رقم المعاملة
+</div>
+
+
+<span>
+${data.transactionId || "-"}
+</span>
+
+
+</div>
+
+
+
+
+
+<div class="grid">
+
+
+
+<div class="field">
+
+<div class="label">
+الاسم
+</div>
+
+<div class="value">
+${data.name || "-"}
+</div>
+
+</div>
+
+
+
+<div class="field">
+
+<div class="label">
+الجوال
+</div>
+
+<div class="value">
+${data.phone || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="field">
+
+<div class="label">
+البريد
+</div>
+
+<div class="value">
+${data.email || "-"}
+</div>
+
+</div>
+
+
+
+<div class="field">
+
+<div class="label">
+القطعة
+</div>
+
+<div class="value">
+${data.partNumber || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="field">
+
+<div class="label">
+الحالة
+</div>
+
+<div class="value">
+${data.status || "-"}
+</div>
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<button class="edit-btn"
+onclick="openEdit('${data.id}')">
+
+✏️ تعديل الطلب
+
+</button>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+window.searchOrders=function(){
+
+
+
+let text =
+document.getElementById("searchInput").value.trim();
+
+
+
+if(text===""){
+
+
+displayOrders(allOrders);
+
+
+return;
+
+}
+
+
+
+let result =
+allOrders.filter(item=>
+
+
+(item.transactionId &&
+item.transactionId.includes(text))
+
+
+||
+
+(item.phone &&
+item.phone.includes(text))
+
+
+);
+
+
+
+displayOrders(result);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+window.openEdit=function(id){
+
+
+
+let order =
+allOrders.find(x=>x.id===id);
+
+
+
+if(!order) return;
+
+
+
+document.getElementById("editId").value=id;
+
+
+document.getElementById("editName").value=order.name || "";
+
+document.getElementById("editPhone").value=order.phone || "";
+
+document.getElementById("editEmail").value=order.email || "";
+
+document.getElementById("editIdNumber").value=order.idNumber || "";
+
+document.getElementById("editCountry").value=order.country || "";
+
+document.getElementById("editPartNumber").value=order.partNumber || "";
+
+document.getElementById("editType").value=order.type || "";
+
+document.getElementById("editStatus").value=order.status || "قيد المراجعة";
+
+document.getElementById("editNotes").value=order.notes || "";
+
+document.getElementById("editApproved").value=
+String(order.approved || false);
+
+
+
+document.getElementById("editModal").style.display="flex";
+
+
+}
+
+
+
+
+
+
+
+window.closeEdit=function(){
+
+
+document.getElementById("editModal").style.display="none";
+
+
+}
+
+
+
+
+
+
+
+
+
+window.saveEdit=async function(){
+
+
+
+let id =
+document.getElementById("editId").value;
 
 
 
@@ -715,11 +1099,44 @@ doc(db,"orders",id),
 {
 
 
-status:status,
+name:
+document.getElementById("editName").value,
 
-notes:notes,
 
-approved:true
+phone:
+document.getElementById("editPhone").value,
+
+
+email:
+document.getElementById("editEmail").value,
+
+
+idNumber:
+document.getElementById("editIdNumber").value,
+
+
+country:
+document.getElementById("editCountry").value,
+
+
+partNumber:
+document.getElementById("editPartNumber").value,
+
+
+type:
+document.getElementById("editType").value,
+
+
+status:
+document.getElementById("editStatus").value,
+
+
+notes:
+document.getElementById("editNotes").value,
+
+
+approved:
+document.getElementById("editApproved").value==="true"
 
 
 }
@@ -729,7 +1146,7 @@ approved:true
 
 
 
-alert("تم تحديث الطلب بنجاح");
+alert("تم حفظ التعديلات بنجاح");
 
 
 location.reload();
@@ -741,18 +1158,18 @@ location.reload();
 catch(error){
 
 
-alert("حدث خطأ أثناء الحفظ");
-
-
 console.log(error);
 
 
-
-}
-
+alert("حدث خطأ أثناء الحفظ");
 
 
 }
+
+
+
+}
+
 
 
 
