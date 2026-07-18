@@ -731,30 +731,56 @@ phone;
 
 // إرسال واتساب
 
+<script>
+
 function sendWhatsApp(){
 
+let name = sessionStorage.getItem("name") || "";
+let phone = sessionStorage.getItem("phone") || "";
+let email = sessionStorage.getItem("email") || "";
+let idNumber = sessionStorage.getItem("idNumber") || "";
+let partNumber = sessionStorage.getItem("partNumber") || "";
+let country = sessionStorage.getItem("country") || "";
+let type = sessionStorage.getItem("type") || "";
+let notes = sessionStorage.getItem("notes") || "";
+let transactionId = sessionStorage.getItem("transactionId") || "";
 
 
-if(!orderData){
+let adminPhone = "966580272758";
 
 
-alert("انتظر حتى يتم تحميل البيانات");
+let message =
+"📌 طلب جديد\n\n";
 
 
-return;
+message += "رقم المعاملة: " + transactionId + "\n\n";
+
+message += "الاسم: " + name + "\n";
+
+message += "الجوال: " + phone + "\n";
+
+message += "البريد: " + email + "\n";
+
+message += "رقم الهوية: " + idNumber + "\n";
+
+message += "رقم القطعة: " + partNumber + "\n";
+
+message += "الدولة: " + country + "\n";
+
+message += "نوع الطلب: " + type + "\n";
+
+message += "التفاصيل: " + notes;
+
+
+
+window.location.href =
+"https://wa.me/" + adminPhone +
+"?text=" + encodeURIComponent(message);
 
 
 }
 
-
-
-const adminPhone =
-"966580272758";
-
-
-
-let message =
-
+</script>
 "📌 طلب جديد\n\n";
 
 
