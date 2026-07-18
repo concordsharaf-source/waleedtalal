@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>لوحة إدارة الطلبات</title>
+
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+
+*{
+box-sizing:border-box;
+}
+
+
+
+body{
+
+margin:0;
+
+font-family:'Cairo',sans-serif;
+
+background:#f0f2f5;
+
+}
+
+
+
+.container{
+
+max-width:1200px;
+
+margin:auto;
+
+padding:20px;
+
+}
+
+
+
+.header{
+
+background:#1a4332;
+
+color:white;
+
+padding:25px;
+
+border-radius:20px;
+
+text-align:center;
+
+margin-bottom:25px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+
+}
+
+
+
+.header h1{
+
+margin:0;
+
+font-size:30px;
+
+}
+
+
+
+.header p{
+
+margin:10px 0 0;
+
+opacity:.9;
+
+}
+
+
+
+
+
+.card{
+
+background:white;
+
+border-radius:20px;
+
+padding:20px;
+
+margin-bottom:20px;
+
+box-shadow:0 8px 25px rgba(0,0,0,.1);
+
+}
+
+
+
+
+
+.order-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+background:#1a4332;
+
+color:white;
+
+padding:15px;
+
+border-radius:15px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.transaction{
+
+font-size:20px;
+
+font-weight:bold;
+
+color:#d4af37;
+
+}
+
+
+
+
+
+.grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+gap:12px;
+
+}
+
+
+
+
+
+.item{
+
+background:#f8f9fa;
+
+padding:12px;
+
+border-radius:12px;
+
+}
+
+
+
+.label{
+
+font-size:12px;
+
+color:#777;
+
+}
+
+
+
+.value{
+
+font-weight:bold;
+
+color:#333;
+
+margin-top:5px;
+
+}
+
+
+
+
+
+select,
+textarea{
+
+
+width:100%;
+
+padding:12px;
+
+border-radius:10px;
+
+border:1px solid #ddd;
+
+font-family:inherit;
+
+margin-top:8px;
+
+}
+
+
+
+
+textarea{
+
+height:80px;
+
+resize:none;
+
+}
+
+
+
+
+button{
+
+
+width:100%;
+
+padding:14px;
+
+border:none;
+
+border-radius:12px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+font-size:17px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-top:15px;
+
+}
+
+
+
+
+.loading{
+
+text-align:center;
+
+font-size:20px;
+
+color:#1a4332;
+
+}
+
+
+
+</style>
+
+
+</head>
+<body>
+
+
+<div class="container">
+
+
+
+<div class="header">
+
+<h1>
+لوحة إدارة الطلبات
+</h1>
+
+
+<p>
+إدارة ومتابعة طلبات العملاء
+</p>
+
+
+</div>
+
+
+
+
+
+<div id="orders">
+
+<div class="loading">
+
+جاري تحميل الطلبات...
+
+</div>
+
+</div>
+
+
+
+
+</div>
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+
+getFirestore,
+
+collection,
+
+getDocs,
+
+doc,
+
+updateDoc,
+
+orderBy,
+
+query
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+
+
+const firebaseConfig = {
+
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getFirestore(app);
+
+
+
+const ordersDiv = document.getElementById("orders");
+
+
+
+
+
+async function loadOrders(){
+
+
+try{
+
+
+const q = query(
+
+collection(db,"orders"),
+
+orderBy("createdAt","desc")
+
+);
+
+
+
+const snapshot = await getDocs(q);
+
+
+
+if(snapshot.empty){
+
+
+ordersDiv.innerHTML = `
+
+<div class="card">
+
+لا توجد طلبات حالياً
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+
+
+ordersDiv.innerHTML="";
+
+
+
+
+snapshot.forEach((item)=>{
+
+
+const data = item.data();
+
+
+const id = item.id;
+
+
+
+
+let approvedText = data.approved 
+? "✅ معتمد"
+: "⏳ بانتظار الاعتماد";
+
+
+
+
+ordersDiv.innerHTML += `
+
+
+<div class="card">
+
+
+
+<div class="order-header">
+
+
+<div>
+رقم المعاملة
+</div>
+
+
+<div class="transaction">
+
+${data.transactionId}
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="grid">
+
+
+
+<div class="item">
+
+<div class="label">
+الاسم
+</div>
+
+<div class="value">
+${data.name || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="item">
+
+<div class="label">
+الجوال
+</div>
+
+<div class="value">
+${data.phone || "-"}
+</div>
+
+</div>
+
+
+
+
+
+<div class="item">
+
+<div class="label">
+الدولة
+</div>
+
+<div class="value">
+${data.country || "-"}
+</div>
+
+</div>
+
+
+
+
+
+<div class="item">
+
+<div class="label">
+نوع الطلب
+</div>
+
+<div class="value">
+${data.type || "-"}
+</div>
+
+</div>
+
+
+
+
+
+<div class="item">
+
+<div class="label">
+القطعة المطلوبة
+</div>
+
+<div class="value">
+${data.partNumber || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="item">
+
+<div class="label">
+الحالة الحالية
+</div>
+
+<div class="value">
+${data.status || "-"}
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="item" style="margin-top:15px">
+
+<div class="label">
+الحالة الجديدة
+</div>
+
+
+
+<select id="status-${id}">
+
+
+<option value="قيد المراجعة">
+قيد المراجعة
+</option>
+
+
+<option value="جاري التجهيز">
+جاري التجهيز
+</option>
+
+
+<option value="تم توفير القطعة">
+تم توفير القطعة
+</option>
+
+
+<option value="تم التسليم">
+تم التسليم
+</option>
+
+
+<option value="مرفوض">
+مرفوض
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+<div class="item" style="margin-top:15px">
+
+
+<div class="label">
+ملاحظات الإدارة
+</div>
+
+
+<textarea id="notes-${id}">
+${data.notes || ""}
+</textarea>
+
+
+
+</div>
+
+
+
+
+
+<div class="item" style="margin-top:15px">
+
+الحالة الحالية:
+
+<b>
+${approvedText}
+</b>
+
+
+</div>
+
+
+
+
+
+<button onclick="saveOrder('${id}')">
+
+💾 حفظ التعديلات واعتماد الطلب
+
+</button>
+
+
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+ordersDiv.innerHTML =
+"حدث خطأ في تحميل الطلبات";
+
+
+}
+
+
+
+}
+
+
+
+
+
+window.saveOrder = async function(id){
+
+
+
+const status =
+
+document.getElementById("status-"+id).value;
+
+
+
+const notes =
+
+document.getElementById("notes-"+id).value;
+
+
+
+
+try{
+
+
+await updateDoc(
+
+doc(db,"orders",id),
+
+{
+
+
+status:status,
+
+notes:notes,
+
+approved:true
+
+
+}
+
+);
+
+
+
+
+alert("تم تحديث الطلب بنجاح");
+
+
+location.reload();
+
+
+
+}
+
+catch(error){
+
+
+alert("حدث خطأ أثناء الحفظ");
+
+
+console.log(error);
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+loadOrders();
+
+
+
+</script>
+
+
+</body>
+
+</html>

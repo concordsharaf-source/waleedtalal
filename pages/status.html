@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حالة الطلب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark-green: #0d3b2b;
+            --bg-light-green: #114b37;
+            --gold: #d4af37;
+            --gold-light: #f3d78d;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-dark-green);
+            margin: 0;
+            padding: 0;
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-light-green);
+            min-height: 100vh;
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 1px solid #1a5c44;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header-title h1 {
+            font-size: 22px;
+            margin: 0 0 5px 0;
+            font-weight: 800;
+        }
+        .header-title p {
+            font-size: 12px;
+            margin: 0;
+            color: var(--gold);
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Status Section */
+        .status-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .check-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f5d78e, #d4af37);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #000;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        .status-section h2 {
+            color: var(--gold);
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+        .status-section p {
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* Stepper */
+        .stepper-title {
+            text-align: right;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .stepper {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 40px;
+            direction: ltr; /* To match image flow if needed, or keep rtl */
+        }
+        .stepper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background-color: var(--gold);
+            z-index: 1;
+        }
+        .step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 33%;
+        }
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            background-color: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 14px;
+            margin-bottom: 8px;
+            border: 3px solid var(--bg-light-green);
+        }
+        .step-text {
+            font-size: 11px;
+            color: var(--gold);
+            text-align: center;
+        }
+
+        /* Details Grid */
+        .details-title {
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .detail-card {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: right;
+        }
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            font-size: 13px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        /* Amount Card */
+        .amount-card {
+            background: linear-gradient(135deg, #dca849, #e9c874);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #4a3400;
+            margin-bottom: 25px;
+            position: relative;
+            border: 2px solid #b78a35;
+        }
+        .amount-card h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+        .amount-box {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 200px;
+        }
+
+        /* Note Section */
+        .note-section {
+            font-size: 11px;
+            line-height: 1.8;
+            text-align: justify;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+        .note-title {
+            color: var(--gold);
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        /* Buttons */
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #eef1f6;
+            color: var(--bg-dark-green);
+        }
+        .btn-secondary {
+            background-color: #eef1f6;
+            color: var(--bg-dark-green);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">
+            <h1>حالة الطلب</h1>
+            <p>رقم النظام: 4naaya884</p>
+        </div>
+        <div class="logo">
+            <!-- مساحة اللوجو (الكرة الأرضية الخضراء) -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#0d3b2b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.59-.45-1.34-.71-2.15-.71H15v-2c0-.55-.45-1-1-1h-2v-2h2c1.1 0 2-.9 2-2V7.12C18.66 8.35 20 10.03 20 12c0 2.05-.76 3.93-2.1 5.4z"/></svg>
+        </div>
+    </div>
+
+    <!-- Status -->
+    <div class="status-section">
+        <div class="check-icon">✓</div>
+        <h2>تمت الموافقة</h2>
+        <p>تهانينا! تمت الموافقة على طلبك.</p>
+    </div>
+
+    <!-- Stepper -->
+    <div class="stepper-title">تتبع المراحل</div>
+    <div class="stepper" dir="rtl">
+        <div class="step">
+            <div class="step-circle">✓</div>
+            <div class="step-text">تم التقديم</div>
+        </div>
+        <div class="step">
+            <div class="step-circle">✓</div>
+            <div class="step-text">تمت الموافقة</div>
+        </div>
+        <div class="step">
+            <div class="step-circle" style="background-color: var(--bg-dark-green); color: var(--gold); border-color: var(--gold);">✓</div>
+            <div class="step-text" style="color: #fff;">تم اصدار قرار<br>الصرف</div>
+        </div>
+    </div>
+
+    <!-- Details -->
+    <div class="details-title">تفاصيل الطلب</div>
+    <div class="details-grid">
+        <div class="detail-card">
+            <div class="detail-label">نوع الطلب:</div>
+            <div class="detail-value">برنامج الدعم المالي</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">حالة الطلب:</div>
+            <div class="detail-value">تمت الموافقة</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">اسم المستفيد:</div>
+            <div class="detail-value">خالد عواد صحن ع...</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">رقم الهوية:</div>
+            <div class="detail-value">291021800077</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">رقم الجوال:</div>
+            <div class="detail-value" dir="ltr">0096596687100</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">الجنسية:</div>
+            <div class="detail-value">الكويت</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">اسم البنك:</div>
+            <div class="detail-value">بيت التمويل الكو...</div>
+        </div>
+        <div class="detail-card">
+            <div class="detail-label">رقم الحساب:</div>
+            <div class="detail-value">231050216118</div>
+        </div>
+    </div>
+
+    <!-- Amount -->
+    <div class="amount-card">
+        <h3>مبلغ المنحة المقدمة من<br>الأمير الوليد بن طلال آل سعود</h3>
+        <div class="amount-box">
+            650,000.00 ر.س
+        </div>
+    </div>
+
+    <!-- Note -->
+    <div class="note-section">
+        <div class="note-title">الملاحظة:</div>
+        نبارك لكم صدور الموافقة النهائية على طلبكم لدى مؤسسة الوليد للإنسانية سائلين الله أن يبارك لكم في هذا الدعم وأن يجعله عوناً لكم على تحقيق أهدافكم وتلبية احتياجاتكم يرجى استكمال الإجراءات النهائية الخاصة بطلبكم من خلال التواصل عبر القناة الرسمية على منصة واتساب على الرقم التالي: <span dir="ltr">+966561995859</span> وذلك للاطلاع على التفاصيل النهائية واستكمال المتطلبات اللازمة كما نحيطكم علماً بأن الرسوم المقررة لاستكمال إجراءات المعاملة تبلغ 3,750 ريال سعودي وذلك وفقاً للبيانات والإجراءات الموضحة لكم من قبل الجهة المختصة نسأل الله لكم التوفيق والسداد ونشكركم على تعاونكم إدارة المستفيدين مؤسسة الوليد للإنسانية
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons-container">
+        <button class="btn btn-primary">🔍 تتبع طلب آخر</button>
+        <button class="btn btn-secondary">العودة للرئيسية</button>
+    </div>
+
+</div>
+
+</body>
+</html>
