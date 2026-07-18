@@ -15,7 +15,6 @@
 
 <style>
 
-
 :root{
 
 --primary:#007c4b;
@@ -25,8 +24,6 @@
 --gray:#6b7280;
 
 --bg:#f4f5f7;
-
---white:#ffffff;
 
 --gold:#d4af37;
 
@@ -66,29 +63,25 @@ padding:20px;
 
 
 
-.mobile-container{
+.container{
 
 width:100%;
 
 max-width:420px;
 
-position:relative;
-
-padding-bottom:70px;
-
 }
 
 
 
-.main-card{
+.card{
 
 background:white;
 
 border-radius:25px;
 
-padding:20px;
+padding:25px;
 
-box-shadow:0 5px 20px rgba(0,0,0,.08);
+box-shadow:0 10px 30px rgba(0,0,0,.08);
 
 text-align:center;
 
@@ -99,8 +92,7 @@ margin-top:50px;
 
 
 
-
-.status-header{
+.success-box{
 
 background:white;
 
@@ -108,31 +100,27 @@ border-radius:20px;
 
 padding:25px;
 
-margin:-60px auto 25px;
-
 width:85%;
 
-box-shadow:0 5px 20px rgba(0,0,0,.08);
+margin:-60px auto 25px;
 
-position:relative;
+box-shadow:0 5px 20px rgba(0,0,0,.08);
 
 }
 
 
 
-
-
-.success-icon{
+.icon{
 
 width:65px;
 
 height:65px;
 
-border-radius:50%;
-
 background:#e8fff4;
 
 border:3px solid var(--primary);
+
+border-radius:50%;
 
 display:flex;
 
@@ -140,21 +128,19 @@ align-items:center;
 
 justify-content:center;
 
-margin:-55px auto 15px;
-
 font-size:35px;
+
+font-weight:bold;
 
 color:var(--primary);
 
-font-weight:bold;
+margin:-60px auto 15px;
 
 }
 
 
 
-
-
-.status-header h2{
+h2{
 
 font-size:20px;
 
@@ -164,9 +150,7 @@ color:var(--dark);
 
 
 
-
-
-.text{
+p{
 
 color:var(--gray);
 
@@ -174,28 +158,29 @@ font-size:15px;
 
 line-height:1.8;
 
-margin-bottom:20px;
-
 }
-
-
 
 
 
 .order-title{
 
+margin-top:25px;
+
 font-weight:bold;
 
 color:var(--dark);
-
-margin-bottom:10px;
 
 }
 
 
 
-
 .order-box{
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
 
 border:1px solid #ddd;
 
@@ -203,21 +188,15 @@ border-radius:12px;
 
 padding:15px;
 
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-margin-bottom:20px;
+margin-top:10px;
 
 }
 
 
 
-.order-number{
+#transaction{
 
-font-size:22px;
+font-size:24px;
 
 font-weight:bold;
 
@@ -227,17 +206,15 @@ color:var(--primary);
 
 
 
-
-
-.copy-btn{
-
-border:none;
+.copy{
 
 background:#eee;
 
-padding:8px 12px;
+border:none;
 
 border-radius:8px;
+
+padding:8px 12px;
 
 cursor:pointer;
 
@@ -246,25 +223,23 @@ cursor:pointer;
 
 
 </style>
-<!-- بداية الصفحة -->
-
 </head>
 
 
 <body>
 
 
-<div class="mobile-container">
+<div class="container">
 
 
-<div class="main-card">
+<div class="card">
 
 
 
-<div class="status-header">
+<div class="success-box">
 
 
-<div class="success-icon">
+<div class="icon">
 
 ✓
 
@@ -277,21 +252,23 @@ cursor:pointer;
 </h2>
 
 
+
 </div>
 
 
 
 
 
-<p class="text">
+<p>
 
-مرحباً بك عزيزي العميل،
+مرحباً بك عزيزي العميل
 
 <br>
 
-لقد تم استلام طلبك بنجاح وسيتم مراجعته من قبل الإدارة.
+تم استلام طلبك بنجاح، وسيتم مراجعته من قبل الإدارة.
 
 </p>
+
 
 
 
@@ -308,10 +285,11 @@ cursor:pointer;
 
 
 
+
 <div class="order-box">
 
 
-<div class="order-number" id="transactionNumber">
+<div id="transaction">
 
 ----
 
@@ -319,35 +297,11 @@ cursor:pointer;
 
 
 
-<button class="copy-btn" onclick="copyNumber()">
+<button class="copy" onclick="copyTransaction()">
 
 📋 نسخ
 
 </button>
-
-
-
-</div>
-
-
-
-
-
-
-
-<div class="text">
-
-
-نوع الطلب:
-
-<br>
-
-
-<strong id="requestType">
-
-----
-
-</strong>
 
 
 </div>
@@ -361,15 +315,15 @@ cursor:pointer;
 <div style="
 background:#fff8df;
 border:1px solid #d4af37;
-border-radius:15px;
 padding:15px;
-margin:20px 0;
+border-radius:15px;
+margin-top:20px;
 color:#6b4d00;
 font-weight:bold;
-font-size:14px;
 ">
 
-⚠️ احتفظ برقم المعاملة، ستحتاج إليه لمتابعة حالة طلبك.
+
+⚠️ يرجى الاحتفاظ برقم المعاملة لمتابعة حالة الطلب.
 
 
 </div>
@@ -381,15 +335,15 @@ font-size:14px;
 
 
 
-<div style="margin-top:20px;">
+<div style="margin-top:25px;">
 
 
 
-<button onclick="goTrack()" style="
+<button onclick="trackOrder()" style="
 width:100%;
-padding:14px;
+padding:15px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:#007c4b;
 color:white;
 font-size:16px;
@@ -406,11 +360,13 @@ cursor:pointer;
 
 
 
+
+
 <button onclick="sendWhatsApp()" style="
 width:100%;
-padding:14px;
+padding:15px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:#25D366;
 color:white;
 font-size:16px;
@@ -424,12 +380,6 @@ cursor:pointer;
 
 
 
-</div>
-
-
-
-
-
 
 
 </div>
@@ -440,251 +390,96 @@ cursor:pointer;
 
 
 
-<div style="
-position:fixed;
-bottom:20px;
-left:20px;
-right:20px;
-display:flex;
-justify-content:center;
-">
-
-
-<button onclick="goHome()" style="
-background:#007c4b;
+<button onclick="home()" style="
+margin-top:20px;
+background:#1b212c;
 color:white;
 border:none;
 padding:12px 35px;
 border-radius:12px;
-font-size:15px;
 font-weight:bold;
 cursor:pointer;
 ">
 
+
 العودة للرئيسية
+
 
 </button>
 
 
 
+
+
+
+
 </div>
 
 
-
-
-
 </div>
-<script type="module">
+<script>
 
 
-import { initializeApp }
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-
-import {
-
-getFirestore,
-
-collection,
-
-query,
-
-where,
-
-getDocs
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-
-
-
-const firebaseConfig = {
-
-
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
-
-authDomain: "sparepartswebsite1.firebaseapp.com",
-
-projectId: "sparepartswebsite1",
-
-storageBucket: "sparepartswebsite1.firebasestorage.app",
-
-messagingSenderId: "1063114847735",
-
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
-
-};
-
-
-
-
-
-const app = initializeApp(firebaseConfig);
-
-
-const db = getFirestore(app);
-
-
-
-
-
-
-// قراءة بيانات الطلب المحفوظة مؤقتاً
+// جلب بيانات الطلب من التخزين المؤقت
 
 const transactionId =
-sessionStorage.getItem("transactionId");
+sessionStorage.getItem("transactionId") || "----";
+
+
+const name =
+sessionStorage.getItem("name") || "";
 
 
 const phone =
-sessionStorage.getItem("phone");
+sessionStorage.getItem("phone") || "";
 
 
+const email =
+sessionStorage.getItem("email") || "";
 
 
+const idNumber =
+sessionStorage.getItem("idNumber") || "";
 
-let orderData = null;
 
+const partNumber =
+sessionStorage.getItem("partNumber") || "";
 
 
+const country =
+sessionStorage.getItem("country") || "";
 
 
+const type =
+sessionStorage.getItem("type") || "";
 
 
-async function loadOrder(){
+const notes =
+sessionStorage.getItem("notes") || "";
 
 
 
-if(!transactionId || !phone){
 
+// عرض رقم المعاملة
 
-alert("لم يتم العثور على بيانات الطلب");
+document.getElementById("transaction").innerText =
+transactionId;
 
 
-return;
 
 
-}
 
-
-
-
-
-try{
-
-
-
-const q = query(
-
-collection(db,"orders"),
-
-where("transactionId","==",transactionId),
-
-where("phone","==",phone)
-
-);
-
-
-
-
-
-const snapshot = await getDocs(q);
-
-
-
-
-
-if(snapshot.empty){
-
-
-alert("لم يتم العثور على الطلب");
-
-
-return;
-
-
-}
-
-
-
-
-
-snapshot.forEach((doc)=>{
-
-
-orderData = doc.data();
-
-
-});
-
-
-
-
-
-
-document.getElementById("transactionNumber").innerText =
-
-orderData.transactionId;
-
-
-
-document.getElementById("requestType").innerText =
-
-orderData.type || "طلب قطع غيار";
-
-
-
-
-
-}
-
-catch(error){
-
-
-console.log(error);
-
-
-alert("حدث خطأ أثناء تحميل البيانات");
-
-
-}
-
-
-
-}
-
-
-
-
-
-loadOrder();
-
-
-
-
-</script>
-<script>
 
 
 // نسخ رقم المعاملة
 
-function copyNumber(){
+function copyTransaction(){
 
 
-const number =
-document.getElementById("transactionNumber").innerText;
+navigator.clipboard.writeText(transactionId);
 
 
-
-navigator.clipboard.writeText(number);
-
-
-
-alert("تم نسخ رقم المعاملة: " + number);
-
+alert("تم نسخ رقم المعاملة: " + transactionId);
 
 
 }
@@ -696,163 +491,142 @@ alert("تم نسخ رقم المعاملة: " + number);
 
 
 
-// الانتقال إلى صفحة التتبع
-
-function goTrack(){
-
-
-const transactionId =
-sessionStorage.getItem("transactionId");
-
-
-const phone =
-sessionStorage.getItem("phone");
-
-
-
-window.location.href =
-"track.html?transaction="
-+ transactionId
-+
-"&phone="
-+
-phone;
-
-
-
-}
-
-
-
-
-
-
-
-
-// إرسال واتساب
-
-<script>
+// إرسال الواتساب
 
 function sendWhatsApp(){
 
-let name = sessionStorage.getItem("name") || "";
-let phone = sessionStorage.getItem("phone") || "";
-let email = sessionStorage.getItem("email") || "";
-let idNumber = sessionStorage.getItem("idNumber") || "";
-let partNumber = sessionStorage.getItem("partNumber") || "";
-let country = sessionStorage.getItem("country") || "";
-let type = sessionStorage.getItem("type") || "";
-let notes = sessionStorage.getItem("notes") || "";
-let transactionId = sessionStorage.getItem("transactionId") || "";
 
 
 let adminPhone = "966580272758";
 
 
+
 let message =
-"📌 طلب جديد\n\n";
 
-
-message += "رقم المعاملة: " + transactionId + "\n\n";
-
-message += "الاسم: " + name + "\n";
-
-message += "الجوال: " + phone + "\n";
-
-message += "البريد: " + email + "\n";
-
-message += "رقم الهوية: " + idNumber + "\n";
-
-message += "رقم القطعة: " + partNumber + "\n";
-
-message += "الدولة: " + country + "\n";
-
-message += "نوع الطلب: " + type + "\n";
-
-message += "التفاصيل: " + notes;
-
-
-
-window.location.href =
-"https://wa.me/" + adminPhone +
-"?text=" + encodeURIComponent(message);
-
-
-}
-
-</script>
 "📌 طلب جديد\n\n";
 
 
 
 message +=
-
 "رقم المعاملة: "
 +
-orderData.transactionId
+transactionId
 +
-"\n";
+"\n\n";
 
 
 
 message +=
-
 "الاسم: "
 +
-orderData.name
+name
 +
 "\n";
 
 
 
 message +=
-
 "الجوال: "
 +
-orderData.phone
+phone
 +
 "\n";
 
 
 
 message +=
-
-"نوع الطلب: "
+"البريد: "
 +
-orderData.type
+email
 +
 "\n";
 
 
 
 message +=
+"رقم الهوية: "
++
+idNumber
++
+"\n";
 
+
+
+message +=
 "رقم القطعة: "
 +
-(orderData.partNumber || "")
+partNumber
 +
 "\n";
 
 
 
 message +=
+"الدولة: "
++
+country
++
+"\n";
 
+
+
+message +=
+"نوع الطلب: "
++
+type
++
+"\n";
+
+
+
+message +=
 "التفاصيل: "
 +
-orderData.notes;
+notes;
+
+
 
 
 
 window.location.href =
 
 "https://wa.me/"
+
 +
 adminPhone
+
 +
+
 "?text="
+
 +
+
 encodeURIComponent(message);
 
+
+
+}
+
+// الانتقال إلى صفحة التتبع
+
+function trackOrder(){
+
+
+window.location.href =
+
+"track.html?transaction="
+
++
+
+transactionId
+
++
+
+"&phone="
+
++
+
+phone;
 
 
 }
@@ -865,8 +639,7 @@ encodeURIComponent(message);
 
 // العودة للرئيسية
 
-
-function goHome(){
+function home(){
 
 
 window.location.href="index.html";
@@ -879,7 +652,7 @@ window.location.href="index.html";
 </script>
 
 
-
 </body>
+
 
 </html>
