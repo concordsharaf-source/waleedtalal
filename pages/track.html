@@ -1,108 +1,181 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>تتبع المعاملة</title>
+
 
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
+
 body{
+
 margin:0;
+
 font-family:'Cairo',sans-serif;
+
 background:#f0f2f5;
+
 display:flex;
+
 justify-content:center;
+
 align-items:center;
+
 min-height:100vh;
+
 }
+
 
 
 .card{
+
 width:90%;
+
 max-width:420px;
+
 background:#1a4332;
+
 padding:35px;
+
 border-radius:25px;
+
 box-shadow:0 15px 40px rgba(0,0,0,.3);
+
 color:white;
+
 text-align:center;
+
 }
+
 
 
 .logo{
+
 width:100px;
+
 height:100px;
+
 border-radius:50%;
+
 background:url('images/xx.jpg');
+
 background-size:cover;
+
 background-position:center;
+
 margin:auto;
+
 border:4px solid white;
+
 }
+
 
 
 h1{
+
 font-size:28px;
+
 margin:20px 0;
+
 }
+
 
 
 p{
+
 opacity:.9;
+
 }
+
 
 
 label{
+
 display:block;
+
 text-align:right;
+
 margin:15px 0 7px;
+
 font-weight:bold;
+
 }
+
 
 
 input{
+
 width:100%;
+
 padding:15px;
+
 border-radius:12px;
+
 border:none;
+
 font-size:16px;
+
 box-sizing:border-box;
+
 }
+
 
 
 button{
+
 width:100%;
+
 padding:16px;
+
 margin-top:25px;
+
 border:none;
+
 border-radius:15px;
+
 background:linear-gradient(to right,#25D366,#128C7E);
+
 color:white;
+
 font-size:18px;
+
 font-weight:bold;
+
 cursor:pointer;
+
 }
 
 
+
 .result{
+
 display:none;
+
 margin-top:25px;
+
 background:white;
+
 color:#333;
+
 padding:20px;
+
 border-radius:15px;
+
 }
 
 
 </style>
 
 </head>
+
 
 
 <body>
@@ -124,57 +197,85 @@ border-radius:15px;
 </p>
 
 
+
 <label>
 رقم المعاملة
 </label>
 
-<input id="transactionId" type="text" placeholder="مثال: 4827">
+
+<input 
+id="transactionId"
+type="text"
+placeholder="مثال: 5473">
+
+
 
 
 
 <label>
-رقم الهوية
+رقم الجوال
 </label>
 
-<input id="idNumber" type="text" placeholder="رقم الهوية">
+
+<input 
+id="phone"
+type="text"
+placeholder="رقم الجوال">
+
+
 
 
 
 <button onclick="checkTransaction()">
+
 بحث عن المعاملة
+
 </button>
 
 
 
-<div class="result" id="result"></div>
+<div id="result" class="result"></div>
+
 
 
 </div>
 
 
 
+
+
+
 <script type="module">
+
 
 import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
-import { 
+import {
+
 getFirestore,
+
 collection,
+
 query,
+
 where,
+
 getDocs
+
 }
+
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
-// إعدادات Firebase
+
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+apiKey: "AIzaSyDD_I84b3b6bmVx-t2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -186,13 +287,29 @@ messagingSenderId: "1063114847735",
 
 appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
+
 };
 
 
 
 const app = initializeApp(firebaseConfig);
 
+
 const db = getFirestore(app);
+
+
+
+
+
+function convertNumbers(value){
+
+return value.replace(/[٠-٩]/g,function(d){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+
+});
+
+}
 
 
 
@@ -201,29 +318,23 @@ const db = getFirestore(app);
 window.checkTransaction = async function(){
 
 
+
 let transactionId =
 document.getElementById("transactionId").value.trim();
 
 
+
 let phone =
-document.getElementById("idNumber").value.trim();
+document.getElementById("phone").value.trim();
 
 
 
-// تحويل الأرقام العربية إلى إنجليزية
 
-transactionId = transactionId.replace(/[٠-٩]/g,function(x){
+transactionId = convertNumbers(transactionId);
 
-return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
-
-});
+phone = convertNumbers(phone);
 
 
-phone = phone.replace(/[٠-٩]/g,function(x){
-
-return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
-
-});
 
 
 
@@ -231,13 +342,16 @@ let result =
 document.getElementById("result");
 
 
-result.style.display="block";
-
-
 
 if(!transactionId || !phone){
 
-result.innerHTML=`
+
+result.style.display="block";
+
+
+result.innerHTML=
+
+`
 
 <h3 style="color:red">
 تنبيه
@@ -249,9 +363,11 @@ result.innerHTML=`
 
 `;
 
+
 return;
 
 }
+
 
 
 
@@ -271,18 +387,27 @@ where("phone","==",phone)
 
 
 
+
 const snapshot = await getDocs(q);
+
+
 
 
 
 if(snapshot.empty){
 
 
-result.innerHTML=`
+result.style.display="block";
+
+
+result.innerHTML=
+
+`
 
 <h3 style="color:red">
 خطأ
 </h3>
+
 
 <p>
 رقم المعاملة أو رقم الجوال غير صحيح
@@ -290,9 +415,13 @@ result.innerHTML=`
 
 `;
 
+
 return;
 
+
 }
+
+
 
 
 
@@ -303,107 +432,22 @@ let data = doc.data();
 
 
 
-if(data.approved === false){
+// الانتقال إلى صفحة الحالة
 
+window.location.href =
 
+"status.html?transactionId="
 
-result.innerHTML=`
++ data.transactionId
 
-<h3 style="color:#856404">
-⏳ طلبك قيد المراجعة
-</h3>
++"&phone="
 
++ data.phone;
 
-<p>
-تم استلام طلبك بنجاح.
-</p>
-
-
-<p>
-سيتم تحديث حالة الطلب بعد المراجعة.
-</p>
-
-
-<p>
-رقم المعاملة:
-<b>${data.transactionId}</b>
-</p>
-
-`;
-
-
-
-}else{
-
-
-
-result.innerHTML=`
-
-<h3 style="color:#128C7E">
-✅ تم اعتماد الطلب
-</h3>
-
-
-<p>
-<b>رقم المعاملة:</b>
-${data.transactionId}
-</p>
-
-
-<p>
-<b>الاسم:</b>
-${data.name}
-</p>
-
-
-<p>
-<b>الجوال:</b>
-${data.phone}
-</p>
-
-
-<p>
-<b>البريد:</b>
-${data.email}
-</p>
-
-
-<p>
-<b>الدولة:</b>
-${data.country}
-</p>
-
-
-<p>
-<b>القطعة:</b>
-${data.partNumber}
-</p>
-
-
-<p>
-<b>نوع الطلب:</b>
-${data.type}
-</p>
-
-
-<p>
-<b>الحالة:</b>
-${data.status}
-</p>
-
-
-<p>
-<b>الملاحظات:</b>
-${data.notes}
-</p>
-
-
-`;
-
-}
 
 
 });
+
 
 
 
@@ -415,7 +459,13 @@ catch(error){
 console.log(error);
 
 
-result.innerHTML=`
+
+result.style.display="block";
+
+
+result.innerHTML=
+
+`
 
 <h3 style="color:red">
 حدث خطأ
@@ -436,6 +486,7 @@ result.innerHTML=`
 
 
 </script>
+
 
 </body>
 
