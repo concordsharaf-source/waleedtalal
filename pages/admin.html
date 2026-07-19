@@ -433,65 +433,6 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 </div>
-<script type="module">
-
-import {
-getAuth,
-onAuthStateChanged,
-signOut
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-
-const auth = getAuth();
-
-
-
-onAuthStateChanged(auth,(user)=>{
-
-
-if(user){
-
-console.log("المدير داخل:",user.email);
-
-
-}else{
-
-
-console.log("لا يوجد دخول");
-
-
-window.location.href="admin-login.html";
-
-
-}
-
-
-});
-
-
-
-
-
-window.logout=function(){
-
-
-signOut(auth)
-
-.then(()=>{
-
-
-window.location.href="admin-login.html";
-
-
-});
-
-
-}
-
-
-</script>
-
 
 
 
@@ -1560,19 +1501,9 @@ window.location.href="admin-login.html";
 
 // تسجيل الخروج اليدوي فقط
 
-window.logout=function(){
-
-
-
-if(confirm("هل تريد تسجيل الخروج؟")){
-
-
-signOut(auth)
-
-.then(()=>{
-
-
-window.location.href="admin-login.html";
+<button onclick="location.reload()">
+تحديث الصفحة
+</button>
 
 
 });
