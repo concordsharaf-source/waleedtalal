@@ -131,32 +131,23 @@ placeholder="كلمة المرور">
 
 <script type="module">
 
-
 import { initializeApp }
-
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
-
 import {
-
 getAuth,
 signInWithEmailAndPassword,
 setPersistence,
 browserLocalPersistence
-
 }
-
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-
 
 
 
 const firebaseConfig = {
 
-
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+apiKey: "AIzaSyDD_I84b3b6bmVxKjVx-tg2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -168,21 +159,17 @@ messagingSenderId: "1063114847735",
 
 appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
-
 };
 
 
 
 const app = initializeApp(firebaseConfig);
 
-
 const auth = getAuth(app);
 
 
 
-
-
-window.login=function(){
+window.login = async function(){
 
 
 let email =
@@ -196,7 +183,7 @@ document.getElementById("password").value.trim();
 
 if(!email || !password){
 
-document.getElementById("error").innerHTML =
+document.getElementById("error").innerHTML=
 "⚠️ اكتب البريد وكلمة المرور";
 
 return;
@@ -204,49 +191,47 @@ return;
 }
 
 
+try{
 
 
-setPersistence(auth,browserLocalPersistence)
+await setPersistence(
+auth,
+browserLocalPersistence
+);
 
-.then(()=>{
 
 
-return signInWithEmailAndPassword(
+await signInWithEmailAndPassword(
 auth,
 email,
 password
 );
 
 
-})
+
+window.location.replace(
+"admin.html"
+);
 
 
-.then(()=>{
 
+}
 
-// لأننا داخل مجلد pages
-
-window.location.href="admin.html";
-
-
-})
-
-
-.catch((error)=>{
+catch(error){
 
 
 console.log(error);
 
 
-document.getElementById("error").innerHTML =
+document.getElementById("error").innerHTML=
 "❌ البريد أو كلمة المرور غير صحيحة";
-
-
-});
 
 
 }
 
+
+
+}
 
 
 </script>
