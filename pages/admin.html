@@ -325,6 +325,59 @@ color:#1a4332;
 
 <body>
 
+<div id="lockScreen" style="
+position:fixed;
+inset:0;
+background:#1a4332;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+">
+
+<div style="
+background:white;
+padding:30px;
+border-radius:20px;
+width:90%;
+max-width:350px;
+text-align:center;
+">
+
+<h2>🔐 دخول الإدارة</h2>
+
+<input id="adminPass"
+type="password"
+placeholder="كلمة المرور"
+style="
+width:100%;
+padding:15px;
+border-radius:10px;
+border:1px solid #ddd;
+">
+
+
+<button onclick="checkPass()"
+style="
+margin-top:15px;
+width:100%;
+padding:15px;
+background:#25D366;
+color:white;
+border:0;
+border-radius:10px;
+font-weight:bold;
+">
+
+دخول
+
+</button>
+
+<p id="passError"></p>
+
+</div>
+
+</div>
 
 <div class="container">
 
@@ -1420,6 +1473,55 @@ loadOrders();
 
 </script>
 
+<script>
+
+const PASSWORD="123456";
+
+
+function checkPass(){
+
+let p=document.getElementById("adminPass").value;
+
+
+if(p===PASSWORD){
+
+localStorage.setItem("adminLogin","yes");
+
+document.getElementById("lockScreen").style.display="none";
+
+}else{
+
+document.getElementById("passError").innerHTML=
+"كلمة المرور خطأ";
+
+}
+
+}
+
+
+
+
+if(localStorage.getItem("adminLogin")==="yes"){
+
+document.getElementById("lockScreen").style.display="none";
+
+}
+
+
+
+function logout(){
+
+localStorage.removeItem("adminLogin");
+
+location.reload();
+
+}
+
+
+</script>
+<button onclick="logout()">
+تسجيل خروج
+</button>
 
 </body>
 
