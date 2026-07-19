@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -18,7 +18,6 @@
 *{
 box-sizing:border-box;
 }
-
 
 
 body{
@@ -46,7 +45,6 @@ padding:20px;
 
 
 
-
 .header{
 
 background:#1a4332;
@@ -64,7 +62,6 @@ margin-bottom:20px;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 
 }
-
 
 
 .header h1{
@@ -117,8 +114,6 @@ font-size:16px;
 
 
 
-
-
 .search-box button{
 
 padding:15px 25px;
@@ -134,6 +129,46 @@ color:white;
 font-weight:bold;
 
 cursor:pointer;
+
+}
+
+
+
+
+
+/* ترتيب الطلبات */
+
+.sort-box{
+
+background:white;
+
+padding:15px;
+
+border-radius:15px;
+
+margin-bottom:20px;
+
+box-shadow:0 5px 20px rgba(0,0,0,.1);
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+}
+
+
+
+.sort-box select{
+
+padding:12px;
+
+border-radius:10px;
+
+border:1px solid #ddd;
+
+font-family:inherit;
 
 }
 
@@ -179,8 +214,6 @@ align-items:center;
 
 
 
-
-
 .order-title span{
 
 color:#d4af37;
@@ -206,7 +239,6 @@ gap:12px;
 margin-top:20px;
 
 }
-
 
 
 
@@ -246,6 +278,7 @@ margin-top:5px;
 
 
 
+
 .edit-btn{
 
 width:100%;
@@ -272,6 +305,7 @@ cursor:pointer;
 
 
 
+
 .loading{
 
 text-align:center;
@@ -285,11 +319,10 @@ color:#1a4332;
 }
 
 
-
 </style>
-
-
 </head>
+
+
 <body>
 
 
@@ -306,6 +339,7 @@ color:#1a4332;
 <p>
 عرض وتعديل جميع طلبات العملاء
 </p>
+
 
 </div>
 
@@ -335,6 +369,44 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+<div class="sort-box">
+
+
+<strong>
+ترتيب الطلبات:
+</strong>
+
+
+
+<select id="sortSelect" onchange="sortOrders()">
+
+
+<option value="new">
+
+الأحدث أولاً
+
+</option>
+
+
+
+<option value="old">
+
+الأقدم أولاً
+
+</option>
+
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
 
 <div id="orders">
 
@@ -358,8 +430,7 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
-
-<!-- نافذة التعديل -->
+<!-- نافذة تعديل الطلب -->
 
 
 <div id="editModal" style="display:none;">
@@ -374,7 +445,10 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
 <input id="editId" type="hidden">
+
+
 
 
 
@@ -386,11 +460,15 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
+
 <label>
 رقم الجوال
 </label>
 
 <input id="editPhone">
+
+
 
 
 
@@ -402,11 +480,15 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
+
 <label>
 رقم الهوية
 </label>
 
 <input id="editIdNumber">
+
+
 
 
 
@@ -418,11 +500,15 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
+
 <label>
 رقم الحساب
 </label>
 
 <input id="editPartNumber">
+
+
 
 
 
@@ -434,27 +520,36 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
+
 <label>
 الحالة
 </label>
 
+
+
 <select id="editStatus">
+
 
 <option>
 قيد المراجعة
 </option>
 
+
 <option>
 جاري التجهيز
 </option>
+
 
 <option>
 بانتظار دفع الرسوم
 </option>
 
+
 <option>
 تم التسليم
 </option>
+
 
 <option>
 مرفوض
@@ -466,11 +561,14 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
+
 <label>
 ملاحظات الإدارة
 </label>
 
+
 <textarea id="editNotes"></textarea>
+
 
 
 
@@ -482,20 +580,29 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </label>
 
 
+
 <select id="editApproved">
 
 
 <option value="false">
+
 غير معتمد
+
 </option>
+
 
 
 <option value="true">
+
 معتمد
+
 </option>
 
 
+
 </select>
+
+
 
 
 
@@ -509,12 +616,15 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 
-<button onclick="closeEdit()"
+
+<button onclick="closeEdit()" 
 style="background:#777;">
 
 إلغاء
 
 </button>
+
+
 
 
 
@@ -550,6 +660,7 @@ padding:20px;
 z-index:999;
 
 }
+
 
 
 
@@ -629,6 +740,7 @@ font-size:15px;
 
 
 
+
 .modal-box textarea{
 
 height:90px;
@@ -668,11 +780,18 @@ cursor:pointer;
 
 
 </style>
+
+
+
+
+
 <script type="module">
+
 
 import { initializeApp }
 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 
 
 import {
@@ -698,7 +817,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig = {
 
 
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -710,7 +829,9 @@ messagingSenderId: "1063114847735",
 
 appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
+
 };
+
 
 
 
@@ -722,9 +843,9 @@ const db = getFirestore(app);
 
 
 
+
+
 let allOrders = [];
-
-
 
 
 
@@ -735,10 +856,13 @@ document.getElementById("orders");
 
 
 
+
 async function loadOrders(){
 
 
+
 try{
+
 
 
 const snapshot = await getDocs(
@@ -750,7 +874,9 @@ collection(db,"orders")
 allOrders=[];
 
 
+
 snapshot.forEach((item)=>{
+
 
 
 allOrders.push({
@@ -766,16 +892,44 @@ id:item.id,
 
 
 
+
+// ترتيب تلقائي: آخر طلب أولاً
+
+
+allOrders.sort((a,b)=>{
+
+
+let dateA =
+a.createdAt?.seconds || 0;
+
+
+let dateB =
+b.createdAt?.seconds || 0;
+
+
+
+return dateB - dateA;
+
+
+});
+
+
+
+
 displayOrders(allOrders);
 
 
 
 }
 
+
+
 catch(error){
 
 
+
 console.log(error);
+
 
 
 ordersDiv.innerHTML =
@@ -785,17 +939,8 @@ ordersDiv.innerHTML =
 }
 
 
-
 }
-
-
-
-
-
-
-
 function displayOrders(list){
-
 
 
 ordersDiv.innerHTML="";
@@ -805,21 +950,16 @@ ordersDiv.innerHTML="";
 if(list.length===0){
 
 
-ordersDiv.innerHTML =
+ordersDiv.innerHTML=
 "<div class='order-card'>لا توجد طلبات</div>";
 
-
 return;
-
 
 }
 
 
 
-
-
 list.forEach(data=>{
-
 
 
 ordersDiv.innerHTML += `
@@ -830,7 +970,6 @@ ordersDiv.innerHTML += `
 
 
 <div class="order-title">
-
 
 <div>
 رقم المعاملة
@@ -866,6 +1005,7 @@ ${data.name || "-"}
 
 
 
+
 <div class="field">
 
 <div class="label">
@@ -877,6 +1017,7 @@ ${data.phone || "-"}
 </div>
 
 </div>
+
 
 
 
@@ -895,17 +1036,36 @@ ${data.email || "-"}
 
 
 
+
+
 <div class="field">
 
 <div class="label">
-القطعة
+الدولة
 </div>
 
 <div class="value">
-${data.partNumber || "-"}
+${data.country || "-"}
 </div>
 
 </div>
+
+
+
+
+
+<div class="field">
+
+<div class="label">
+نوع الطلب
+</div>
+
+<div class="value">
+${data.type || "-"}
+</div>
+
+</div>
+
 
 
 
@@ -925,12 +1085,38 @@ ${data.status || "-"}
 
 
 
+
+<div class="field">
+
+<div class="label">
+تاريخ الطلب
+</div>
+
+<div class="value">
+
+${
+data.createdAt
+?
+new Date(data.createdAt.seconds*1000)
+.toLocaleDateString("ar")
+:
+"-"
+}
+
+</div>
+
+</div>
+
+
+
 </div>
 
 
 
 
+
 <button class="edit-btn"
+
 onclick="openEdit('${data.id}')">
 
 ✏️ تعديل الطلب
@@ -946,9 +1132,66 @@ onclick="openEdit('${data.id}')">
 `;
 
 
+});
+
+
+}
+
+
+
+
+
+
+
+window.sortOrders=function(){
+
+
+let type =
+document.getElementById("sortSelect").value;
+
+
+
+if(type==="new"){
+
+
+allOrders.sort((a,b)=>{
+
+
+return (
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+);
+
 
 });
 
+
+}
+
+
+
+if(type==="old"){
+
+
+allOrders.sort((a,b)=>{
+
+
+return (
+(a.createdAt?.seconds || 0)
+-
+(b.createdAt?.seconds || 0)
+);
+
+
+});
+
+
+}
+
+
+
+displayOrders(allOrders);
 
 
 }
@@ -973,7 +1216,6 @@ if(text===""){
 
 
 displayOrders(allOrders);
-
 
 return;
 
@@ -1002,10 +1244,7 @@ item.phone.includes(text))
 displayOrders(result);
 
 
-
 }
-
-
 
 
 
@@ -1016,13 +1255,12 @@ displayOrders(result);
 window.openEdit=function(id){
 
 
-
 let order =
 allOrders.find(x=>x.id===id);
 
 
 
-if(!order) return;
+if(!order)return;
 
 
 
@@ -1043,9 +1281,11 @@ document.getElementById("editPartNumber").value=order.partNumber || "";
 
 document.getElementById("editType").value=order.type || "";
 
-document.getElementById("editStatus").value=order.status || "قيد المراجعة";
+document.getElementById("editStatus").value=
+order.status || "قيد المراجعة";
 
-document.getElementById("editNotes").value=order.notes || "";
+document.getElementById("editNotes").value=
+order.notes || "";
 
 document.getElementById("editApproved").value=
 String(order.approved || false);
@@ -1078,7 +1318,6 @@ document.getElementById("editModal").style.display="none";
 
 
 
-
 window.saveEdit=async function(){
 
 
@@ -1088,8 +1327,8 @@ document.getElementById("editId").value;
 
 
 
-
 try{
+
 
 
 await updateDoc(
@@ -1141,8 +1380,8 @@ document.getElementById("editApproved").value==="true"
 
 }
 
-);
 
+);
 
 
 
@@ -1154,6 +1393,7 @@ location.reload();
 
 
 }
+
 
 catch(error){
 
@@ -1169,7 +1409,6 @@ alert("حدث خطأ أثناء الحفظ");
 
 
 }
-
 
 
 
