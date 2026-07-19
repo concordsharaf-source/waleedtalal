@@ -435,28 +435,62 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </div>
 <script type="module">
 
-
-import { initializeApp }
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-
 import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-getFirestore,
 
-collection,
+const auth = getAuth();
 
-getDocs,
 
-doc,
 
-updateDoc
+onAuthStateChanged(auth,(user)=>{
+
+
+if(user){
+
+console.log("المدير داخل:",user.email);
+
+
+}else{
+
+
+console.log("لا يوجد دخول");
+
+
+window.location.href="admin-login.html";
+
 
 }
 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+});
+
+
+
+
+
+window.logout=function(){
+
+
+signOut(auth)
+
+.then(()=>{
+
+
+window.location.href="admin-login.html";
+
+
+});
+
+
+}
+
+
+</script>
 
 
 
