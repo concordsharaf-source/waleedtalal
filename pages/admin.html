@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -20,6 +20,7 @@ box-sizing:border-box;
 }
 
 
+
 body{
 
 margin:0;
@@ -31,6 +32,7 @@ background:#f0f2f5;
 }
 
 
+
 .container{
 
 max-width:1200px;
@@ -40,6 +42,7 @@ margin:auto;
 padding:20px;
 
 }
+
 
 
 
@@ -74,27 +77,6 @@ font-size:28px;
 
 
 
-.header button{
-
-margin-top:15px;
-
-background:#d9534f;
-
-color:white;
-
-border:none;
-
-padding:10px 25px;
-
-border-radius:12px;
-
-font-weight:bold;
-
-cursor:pointer;
-
-}
-
-
 
 
 .search-box{
@@ -113,8 +95,6 @@ display:flex;
 
 gap:10px;
 
-flex-wrap:wrap;
-
 }
 
 
@@ -122,8 +102,6 @@ flex-wrap:wrap;
 .search-box input{
 
 flex:1;
-
-min-width:220px;
 
 padding:15px;
 
@@ -136,6 +114,7 @@ font-family:inherit;
 font-size:16px;
 
 }
+
 
 
 
@@ -160,40 +139,6 @@ cursor:pointer;
 
 
 
-.sort-box{
-
-background:white;
-
-padding:15px;
-
-border-radius:15px;
-
-margin-bottom:20px;
-
-box-shadow:0 5px 20px rgba(0,0,0,.08);
-
-display:flex;
-
-align-items:center;
-
-gap:10px;
-
-}
-
-
-
-.sort-box select{
-
-padding:12px;
-
-border-radius:10px;
-
-border:1px solid #ddd;
-
-font-family:inherit;
-
-}
-
 
 
 .order-card{
@@ -209,6 +154,7 @@ margin-bottom:20px;
 box-shadow:0 8px 25px rgba(0,0,0,.1);
 
 }
+
 
 
 
@@ -233,6 +179,8 @@ align-items:center;
 
 
 
+
+
 .order-title span{
 
 color:#d4af37;
@@ -242,6 +190,8 @@ font-size:22px;
 font-weight:bold;
 
 }
+
+
 
 
 
@@ -256,6 +206,8 @@ gap:12px;
 margin-top:20px;
 
 }
+
+
 
 
 
@@ -293,6 +245,7 @@ margin-top:5px;
 
 
 
+
 .edit-btn{
 
 width:100%;
@@ -319,7 +272,6 @@ cursor:pointer;
 
 
 
-
 .loading{
 
 text-align:center;
@@ -333,16 +285,16 @@ color:#1a4332;
 }
 
 
+
 </style>
 
 
 </head>
-
-
 <body>
 
 
 <div class="container">
+
 
 
 <div class="header">
@@ -355,13 +307,8 @@ color:#1a4332;
 عرض وتعديل جميع طلبات العملاء
 </p>
 
-
-<button onclick="logout()">
-تسجيل الخروج
-</button>
-
-
 </div>
+
 
 
 
@@ -381,39 +328,9 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </button>
 
 
-</div>
-
-
-
-
-<div class="sort-box">
-
-<strong>
-ترتيب:
-</strong>
-
-
-<select id="sortSelect" onchange="changeSort()">
-
-<option value="new">
-الأحدث أولاً
-</option>
-
-
-<option value="old">
-الأقدم أولاً
-</option>
-
-
-<option value="status">
-حسب الحالة
-</option>
-
-
-</select>
-
 
 </div>
+
 
 
 
@@ -432,388 +349,6 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </div>
 
 
-</div>
-
-
-
-const firebaseConfig = {
-
-
-apiKey: "AIzaSyDD_I84b3b6bmVxKjVx-tg2g7Cbd6RPcYz_Q",
-
-authDomain: "sparepartswebsite1.firebaseapp.com",
-
-projectId: "sparepartswebsite1",
-
-storageBucket: "sparepartswebsite1.firebasestorage.app",
-
-messagingSenderId: "1063114847735",
-
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
-
-};
-
-
-
-const app = initializeApp(firebaseConfig);
-
-
-const db = getFirestore(app);
-
-
-
-let allOrders = [];
-
-let currentOrders = [];
-
-
-
-const ordersDiv =
-document.getElementById("orders");
-
-
-
-
-
-async function loadOrders(){
-
-
-try{
-
-
-const snapshot = await getDocs(
-collection(db,"orders")
-);
-
-
-
-allOrders=[];
-
-
-
-snapshot.forEach((item)=>{
-
-
-allOrders.push({
-
-id:item.id,
-
-...item.data()
-
-});
-
-
-});
-
-
-
-
-// ترتيب تلقائي: آخر طلب أولاً
-
-sortOrders("new");
-
-
-
-}
-
-
-
-catch(error){
-
-
-console.log(error);
-
-
-ordersDiv.innerHTML =
-
-"حدث خطأ في تحميل الطلبات";
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-function sortOrders(type){
-
-
-
-if(type==="new"){
-
-
-allOrders.sort((a,b)=>{
-
-
-let dateA =
-a.createdAt?.seconds || 0;
-
-
-let dateB =
-b.createdAt?.seconds || 0;
-
-
-
-return dateB-dateA;
-
-
-});
-
-
-}
-
-
-
-if(type==="old"){
-
-
-allOrders.sort((a,b)=>{
-
-
-let dateA =
-a.createdAt?.seconds || 0;
-
-
-let dateB =
-b.createdAt?.seconds || 0;
-
-
-
-return dateA-dateB;
-
-
-});
-
-
-}
-
-
-
-if(type==="status"){
-
-
-allOrders.sort((a,b)=>{
-
-
-return (a.status || "")
-.localeCompare(
-(b.status || "")
-);
-
-
-});
-
-
-}
-
-
-
-currentOrders=[...allOrders];
-
-
-displayOrders(currentOrders);
-
-
-}
-
-
-
-
-
-window.changeSort=function(){
-
-
-let value =
-document.getElementById("sortSelect").value;
-
-
-sortOrders(value);
-
-
-}
-
-
-
-
-
-
-
-
-function displayOrders(list){
-
-
-
-ordersDiv.innerHTML="";
-
-
-
-if(list.length===0){
-
-
-ordersDiv.innerHTML =
-
-"<div class='order-card'>لا توجد طلبات</div>";
-
-
-return;
-
-}
-
-
-
-
-list.forEach(data=>{
-
-
-ordersDiv.innerHTML += `
-
-
-<div class="order-card">
-
-
-
-<div class="order-title">
-
-
-<div>
-رقم المعاملة
-</div>
-
-
-<span>
-${data.transactionId || "-"}
-</span>
-
-
-</div>
-
-
-
-
-<div class="grid">
-
-
-
-<div class="field">
-
-<div class="label">
-الاسم
-</div>
-
-<div class="value">
-${data.name || "-"}
-</div>
-
-</div>
-
-
-
-
-<div class="field">
-
-<div class="label">
-الجوال
-</div>
-
-<div class="value">
-${data.phone || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="field">
-
-<div class="label">
-البريد
-</div>
-
-<div class="value">
-${data.email || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="field">
-
-<div class="label">
-الدولة
-</div>
-
-<div class="value">
-${data.country || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="field">
-
-<div class="label">
-نوع الطلب
-</div>
-
-<div class="value">
-${data.type || "-"}
-</div>
-
-</div>
-
-
-
-
-
-<div class="field">
-
-<div class="label">
-الحالة
-</div>
-
-<div class="value">
-${data.status || "-"}
-</div>
-
-</div>
-
-
-
-
-<div class="field">
-
-<div class="label">
-تاريخ الطلب
-</div>
-
-<div class="value">
-
-${
-data.createdAt
-?
-new Date(
-data.createdAt.seconds*1000
-).toLocaleDateString("ar")
-:
-"-"
-}
-
-</div>
-
-</div>
 
 
 
@@ -823,96 +358,9 @@ data.createdAt.seconds*1000
 
 
 
-<button class="edit-btn"
 
-onclick="openEdit('${data.id}')">
+<!-- نافذة التعديل -->
 
-✏️ تعديل الطلب
-
-</button>
-
-
-
-</div>
-
-
-
-`;
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-window.searchOrders=function(){
-
-
-
-let text =
-
-document.getElementById("searchInput")
-.value.trim();
-
-
-
-
-if(text===""){
-
-
-displayOrders(allOrders);
-
-
-return;
-
-
-}
-
-
-
-
-let result = allOrders.filter(item=>
-
-
-(item.transactionId &&
-item.transactionId.includes(text))
-
-
-||
-
-
-(item.phone &&
-item.phone.includes(text))
-
-
-);
-
-
-
-displayOrders(result);
-
-
-
-}
-
-
-
-
-
-
-loadOrders();
-
-
-
-</script>
-<!-- نافذة تعديل الطلب -->
 
 <div id="editModal" style="display:none;">
 
@@ -923,6 +371,7 @@ loadOrders();
 <h2>
 تعديل الطلب
 </h2>
+
 
 
 <input id="editId" type="hidden">
@@ -978,7 +427,7 @@ loadOrders();
 
 
 <label>
-نوع المساعدة
+نوع الطلب
 </label>
 
 <input id="editType">
@@ -989,30 +438,25 @@ loadOrders();
 الحالة
 </label>
 
-
 <select id="editStatus">
 
-<option value="قيد المراجعة">
+<option>
 قيد المراجعة
 </option>
 
-
-<option value="جاري التجهيز">
+<option>
 جاري التجهيز
 </option>
 
-
-<option value="بانتظار دفع الرسوم">
+<option>
 بانتظار دفع الرسوم
 </option>
 
-
-<option value="تم التسليم">
+<option>
 تم التسليم
 </option>
 
-
-<option value="مرفوض">
+<option>
 مرفوض
 </option>
 
@@ -1022,20 +466,19 @@ loadOrders();
 
 
 
-
 <label>
 ملاحظات الإدارة
 </label>
-
 
 <textarea id="editNotes"></textarea>
 
 
 
 
-
 <label>
+
 حالة الاعتماد
+
 </label>
 
 
@@ -1066,8 +509,8 @@ loadOrders();
 
 
 
-<button onclick="closeEdit()" 
-style="background:#777">
+<button onclick="closeEdit()"
+style="background:#777;">
 
 إلغاء
 
@@ -1077,17 +520,12 @@ style="background:#777">
 
 </div>
 
+
 </div>
-
-
-
-
-
 <style>
 
 
 #editModal{
-
 
 position:fixed;
 
@@ -1111,13 +549,12 @@ padding:20px;
 
 z-index:999;
 
-
 }
 
 
 
-.modal-box{
 
+.modal-box{
 
 background:white;
 
@@ -1133,43 +570,46 @@ padding:25px;
 
 border-radius:20px;
 
+box-shadow:0 15px 40px rgba(0,0,0,.4);
 
 }
+
+
 
 
 
 .modal-box h2{
 
-
 text-align:center;
 
 color:#1a4332;
 
+margin-top:0;
 
 }
+
 
 
 
 .modal-box label{
 
-
 display:block;
-
-font-weight:bold;
 
 margin-top:12px;
 
 margin-bottom:5px;
 
+font-weight:bold;
+
+color:#333;
 
 }
 
 
 
+
 .modal-box input,
-
 .modal-box select,
-
 .modal-box textarea{
 
 
@@ -1183,6 +623,7 @@ border:1px solid #ddd;
 
 font-family:inherit;
 
+font-size:15px;
 
 }
 
@@ -1190,18 +631,17 @@ font-family:inherit;
 
 .modal-box textarea{
 
-
-height:100px;
+height:90px;
 
 resize:none;
-
 
 }
 
 
 
-.modal-box button{
 
+
+.modal-box button{
 
 width:100%;
 
@@ -1221,18 +661,356 @@ font-size:16px;
 
 font-weight:bold;
 
+cursor:pointer;
 
 }
 
 
 
 </style>
+<script type="module">
+
+import { initializeApp }
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+
+getFirestore,
+
+collection,
+
+getDocs,
+
+doc,
+
+updateDoc
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
 
 
-<script>
+const firebaseConfig = {
+
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getFirestore(app);
+
+
+
+let allOrders = [];
+
+
+
+
+
+const ordersDiv =
+document.getElementById("orders");
+
+
+
+
+
+async function loadOrders(){
+
+
+try{
+
+
+const snapshot = await getDocs(
+collection(db,"orders")
+);
+
+
+
+allOrders=[];
+
+
+snapshot.forEach((item)=>{
+
+
+allOrders.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+
+});
+
+
+
+displayOrders(allOrders);
+
+
+
+}
+
+catch(error){
+
+
+console.log(error);
+
+
+ordersDiv.innerHTML =
+"حدث خطأ في تحميل الطلبات";
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+function displayOrders(list){
+
+
+
+ordersDiv.innerHTML="";
+
+
+
+if(list.length===0){
+
+
+ordersDiv.innerHTML =
+"<div class='order-card'>لا توجد طلبات</div>";
+
+
+return;
+
+
+}
+
+
+
+
+
+list.forEach(data=>{
+
+
+
+ordersDiv.innerHTML += `
+
+
+<div class="order-card">
+
+
+
+<div class="order-title">
+
+
+<div>
+رقم المعاملة
+</div>
+
+
+<span>
+${data.transactionId || "-"}
+</span>
+
+
+</div>
+
+
+
+
+
+<div class="grid">
+
+
+
+<div class="field">
+
+<div class="label">
+الاسم
+</div>
+
+<div class="value">
+${data.name || "-"}
+</div>
+
+</div>
+
+
+
+<div class="field">
+
+<div class="label">
+الجوال
+</div>
+
+<div class="value">
+${data.phone || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="field">
+
+<div class="label">
+البريد
+</div>
+
+<div class="value">
+${data.email || "-"}
+</div>
+
+</div>
+
+
+
+<div class="field">
+
+<div class="label">
+القطعة
+</div>
+
+<div class="value">
+${data.partNumber || "-"}
+</div>
+
+</div>
+
+
+
+
+<div class="field">
+
+<div class="label">
+الحالة
+</div>
+
+<div class="value">
+${data.status || "-"}
+</div>
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<button class="edit-btn"
+onclick="openEdit('${data.id}')">
+
+✏️ تعديل الطلب
+
+</button>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+window.searchOrders=function(){
+
+
+
+let text =
+document.getElementById("searchInput").value.trim();
+
+
+
+if(text===""){
+
+
+displayOrders(allOrders);
+
+
+return;
+
+}
+
+
+
+let result =
+allOrders.filter(item=>
+
+
+(item.transactionId &&
+item.transactionId.includes(text))
+
+
+||
+
+(item.phone &&
+item.phone.includes(text))
+
+
+);
+
+
+
+displayOrders(result);
+
+
+
+}
+
+
+
+
+
+
+
 
 
 window.openEdit=function(id){
@@ -1244,58 +1022,37 @@ allOrders.find(x=>x.id===id);
 
 
 
-if(!order)return;
-
+if(!order) return;
 
 
 
 document.getElementById("editId").value=id;
 
 
-document.getElementById("editName").value =
-order.name || "";
+document.getElementById("editName").value=order.name || "";
 
+document.getElementById("editPhone").value=order.phone || "";
 
-document.getElementById("editPhone").value =
-order.phone || "";
+document.getElementById("editEmail").value=order.email || "";
 
+document.getElementById("editIdNumber").value=order.idNumber || "";
 
-document.getElementById("editEmail").value =
-order.email || "";
+document.getElementById("editCountry").value=order.country || "";
 
+document.getElementById("editPartNumber").value=order.partNumber || "";
 
-document.getElementById("editIdNumber").value =
-order.idNumber || "";
+document.getElementById("editType").value=order.type || "";
 
+document.getElementById("editStatus").value=order.status || "قيد المراجعة";
 
-document.getElementById("editCountry").value =
-order.country || "";
+document.getElementById("editNotes").value=order.notes || "";
 
-
-document.getElementById("editPartNumber").value =
-order.partNumber || "";
-
-
-document.getElementById("editType").value =
-order.type || "";
-
-
-document.getElementById("editStatus").value =
-order.status || "قيد المراجعة";
-
-
-document.getElementById("editNotes").value =
-order.notes || "";
-
-
-document.getElementById("editApproved").value =
+document.getElementById("editApproved").value=
 String(order.approved || false);
 
 
 
-
 document.getElementById("editModal").style.display="flex";
-
 
 
 }
@@ -1320,11 +1077,15 @@ document.getElementById("editModal").style.display="none";
 
 
 
+
+
 window.saveEdit=async function(){
+
 
 
 let id =
 document.getElementById("editId").value;
+
 
 
 
@@ -1384,6 +1145,7 @@ document.getElementById("editApproved").value==="true"
 
 
 
+
 alert("تم حفظ التعديلات بنجاح");
 
 
@@ -1392,7 +1154,6 @@ location.reload();
 
 
 }
-
 
 catch(error){
 
@@ -1411,109 +1172,10 @@ alert("حدث خطأ أثناء الحفظ");
 
 
 
-</script>
-<script type="module">
 
 
-import { initializeApp }
 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-
-import {
-
-getAuth,
-
-onAuthStateChanged,
-
-signOut,
-
-setPersistence,
-
-browserLocalPersistence
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-
-
-
-
-const firebaseConfig = {
-
-
-apiKey: "AIzaSyDD_I84b3b6bmVxKjVx-tg2g7Cbd6RPcYz_Q",
-
-authDomain: "sparepartswebsite1.firebaseapp.com",
-
-projectId: "sparepartswebsite1",
-
-storageBucket: "sparepartswebsite1.firebasestorage.app",
-
-messagingSenderId: "1063114847735",
-
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
-
-};
-
-
-
-
-
-const appAuth = initializeApp(firebaseConfig);
-
-
-const auth = getAuth(appAuth);
-
-
-
-
-
-// حفظ جلسة المدير
-
-setPersistence(auth,browserLocalPersistence)
-
-.then(()=>{
-
-
-onAuthStateChanged(auth,(user)=>{
-
-
-if(!user){
-
-
-window.location.href="admin-login.html";
-
-
-}
-
-
-});
-
-
-});
-
-
-
-
-
-
-// تسجيل الخروج اليدوي فقط
-
-<button onclick="location.reload()">
-تحديث الصفحة
-</button>
-
-
-});
-
-
-}
-
-
-
-}
+loadOrders();
 
 
 
