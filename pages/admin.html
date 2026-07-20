@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -9,319 +9,159 @@
 
 <title>إدارة الطلبات</title>
 
-
 <style>
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
 
 *{
 box-sizing:border-box;
 }
 
-
 body{
-
 margin:0;
-
 font-family:'Cairo',sans-serif;
-
 background:#f0f2f5;
-
 }
-
-
 
 .container{
-
 max-width:1200px;
-
 margin:auto;
-
 padding:20px;
-
 }
-
-
-
 
 .header{
-
 background:#1a4332;
-
 color:white;
-
 padding:25px;
-
 border-radius:20px;
-
 text-align:center;
-
 margin-bottom:20px;
-
 box-shadow:0 10px 30px rgba(0,0,0,.2);
-
 }
-
 
 .header h1{
-
 margin:0;
-
 font-size:28px;
-
 }
-
-
-
-
 
 .search-box{
-
 background:white;
-
 padding:20px;
-
 border-radius:20px;
-
 box-shadow:0 5px 20px rgba(0,0,0,.1);
-
 margin-bottom:20px;
-
 display:flex;
-
 gap:10px;
-
 }
-
-
 
 .search-box input{
-
 flex:1;
-
 padding:15px;
-
 border-radius:12px;
-
 border:1px solid #ddd;
-
 font-family:inherit;
-
 font-size:16px;
-
 }
-
-
 
 .search-box button{
-
 padding:15px 25px;
-
 border:none;
-
 border-radius:12px;
-
 background:#25D366;
-
 color:white;
-
 font-weight:bold;
-
 cursor:pointer;
-
 }
-
-
-
-
-
-/* ترتيب الطلبات */
 
 .sort-box{
-
 background:white;
-
 padding:15px;
-
 border-radius:15px;
-
 margin-bottom:20px;
-
 box-shadow:0 5px 20px rgba(0,0,0,.1);
-
 display:flex;
-
 align-items:center;
-
 gap:15px;
-
 }
-
-
 
 .sort-box select{
-
 padding:12px;
-
 border-radius:10px;
-
 border:1px solid #ddd;
-
 font-family:inherit;
-
 }
-
-
-
-
 
 .order-card{
-
 background:white;
-
 border-radius:20px;
-
 padding:20px;
-
 margin-bottom:20px;
-
 box-shadow:0 8px 25px rgba(0,0,0,.1);
-
 }
-
-
-
-
 
 .order-title{
-
 background:#1a4332;
-
 color:white;
-
 padding:15px;
-
 border-radius:15px;
-
 display:flex;
-
 justify-content:space-between;
-
 align-items:center;
-
 }
-
-
 
 .order-title span{
-
 color:#d4af37;
-
 font-size:22px;
-
 font-weight:bold;
-
 }
-
-
-
-
 
 .grid{
-
 display:grid;
-
 grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-
 gap:12px;
-
 margin-top:20px;
-
 }
-
-
-
 
 .field{
-
 background:#f8f9fa;
-
 padding:12px;
-
 border-radius:12px;
-
 }
-
-
 
 .label{
-
 font-size:12px;
-
 color:#777;
-
 }
-
-
 
 .value{
-
 font-weight:bold;
-
 color:#333;
-
 margin-top:5px;
-
 }
-
-
-
-
 
 .edit-btn{
-
 width:100%;
-
 margin-top:20px;
-
 padding:14px;
-
 background:#1a4332;
-
 color:white;
-
 border:none;
-
 border-radius:12px;
-
 font-size:17px;
-
 font-weight:bold;
-
 cursor:pointer;
-
 }
-
-
-
 
 .loading{
-
 text-align:center;
-
 padding:30px;
-
 font-size:20px;
-
 color:#1a4332;
-
 }
 
-
 </style>
-</head>
 
+</head>
 
 <body>
 
@@ -356,7 +196,6 @@ border-radius:10px;
 border:1px solid #ddd;
 ">
 
-
 <button onclick="checkPass()"
 style="
 margin-top:15px;
@@ -368,9 +207,7 @@ border:0;
 border-radius:10px;
 font-weight:bold;
 ">
-
 دخول
-
 </button>
 
 <p id="passError"></p>
@@ -380,8 +217,6 @@ font-weight:bold;
 </div>
 
 <div class="container">
-
-
 
 <div class="header">
 
@@ -393,116 +228,61 @@ font-weight:bold;
 عرض وتعديل جميع طلبات العملاء
 </p>
 
-
 </div>
-
-
-
-
 
 <div class="search-box">
 
-
-<input 
-id="searchInput"
+<input id="searchInput"
 placeholder="بحث برقم المعاملة أو الجوال">
 
-
 <button onclick="searchOrders()">
-
 بحث
-
 </button>
-
-
 
 </div>
 
-
-
-
-
 <div class="sort-box">
-
 
 <strong>
 ترتيب الطلبات:
 </strong>
 
-
-
 <select id="sortSelect" onchange="sortOrders()">
 
-
 <option value="new">
-
 الأحدث أولاً
-
 </option>
-
-
 
 <option value="old">
-
 الأقدم أولاً
-
 </option>
-
-
 
 </select>
 
-
 </div>
-
-
-
-
-
-
 
 <div id="orders">
 
-
 <div class="loading">
-
 جاري تحميل الطلبات...
+</div>
 
 </div>
 
-
 </div>
-
-
-
-
-
-</div>
-
-
-
 
 
 <!-- نافذة تعديل الطلب -->
-
-
 <div id="editModal" style="display:none;">
 
-
 <div class="modal-box">
-
 
 <h2>
 تعديل الطلب
 </h2>
 
 
-
-
 <input id="editId" type="hidden">
-
-
-
 
 
 <label>
@@ -512,17 +292,11 @@ placeholder="بحث برقم المعاملة أو الجوال">
 <input id="editName">
 
 
-
-
-
 <label>
 رقم الجوال
 </label>
 
 <input id="editPhone">
-
-
-
 
 
 <label>
@@ -532,17 +306,11 @@ placeholder="بحث برقم المعاملة أو الجوال">
 <input id="editEmail">
 
 
-
-
-
 <label>
 رقم الهوية
 </label>
 
 <input id="editIdNumber">
-
-
-
 
 
 <label>
@@ -552,17 +320,11 @@ placeholder="بحث برقم المعاملة أو الجوال">
 <input id="editCountry">
 
 
-
-
-
 <label>
 رقم الحساب
 </label>
 
 <input id="editPartNumber">
-
-
-
 
 
 <label>
@@ -572,132 +334,91 @@ placeholder="بحث برقم المعاملة أو الجوال">
 <input id="editType">
 
 
-
-
-
 <label>
 الحالة
 </label>
 
-
-
 <select id="editStatus">
 
-
-<option>
+<option value="قيد المراجعة">
 قيد المراجعة
 </option>
 
-
-<option>
+<option value="جاري التجهيز">
 جاري التجهيز
 </option>
 
-
-<option>
+<option value="بانتظار دفع الرسوم">
 بانتظار دفع الرسوم
 </option>
 
-
-<option>
+<option value="تم التسليم">
 تم التسليم
 </option>
 
-
-<option>
+<option value="مرفوض">
 مرفوض
 </option>
 
-
 </select>
-
-
-
 
 
 <label>
 ملاحظات الإدارة
 </label>
 
-
 <textarea id="editNotes"></textarea>
 
 
+<label>
+مبلغ المنحة
+</label>
 
+<input id="editGrantAmount"
+placeholder="مثال: 650,000.00 ر.س">
 
 
 <label>
-
 حالة الاعتماد
-
 </label>
-
-
 
 <select id="editApproved">
 
-
 <option value="false">
-
 غير معتمد
-
 </option>
-
-
 
 <option value="true">
-
 معتمد
-
 </option>
-
-
 
 </select>
 
 
-
-
-
-
-
 <button onclick="saveEdit()">
-
 💾 حفظ التعديلات
-
 </button>
 
 
-
-
-<button onclick="closeEdit()" 
-style="background:#777;">
-
+<button onclick="closeEdit()" style="background:#777;">
 إلغاء
-
 </button>
 
 
-
-
+</div>
 
 </div>
 
 
-</div>
 <style>
-
 
 #editModal{
 
 position:fixed;
 
 top:0;
-
 left:0;
-
 right:0;
-
 bottom:0;
 
 background:rgba(0,0,0,.6);
@@ -713,9 +434,6 @@ padding:20px;
 z-index:999;
 
 }
-
-
-
 
 
 .modal-box{
@@ -739,20 +457,13 @@ box-shadow:0 15px 40px rgba(0,0,0,.4);
 }
 
 
-
-
-
 .modal-box h2{
 
 text-align:center;
 
 color:#1a4332;
 
-margin-top:0;
-
 }
-
-
 
 
 .modal-box label{
@@ -765,17 +476,12 @@ margin-bottom:5px;
 
 font-weight:bold;
 
-color:#333;
-
 }
-
-
 
 
 .modal-box input,
 .modal-box select,
 .modal-box textarea{
-
 
 width:100%;
 
@@ -792,8 +498,6 @@ font-size:15px;
 }
 
 
-
-
 .modal-box textarea{
 
 height:90px;
@@ -801,9 +505,6 @@ height:90px;
 resize:none;
 
 }
-
-
-
 
 
 .modal-box button{
@@ -830,45 +531,23 @@ cursor:pointer;
 
 }
 
-
-
 </style>
-
-
-
-
-
 <script type="module">
 
-
-import { initializeApp }
-
+import { initializeApp } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-
-
 import {
-
 getFirestore,
-
 collection,
-
 getDocs,
-
 doc,
-
 updateDoc
-
 }
-
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
-
-
-
 const firebaseConfig = {
-
 
 apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
 
@@ -882,55 +561,32 @@ messagingSenderId: "1063114847735",
 
 appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 
-
 };
-
-
-
 
 
 const app = initializeApp(firebaseConfig);
 
-
 const db = getFirestore(app);
 
 
+let allOrders=[];
 
 
-
-let allOrders = [];
-
-
-
-const ordersDiv =
-document.getElementById("orders");
-
-
-
+const ordersDiv=document.getElementById("orders");
 
 
 
 async function loadOrders(){
 
-
-
 try{
 
-
-
-const snapshot = await getDocs(
-collection(db,"orders")
-);
-
+const snapshot = await getDocs(collection(db,"orders"));
 
 
 allOrders=[];
 
 
-
-snapshot.forEach((item)=>{
-
-
+snapshot.forEach(item=>{
 
 allOrders.push({
 
@@ -940,68 +596,44 @@ id:item.id,
 
 });
 
-
 });
 
-
-
-
-// ترتيب تلقائي: آخر طلب أولاً
 
 
 allOrders.sort((a,b)=>{
 
-
-let dateA =
-a.createdAt?.seconds || 0;
-
-
-let dateB =
-b.createdAt?.seconds || 0;
-
-
-
-return dateB - dateA;
-
+return (b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0);
 
 });
-
 
 
 
 displayOrders(allOrders);
 
 
-
 }
-
-
 
 catch(error){
 
-
-
 console.log(error);
 
+ordersDiv.innerHTML="حدث خطأ في تحميل الطلبات";
 
-
-ordersDiv.innerHTML =
-"حدث خطأ في تحميل الطلبات";
-
+}
 
 }
 
 
-}
+
 function displayOrders(list){
 
 
 ordersDiv.innerHTML="";
 
 
-
 if(list.length===0){
-
 
 ordersDiv.innerHTML=
 "<div class='order-card'>لا توجد طلبات</div>";
@@ -1017,9 +649,7 @@ list.forEach(data=>{
 
 ordersDiv.innerHTML += `
 
-
 <div class="order-card">
-
 
 
 <div class="order-title">
@@ -1028,148 +658,57 @@ ordersDiv.innerHTML += `
 رقم المعاملة
 </div>
 
-
 <span>
 ${data.transactionId || "-"}
 </span>
 
-
 </div>
-
-
-
 
 
 <div class="grid">
 
 
-
 <div class="field">
-
-<div class="label">
-الاسم
+<div class="label">الاسم</div>
+<div class="value">${data.name || "-"}</div>
 </div>
-
-<div class="value">
-${data.name || "-"}
-</div>
-
-</div>
-
-
 
 
 <div class="field">
-
-<div class="label">
-الجوال
+<div class="label">الجوال</div>
+<div class="value">${data.phone || "-"}</div>
 </div>
-
-<div class="value">
-${data.phone || "-"}
-</div>
-
-</div>
-
-
-
 
 
 <div class="field">
-
-<div class="label">
-البريد
+<div class="label">الدولة</div>
+<div class="value">${data.country || "-"}</div>
 </div>
-
-<div class="value">
-${data.email || "-"}
-</div>
-
-</div>
-
-
-
 
 
 <div class="field">
-
-<div class="label">
-الدولة
+<div class="label">نوع الطلب</div>
+<div class="value">${data.type || "-"}</div>
 </div>
-
-<div class="value">
-${data.country || "-"}
-</div>
-
-</div>
-
-
-
 
 
 <div class="field">
-
-<div class="label">
-نوع الطلب
+<div class="label">الحالة</div>
+<div class="value">${data.status || "-"}</div>
 </div>
-
-<div class="value">
-${data.type || "-"}
-</div>
-
-</div>
-
-
-
 
 
 <div class="field">
-
-<div class="label">
-الحالة
-</div>
-
-<div class="value">
-${data.status || "-"}
-</div>
-
+<div class="label">المنحة</div>
+<div class="value">${data.grantAmount || "غير محدد"}</div>
 </div>
 
 
-
-
-
-<div class="field">
-
-<div class="label">
-تاريخ الطلب
 </div>
-
-<div class="value">
-
-${
-data.createdAt
-?
-new Date(data.createdAt.seconds*1000)
-.toLocaleDateString("ar")
-:
-"-"
-}
-
-</div>
-
-</div>
-
-
-
-</div>
-
-
 
 
 
 <button class="edit-btn"
-
 onclick="openEdit('${data.id}')">
 
 ✏️ تعديل الطلب
@@ -1177,129 +716,14 @@ onclick="openEdit('${data.id}')">
 </button>
 
 
-
 </div>
-
-
 
 `;
 
-
 });
 
 
 }
-
-
-
-
-
-
-
-window.sortOrders=function(){
-
-
-let type =
-document.getElementById("sortSelect").value;
-
-
-
-if(type==="new"){
-
-
-allOrders.sort((a,b)=>{
-
-
-return (
-(b.createdAt?.seconds || 0)
--
-(a.createdAt?.seconds || 0)
-);
-
-
-});
-
-
-}
-
-
-
-if(type==="old"){
-
-
-allOrders.sort((a,b)=>{
-
-
-return (
-(a.createdAt?.seconds || 0)
--
-(b.createdAt?.seconds || 0)
-);
-
-
-});
-
-
-}
-
-
-
-displayOrders(allOrders);
-
-
-}
-
-
-
-
-
-
-
-
-window.searchOrders=function(){
-
-
-
-let text =
-document.getElementById("searchInput").value.trim();
-
-
-
-if(text===""){
-
-
-displayOrders(allOrders);
-
-return;
-
-}
-
-
-
-let result =
-allOrders.filter(item=>
-
-
-(item.transactionId &&
-item.transactionId.includes(text))
-
-
-||
-
-(item.phone &&
-item.phone.includes(text))
-
-
-);
-
-
-
-displayOrders(result);
-
-
-}
-
-
 
 
 
@@ -1308,49 +732,43 @@ displayOrders(result);
 window.openEdit=function(id){
 
 
-let order =
-allOrders.find(x=>x.id===id);
-
+let order=allOrders.find(x=>x.id===id);
 
 
 if(!order)return;
 
 
 
-document.getElementById("editId").value=id;
+editId.value=id;
 
+editName.value=order.name || "";
 
-document.getElementById("editName").value=order.name || "";
+editPhone.value=order.phone || "";
 
-document.getElementById("editPhone").value=order.phone || "";
+editEmail.value=order.email || "";
 
-document.getElementById("editEmail").value=order.email || "";
+editIdNumber.value=order.idNumber || "";
 
-document.getElementById("editIdNumber").value=order.idNumber || "";
+editCountry.value=order.country || "";
 
-document.getElementById("editCountry").value=order.country || "";
+editPartNumber.value=order.partNumber || "";
 
-document.getElementById("editPartNumber").value=order.partNumber || "";
+editType.value=order.type || "";
 
-document.getElementById("editType").value=order.type || "";
+editStatus.value=order.status || "قيد المراجعة";
 
-document.getElementById("editStatus").value=
-order.status || "قيد المراجعة";
+editNotes.value=order.notes || "";
 
-document.getElementById("editNotes").value=
-order.notes || "";
+editGrantAmount.value=order.grantAmount || "";
 
-document.getElementById("editApproved").value=
-String(order.approved || false);
+editApproved.value=String(order.approved || false);
 
 
 
-document.getElementById("editModal").style.display="flex";
+editModal.style.display="flex";
 
 
 }
-
-
 
 
 
@@ -1358,14 +776,9 @@ document.getElementById("editModal").style.display="flex";
 
 window.closeEdit=function(){
 
-
-document.getElementById("editModal").style.display="none";
-
+editModal.style.display="none";
 
 }
-
-
-
 
 
 
@@ -1374,14 +787,11 @@ document.getElementById("editModal").style.display="none";
 window.saveEdit=async function(){
 
 
-
-let id =
-document.getElementById("editId").value;
+let id=editId.value;
 
 
 
 try{
-
 
 
 await updateDoc(
@@ -1391,48 +801,34 @@ doc(db,"orders",id),
 {
 
 
-name:
-document.getElementById("editName").value,
+name:editName.value,
+
+phone:editPhone.value,
+
+email:editEmail.value,
+
+idNumber:editIdNumber.value,
+
+country:editCountry.value,
+
+partNumber:editPartNumber.value,
+
+type:editType.value,
+
+status:editStatus.value,
+
+notes:editNotes.value,
 
 
-phone:
-document.getElementById("editPhone").value,
-
-
-email:
-document.getElementById("editEmail").value,
-
-
-idNumber:
-document.getElementById("editIdNumber").value,
-
-
-country:
-document.getElementById("editCountry").value,
-
-
-partNumber:
-document.getElementById("editPartNumber").value,
-
-
-type:
-document.getElementById("editType").value,
-
-
-status:
-document.getElementById("editStatus").value,
-
-
-notes:
-document.getElementById("editNotes").value,
+grantAmount:
+editGrantAmount.value,
 
 
 approved:
-document.getElementById("editApproved").value==="true"
+editApproved.value==="true"
 
 
 }
-
 
 );
 
@@ -1444,36 +840,116 @@ alert("تم حفظ التعديلات بنجاح");
 location.reload();
 
 
-
 }
-
 
 catch(error){
 
-
 console.log(error);
-
 
 alert("حدث خطأ أثناء الحفظ");
 
+}
+
 
 }
 
 
 
+
+window.searchOrders=function(){
+
+
+let text=searchInput.value.trim();
+
+
+
+if(text===""){
+
+displayOrders(allOrders);
+
+return;
+
 }
 
 
+
+let result=allOrders.filter(item=>{
+
+
+return (
+
+(item.transactionId &&
+item.transactionId.includes(text))
+
+||
+
+(item.phone &&
+item.phone.includes(text))
+
+);
+
+
+});
+
+
+displayOrders(result);
+
+
+}
+
+
+
+
+
+window.sortOrders=function(){
+
+
+let type=sortSelect.value;
+
+
+
+if(type==="new"){
+
+allOrders.sort((a,b)=>
+
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+
+);
+
+}
+
+
+if(type==="old"){
+
+allOrders.sort((a,b)=>
+
+(a.createdAt?.seconds || 0)
+-
+(b.createdAt?.seconds || 0)
+
+);
+
+}
+
+
+displayOrders(allOrders);
+
+
+}
 
 
 
 loadOrders();
 
 
-
 </script>
 
+
+
 <script>
+
 
 const PASSWORD="232167";
 
@@ -1489,7 +965,9 @@ localStorage.setItem("adminLogin","yes");
 
 document.getElementById("lockScreen").style.display="none";
 
-}else{
+}
+
+else{
 
 document.getElementById("passError").innerHTML=
 "كلمة المرور خطأ";
@@ -1497,7 +975,6 @@ document.getElementById("passError").innerHTML=
 }
 
 }
-
 
 
 
@@ -1519,9 +996,23 @@ location.reload();
 
 
 </script>
-<button onclick="logout()">
+
+
+<button onclick="logout()"
+style="
+margin:20px;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#c0392b;
+color:white;
+font-weight:bold;
+">
+
 تسجيل خروج
+
 </button>
+
 
 </body>
 
