@@ -1045,7 +1045,122 @@
         
         .whatsapp-float:hover { transform: scale(1.1) rotate(10deg); }
 
-    </style>
+    
+        /* --- زر الهامبرغر والقائمة المنسدلة --- */
+        .hamburger-menu {
+            position: relative;
+            z-index: 200;
+        }
+
+        .hamburger-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            transition: 0.3s;
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 28px;
+            height: 3px;
+            background-color: var(--primary-green, #008444);
+            border-radius: 2px;
+            transition: 0.3s ease;
+        }
+
+        .hamburger-btn:hover span {
+            background-color: #00cc66;
+        }
+
+        .hamburger-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 10px 0;
+            min-width: 220px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: slideDown 0.3s ease;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu a:hover {
+            background: var(--primary-green, #008444);
+            color: white;
+            padding-right: 25px;
+        }
+
+        .dropdown-menu a i {
+            color: var(--primary-green, #008444);
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu a:hover i {
+            color: white;
+        }
+
+        /* Responsive: hide horizontal nav on small screens, show hamburger */
+        @media (max-width: 768px) {
+            nav ul {
+                display: none;
+            }
+            .hamburger-menu {
+                margin-right: auto;
+            }
+        }
+</style>
 </head>
 <body>
 
@@ -1055,11 +1170,29 @@
         </div>
         <nav>
             <ul>
-                <li><a href="pages/hmlat.html" style="color: white" target="_blank">المشاريع</a></li>
-                <li><a href="pages/we.html" style="color: white" target="_blank">من_نحن</a></li>
-                <li><i class="fas fa-bars" style="color: green"></i></li>
+                <li><a href="pages/hmlat.html" style="color: white">المشاريع</a></li>
+                <li><a href="pages/we.html" style="color: white">من نحن</a></li>
+                <li><a href="pages/list.html" style="color: white">المساعدات</a></li>
             </ul>
         </nav>
+
+        <!-- زر القائمة المنسدلة -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="القائمة">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
+                <a href="pages/we.html"><i class="fas fa-users"></i> من نحن</a>
+                <a href="pages/hmlat.html"><i class="fas fa-project-diagram"></i> المشاريع</a>
+                <a href="pages/list.html"><i class="fas fa-hands-helping"></i> المساعدات</a>
+                <a href="pages/us.html"><i class="fas fa-file-alt"></i> تقديم طلب</a>
+                <a href="pages/track.html"><i class="fas fa-search"></i> متابعة طلب</a>
+                <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
+            </div>
+        </div>
     </header>
 
     <section class="hero reveal">
@@ -1864,5 +1997,33 @@ document.addEventListener("DOMContentLoaded", function() {
 
     </script>
 
+
+    <!-- سكربت القائمة المنسدلة -->
+    <script>
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Close when clicking a link
+        dropdownMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+    </script>
 </body>
                 </html>
