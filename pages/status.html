@@ -1,529 +1,1145 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>حالة الطلب</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
+
 <style>
+
 :root {
 --bg-dark-green: #06140e;
 --bg-light-green: #0a291e;
 --gold: #d4af37;
 --gold-light: #f5d78e;
 --white: #ffffff;
---glass-bg: rgba(255, 255, 255, 0.05);
---glass-border: rgba(255, 255, 255, 0.15);
+--glass-bg: rgba(255,255,255,0.05);
+--glass-border: rgba(255,255,255,0.15);
 }
+
 
 *{
-box-sizing: border-box;
+box-sizing:border-box;
 }
+
 
 body{
-margin: 0;
-padding: 0;
-font-family: 'Tajawal', sans-serif;
-/* خلفية متدرجة فخمة */
-background: linear-gradient(135deg, #040d09 0%, #0a291e 50%, #040d09 100%);
-color: white;
-display: flex;
-justify-content: center;
-min-height: 100vh;
+
+margin:0;
+padding:0;
+
+font-family:'Tajawal',sans-serif;
+
+background:
+linear-gradient(135deg,#040d09 0%,#0a291e 50%,#040d09 100%);
+
+color:white;
+
+display:flex;
+
+justify-content:center;
+
+min-height:100vh;
+
 }
+
+
 
 .mobile-container{
-width: 100%;
-max-width: 480px;
-min-height: 100vh;
-/* تأثير زجاجي للحاوية الرئيسية */
-background: rgba(10, 41, 30, 0.6);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-padding: 20px;
-border-radius: 20px;
-box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-border: 1px solid rgba(212, 175, 55, 0.2);
+
+width:100%;
+
+max-width:480px;
+
+min-height:100vh;
+
+background:rgba(10,41,30,0.6);
+
+backdrop-filter:blur(20px);
+
+padding:20px;
+
+border-radius:20px;
+
+box-shadow:0 15px 40px rgba(0,0,0,.8);
+
+border:1px solid rgba(212,175,55,.2);
+
 }
+
+
 
 /* الرأس */
+
 .header{
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 30px;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin-bottom:30px;
+
 }
+
 
 .header-title h1{
-font-size: 22px;
-margin: 0 0 5px;
-font-weight: 800;
-text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+
+font-size:22px;
+
+margin:0 0 5px;
+
+font-weight:800;
+
 }
+
 
 .header-title p{
-font-size: 12px;
-margin: 0;
-color: var(--gold-light);
+
+font-size:12px;
+
+margin:0;
+
+color:var(--gold-light);
+
 }
+
+
 
 .logo{
-width: 45px;
-height: 45px;
-background: linear-gradient(135deg, #f5d78e, #d4af37);
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+
+width:45px;
+
+height:45px;
+
+background:linear-gradient(135deg,#f5d78e,#d4af37);
+
+border-radius:50%;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
 }
+
+
 
 .logo svg{
-fill: #06140e;
+
+fill:#06140e;
+
 }
 
-/* حالة الطلب */
+
+
+/* الحالة */
+
 .status-section{
-text-align: center;
-margin-bottom: 30px;
+
+text-align:center;
+
+margin-bottom:30px;
+
 }
+
+
 
 .check-icon{
-width: 70px;
-height: 70px;
-background: linear-gradient(135deg, #f5d78e, #d4af37);
-border-radius: 50%;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-font-size: 35px;
-color: #000;
-margin-bottom: 15px;
-/* تأثير وهج للأيقونة الرئيسية */
-box-shadow: 0 0 25px rgba(212, 175, 55, 0.6), inset 0 0 10px rgba(255,255,255,0.5);
+
+width:70px;
+
+height:70px;
+
+background:linear-gradient(135deg,#f5d78e,#d4af37);
+
+border-radius:50%;
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:35px;
+
+color:#000;
+
+margin-bottom:15px;
+
+box-shadow:
+
+0 0 25px rgba(212,175,55,.6),
+
+inset 0 0 10px rgba(255,255,255,.5);
+
 }
+
+
 
 .status-section h2{
-color: var(--gold-light);
-font-size: 25px;
-margin: 0 0 8px;
-text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+
+color:var(--gold-light);
+
+font-size:25px;
+
+margin:0 0 8px;
+
 }
+
+
 
 .status-section p{
-margin: 0;
-font-size: 14px;
-color: #d1d1d1;
+
+margin:0;
+
+font-size:14px;
+
+color:#d1d1d1;
+
 }
+
+
 
 /* المراحل */
+
 .stepper-title{
-font-weight: bold;
-font-size: 15px;
-margin-bottom: 15px;
-color: var(--white);
+
+font-weight:bold;
+
+font-size:15px;
+
+margin-bottom:15px;
+
 }
+
 
 .stepper{
-display: flex;
-justify-content: space-between;
-position: relative;
-margin-bottom: 35px;
+
+display:flex;
+
+justify-content:space-between;
+
+position:relative;
+
+margin-bottom:35px;
+
 }
+
+
 
 .stepper:before{
-content: "";
-position: absolute;
-top: 15px;
-left: 10%;
-right: 10%;
-height: 2px;
-background: var(--gold);
-/* وهج للخط */
-box-shadow: 0 0 10px var(--gold);
+
+content:"";
+
+position:absolute;
+
+top:15px;
+
+left:10%;
+
+right:10%;
+
+height:2px;
+
+background:var(--gold);
+
+box-shadow:0 0 10px var(--gold);
+
 }
+
 
 .step{
-width: 33%;
-text-align: center;
-z-index: 2;
+
+width:33%;
+
+text-align:center;
+
+z-index:2;
+
 }
+
+
 
 .step-circle{
-width: 32px;
-height: 32px;
-margin: auto;
-border-radius: 50%;
-background: linear-gradient(135deg, #f5d78e, #d4af37);
-color: #000;
-display: flex;
-align-items: center;
-justify-content: center;
-font-weight: bold;
-/* تأثير وهج فخم للدوائر الثلاث */
-box-shadow: 0 0 15px var(--gold), 0 0 30px rgba(212, 175, 55, 0.5);
-border: 2px solid #fff;
+
+width:32px;
+
+height:32px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:linear-gradient(135deg,#f5d78e,#d4af37);
+
+color:#000;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-weight:bold;
+
+box-shadow:
+
+0 0 15px var(--gold),
+
+0 0 30px rgba(212,175,55,.5);
+
+border:2px solid white;
+
 }
+
+
 
 .step-text{
-font-size: 11px;
-color: var(--gold-light);
-margin-top: 8px;
-font-weight: 500;
+
+font-size:11px;
+
+color:var(--gold-light);
+
+margin-top:8px;
+
 }
 
-/* التفاصيل - تأثير زجاجي بخلفية بيضاء 85% */
+
+
+/* التفاصيل */
+
 .details-title{
-font-size: 15px;
-font-weight: bold;
-margin-bottom: 15px;
+
+font-size:15px;
+
+font-weight:bold;
+
+margin-bottom:15px;
+
 }
+
+
 
 .details-grid{
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 12px;
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:12px;
+
 }
+
+
 
 .detail-card{
-background: rgba(255, 255, 255, 0.85); /* أبيض بشفافية 85% */
-backdrop-filter: blur(12px);
--webkit-backdrop-filter: blur(12px);
-border: 1px solid rgba(255, 255, 255, 0.5);
-padding: 12px;
-border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0,0,0,0.15); /* ظل خفيف لإبراز البطاقات */
+
+background:rgba(255,255,255,.85);
+
+padding:12px;
+
+border-radius:12px;
+
 }
+
+
 
 .detail-label{
-font-size: 13px; /* تكبير الخط */
-font-weight: 700; /* جعل الخط سميك */
-color: #4a5c54; /* لون واضح ومقروء */
+
+font-size:13px;
+
+font-weight:700;
+
+color:#4a5c54;
+
 }
+
+
 
 .detail-value{
-font-size: 15px; /* تكبير الخط */
-color: #06140e; /* لون داكن جداً ليكون واضحاً وقوياً */
-font-weight: 800; /* خط سميك جداً */
-margin-top: 5px;
+
+font-size:15px;
+
+color:#06140e;
+
+font-weight:800;
+
+margin-top:5px;
+
 }
 
-/* بطاقة الطلب - تأثير زجاجي مع ذهبي */
+
+/* بطاقة المعاملة */
+
 .order-box{
-background: rgba(212, 175, 55, 0.15);
-backdrop-filter: blur(15px);
--webkit-backdrop-filter: blur(15px);
-border: 1px solid rgba(212, 175, 55, 0.4);
-color: var(--gold-light);
-border-radius: 15px;
-padding: 20px;
-margin-top: 25px;
-text-align: center;
-box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 0 20px rgba(212, 175, 55, 0.1);
+
+background:rgba(212,175,55,.15);
+
+border:1px solid rgba(212,175,55,.4);
+
+border-radius:15px;
+
+padding:20px;
+
+margin-top:25px;
+
+text-align:center;
+
 }
 
-.order-box h3{
-margin: 0 0 15px;
-font-size: 17px;
-color: var(--white);
-line-height: 1.5;
-}
+
 
 .transaction-number{
-background: rgba(0, 0, 0, 0.4);
-border: 1px solid rgba(212, 175, 55, 0.3);
-color: var(--gold-light);
-padding: 10px;
-border-radius: 10px;
-font-size: 24px;
-font-weight: bold;
-display: inline-block;
-min-width: 160px;
-letter-spacing: 2px;
-box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+
+background:rgba(0,0,0,.4);
+
+color:var(--gold-light);
+
+padding:10px;
+
+border-radius:10px;
+
+font-size:24px;
+
+font-weight:bold;
+
+display:inline-block;
+
+min-width:160px;
+
 }
+
 
 /* الملاحظة */
+
 .note{
-margin-top: 25px;
-font-size: 12px;
-line-height: 1.8;
-color: #d1d1d1;
-background: var(--glass-bg);
-padding: 15px;
-border-radius: 12px;
-border: 1px solid var(--glass-border);
+
+margin-top:25px;
+
+font-size:12px;
+
+line-height:1.8;
+
+color:#d1d1d1;
+
+background:var(--glass-bg);
+
+padding:15px;
+
+border-radius:12px;
+
 }
+
+
 
 .note-title{
-color: var(--gold-light);
-font-weight: bold;
-font-size: 14px;
-margin-bottom: 5px;
+
+color:var(--gold-light);
+
+font-weight:bold;
+
+font-size:14px;
+
 }
 
-#notes {
-margin: 0;
-}
+
 
 /* الأزرار */
+
 .buttons-container{
-display: flex;
-gap: 12px;
-margin-top: 25px;
+
+display:flex;
+
+gap:12px;
+
+margin-top:25px;
+
 }
+
 
 .btn{
-flex: 1;
-padding: 14px;
-border: none;
-border-radius: 25px;
-font-family: inherit;
-font-weight: bold;
-cursor: pointer;
-font-size: 13px;
-transition: all 0.3s ease;
+
+flex:1;
+
+padding:14px;
+
+border:none;
+
+border-radius:25px;
+
+font-family:inherit;
+
+font-weight:bold;
+
+cursor:pointer;
+
+font-size:13px;
+
 }
+
+
 
 .btn-primary{
-background: linear-gradient(135deg, #d4af37, #f5d78e);
-color: #06140e;
-box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+
+background:linear-gradient(135deg,#d4af37,#f5d78e);
+
+color:#06140e;
+
 }
 
-.btn-primary:hover{
-transform: translateY(-2px);
-box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
-}
 
 </style>
+<!-- بداية جسم الصفحة -->
+
 </head>
+
 <body>
 
 <div class="mobile-container">
 
-<!-- الرأس -->
+
 <div class="header">
+
 <div class="header-title">
+
 <h1>حالة الطلب</h1>
-<p id="systemNumber">رقم النظام: ----</p>
+
+<p id="systemNumber">
+رقم النظام: ----
+</p>
+
 </div>
+
+
 <div class="logo">
+
 <svg width="28" height="28" viewBox="0 0 24 24">
-<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.53c-.59-.45-1.34-.71-2.15-.71H15v-2c0-.55-.45-1-1-1h-2v-2h2c1.1 0 2-.9 2-2V7.12C18.66 8.35 20 10.03 20 12c0 2.05-.76 3.93-2.1 5.4z"/>
+
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+
 </svg>
-</div>
+
 </div>
 
-<!-- حالة الطلب -->
+</div>
+
+
+
 <div class="status-section">
-<div class="check-icon" id="statusIcon">✓</div>
-<h2 id="statusTitle">جاري التحقق...</h2>
-<p id="statusText">يرجى الانتظار</p>
+
+<div class="check-icon" id="statusIcon">
+✓
 </div>
 
-<!-- رسالة التهنئة بتصميم زجاجي متناسق -->
-<div id="approvedMessage" style="display:none;
-background:rgba(212,175,55,0.15);
-backdrop-filter:blur(15px);
--webkit-backdrop-filter:blur(15px);
-border:1px solid rgba(212,175,55,0.4);
-color:#f5d78e;
+<h2 id="statusTitle">
+جاري التحقق...
+</h2>
+
+<p id="statusText">
+يرجى الانتظار
+</p>
+
+</div>
+
+
+
+<div id="approvedMessage" style="
+display:none;
+background:rgba(212,175,55,.15);
 padding:25px;
 border-radius:18px;
 text-align:center;
 font-size:24px;
 font-weight:800;
 margin-bottom:25px;
-box-shadow:0 10px 30px rgba(0,0,0,0.3), inset 0 0 20px rgba(212,175,55,0.1);">
+">
+
 🎉 تهانينا<br>
 لقد تم اعتماد طلبك
+
 </div>
 
-<!-- المراحل -->
-<div class="stepper-title">تتبع المراحل</div>
+
+
+<div class="stepper-title">
+تتبع المراحل
+</div>
+
+
 <div class="stepper">
+
 <div class="step">
-<div class="step-circle">✓</div>
-<div class="step-text">تم التقديم</div>
-</div>
-<div class="step">
-<div class="step-circle" id="step2">✓</div>
-<div class="step-text">المراجعة</div>
-</div>
-<div class="step">
-<div class="step-circle" id="step3">✓</div>
-<div class="step-text">التنفيذ</div>
-</div>
+
+<div class="step-circle">
+✓
 </div>
 
-<!-- تفاصيل الطلب -->
-<div class="details-title">تفاصيل الطلب</div>
+<div class="step-text">
+تم التقديم
+</div>
+
+</div>
+
+
+<div class="step">
+
+<div class="step-circle">
+✓
+</div>
+
+<div class="step-text">
+المراجعة
+</div>
+
+</div>
+
+
+<div class="step">
+
+<div class="step-circle">
+✓
+</div>
+
+<div class="step-text">
+التنفيذ
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="details-title">
+تفاصيل الطلب
+</div>
+
+
+
 <div class="details-grid">
+
+
 <div class="detail-card">
-<div class="detail-label">رقم المعاملة</div>
-<div class="detail-value" id="transaction">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">حالة الطلب</div>
-<div class="detail-value" id="status">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">اسم العميل</div>
-<div class="detail-value" id="name">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">رقم الجوال</div>
-<div class="detail-value" id="phone">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">الدولة</div>
-<div class="detail-value" id="country">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">نوع الطلب</div>
-<div class="detail-value" id="type">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">رقم الحساب</div>
-<div class="detail-value" id="partNumber">----</div>
-</div>
-<div class="detail-card">
-<div class="detail-label">البريد الإلكتروني</div>
-<div class="detail-value" id="email">----</div>
-</div>
+<div class="detail-label">
+رقم المعاملة
 </div>
 
-<!-- رقم المعاملة -->
+<div class="detail-value" id="transaction">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+حالة الطلب
+</div>
+
+<div class="detail-value" id="status">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+اسم العميل
+</div>
+
+<div class="detail-value" id="name">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+رقم الجوال
+</div>
+
+<div class="detail-value" id="phone">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+الدولة
+</div>
+
+<div class="detail-value" id="country">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+نوع الطلب
+</div>
+
+<div class="detail-value" id="type">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+رقم الحساب
+</div>
+
+<div class="detail-value" id="partNumber">
+----
+</div>
+
+</div>
+
+
+
+<div class="detail-card">
+<div class="detail-label">
+البريد الإلكتروني
+</div>
+
+<div class="detail-value" id="email">
+----
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
 <div class="order-box">
+
 <h3>
-مبلغ المنحة المقدمة من الأمير الوليد بن طلال آل سعود<br>
-<span style="color: var(--gold-light); font-size: 20px; display: block; margin-top: 8px;">650,000.00 ر.س</span>
+
+مبلغ المنحة المقدمة<br>
+
+<span style="
+color:#f5d78e;
+font-size:20px;
+">
+
+650,000.00 ر.س
+
+</span>
+
 </h3>
-<div class="transaction-number" id="transactionBox">----</div>
+
+
+<div class="transaction-number" id="transactionBox">
+
+----
+
 </div>
 
-<!-- الملاحظات -->
+
+</div>
+
+
+
+
 <div class="note">
-<div class="note-title">الملاحظة:</div>
-<p id="notes">جاري تحميل بيانات الطلب...</p>
+
+<div class="note-title">
+الملاحظة:
 </div>
 
-<!-- الأزرار -->
+<p id="notes">
+جاري تحميل بيانات الطلب...
+</p>
+
+</div>
+
+
+
+
 <div class="buttons-container">
-<button class="btn btn-primary" onclick="location.href='track.html'">
+
+<button class="btn btn-primary"
+onclick="location.href='track.html'">
+
 🔍 تتبع طلب آخر
+
 </button>
-<button class="btn btn-primary" onclick="location.href='index.html'">
+
+
+<button class="btn btn-primary"
+onclick="location.href='index.html'">
+
 العودة للرئيسية
+
 </button>
-</div>
+
 
 </div>
 
+
+</div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// إعدادات Firebase
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import { 
+getFirestore,
+collection,
+query,
+where,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
 const firebaseConfig = {
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+
 authDomain: "sparepartswebsite1.firebaseapp.com",
+
 projectId: "sparepartswebsite1",
+
 storageBucket: "sparepartswebsite1.firebasestorage.app",
+
 messagingSenderId: "1063114847735",
+
 appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
 };
 
+
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
+
+
+
+
 // قراءة البيانات من الرابط
+
 const params = new URLSearchParams(window.location.search);
+
+
 let transactionId = params.get("transactionId");
+
 let phone = params.get("phone");
 
-// تحويل الأرقام العربية إلى إنجليزية
+
+
+
+
+// تحويل الأرقام العربية
+
 function convertNumbers(value){
+
 if(!value) return "";
+
 return value.replace(/[٠-٩]/g,function(d){
+
 return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+
 });
+
 }
 
+
+
+
+
+// تنظيف رقم الجوال
+
+function cleanPhone(value){
+
+if(!value) return "";
+
+return value
+.replace(/\+/g,"")
+.replace(/\s/g,"")
+.replace(/-/g,"")
+.trim();
+
+}
+
+
+
+
+
 transactionId = convertNumbers(transactionId);
+
 phone = convertNumbers(phone);
 
+phone = cleanPhone(phone);
+
+
+
+
+
+
 async function loadOrder(){
+
+
 try{
+
+
+// البحث برقم المعاملة فقط
+
 const q = query(
+
 collection(db,"orders"),
-where("transactionId","==",transactionId),
-where("phone","==",phone)
+
+where("transactionId","==",transactionId)
+
 );
+
+
 
 const snapshot = await getDocs(q);
 
-if(snapshot.empty){
-document.getElementById("statusTitle").innerHTML = "خطأ";
-if (typeof data !== 'undefined' && data.approved === true) {
-document.getElementById("approvedMessage").style.display="block";
-}
-document.getElementById("statusText").innerHTML = "رقم المعاملة أو الجوال غير صحيح";
-return;
-}
+
+
+let orderData = null;
+
+
+
 
 snapshot.forEach((doc)=>{
-const data = doc.data();
 
-// رقم المعاملة
-document.getElementById("transaction").innerHTML = data.transactionId;
-document.getElementById("transactionBox").innerHTML = data.transactionId;
-document.getElementById("systemNumber").innerHTML = "رقم النظام: "+data.transactionId;
 
-// إذا لم تتم الموافقة
-if(data.approved === false){
-document.getElementById("statusIcon").innerHTML = "⏳";
-document.getElementById("statusTitle").innerHTML = "قيد المراجعة";
-document.getElementById("statusText").innerHTML = "تم استلام طلبك وسيتم تحديث الحالة بعد المراجعة";
+let data = doc.data();
 
-// نخفي البيانات الحساسة
-document.getElementById("name").innerHTML = "غير متاح حالياً";
-document.getElementById("phone").innerHTML = "غير متاح حالياً";
-document.getElementById("email").innerHTML = "غير متاح حالياً";
-document.getElementById("country").innerHTML = "غير متاح حالياً";
-document.getElementById("partNumber").innerHTML = "غير متاح حالياً";
-document.getElementById("type").innerHTML = "غير متاح حالياً";
-document.getElementById("status").innerHTML = "قيد المراجعة";
-document.getElementById("notes").innerHTML = "سيتم إظهار تفاصيل الطلب بعد اعتماد الإدارة.";
+
+// مقارنة الجوال بعد تنظيفه
+
+if(cleanPhone(data.phone) === phone){
+
+orderData = data;
+
 }
-else{
-// بعد الموافقة
-if (data.approved === true) {
-    document.getElementById("approvedMessage").style.display="block";
-}
-document.getElementById("statusIcon").innerHTML = "✓";
-document.getElementById("statusTitle").innerHTML = "تم اعتماد الطلب";
-document.getElementById("statusText").innerHTML = "تمت مراجعة طلبك ويمكنك متابعة التفاصيل";
-document.getElementById("name").innerHTML = data.name || "-";
-document.getElementById("phone").innerHTML = data.phone || "-";
-document.getElementById("email").innerHTML = data.email || "-";
-document.getElementById("country").innerHTML = data.country || "-";
-document.getElementById("partNumber").innerHTML = data.partNumber || "-";
-document.getElementById("type").innerHTML = data.type || "-";
-document.getElementById("status").innerHTML = data.status || "-";
-document.getElementById("notes").innerHTML = data.notes || "-";
-}
+
+
 });
+
+
+
+
+
+if(!orderData){
+
+
+document.getElementById("statusTitle").innerHTML="خطأ";
+
+
+document.getElementById("statusText").innerHTML=
+
+"رقم المعاملة أو الجوال غير صحيح";
+
+
+return;
+
+
 }
+
+
+
+
+
+const data = orderData;
+
+
+
+
+
+// عرض رقم المعاملة
+
+document.getElementById("transaction").innerHTML =
+data.transactionId || "-";
+
+
+document.getElementById("transactionBox").innerHTML =
+data.transactionId || "-";
+
+
+document.getElementById("systemNumber").innerHTML =
+"رقم النظام: " + (data.transactionId || "-");
+
+
+
+
+
+
+if(data.approved === true){
+
+
+
+document.getElementById("approvedMessage").style.display="block";
+
+
+document.getElementById("statusIcon").innerHTML="✓";
+
+
+document.getElementById("statusTitle").innerHTML=
+"تم اعتماد الطلب";
+
+
+document.getElementById("statusText").innerHTML=
+"تمت مراجعة طلبك ويمكنك متابعة التفاصيل";
+
+
+
+document.getElementById("name").innerHTML=
+data.name || "-";
+
+
+document.getElementById("phone").innerHTML=
+data.phone || "-";
+
+
+document.getElementById("email").innerHTML=
+data.email || "-";
+
+
+document.getElementById("country").innerHTML=
+data.country || "-";
+
+
+document.getElementById("partNumber").innerHTML=
+data.partNumber || "-";
+
+
+document.getElementById("type").innerHTML=
+data.type || "-";
+
+
+document.getElementById("status").innerHTML=
+data.status || "-";
+
+
+document.getElementById("notes").innerHTML=
+data.notes || "-";
+
+
+
+}
+
+else{
+
+
+
+document.getElementById("statusIcon").innerHTML="⏳";
+
+
+document.getElementById("statusTitle").innerHTML=
+"قيد المراجعة";
+
+
+document.getElementById("statusText").innerHTML=
+"تم استلام طلبك وسيتم تحديث الحالة بعد المراجعة";
+
+
+
+document.getElementById("name").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("phone").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("email").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("country").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("partNumber").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("type").innerHTML=
+"غير متاح حالياً";
+
+
+document.getElementById("status").innerHTML=
+"قيد المراجعة";
+
+
+document.getElementById("notes").innerHTML=
+"سيتم إظهار تفاصيل الطلب بعد اعتماد الإدارة.";
+
+
+}
+
+
+
+
+}
+
+
+
 catch(error){
+
+
 console.log(error);
-document.getElementById("statusTitle").innerHTML = "حدث خطأ";
-document.getElementById("statusText").innerHTML = error.message;
+
+
+document.getElementById("statusTitle").innerHTML=
+"حدث خطأ";
+
+
+document.getElementById("statusText").innerHTML=
+error.message;
+
+
 }
+
+
+
 }
+
+
+
 loadOrder();
+
+
 </script>
+
+
 </body>
+
 </html>
