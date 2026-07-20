@@ -9,319 +9,208 @@
 
 <title>حالة الطلب</title>
 
-
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
 
 
 <style>
 
-
 :root{
 
---green:#06140e;
-
---green2:#0a291e;
-
+--bg-dark-green:#06140e;
+--bg-light-green:#0a291e;
 --gold:#d4af37;
-
 --gold-light:#f5d78e;
-
 --white:#ffffff;
 
 }
 
 
-
 *{
-
 box-sizing:border-box;
-
 }
-
 
 
 body{
 
 margin:0;
-
 padding:0;
-
 font-family:'Tajawal',sans-serif;
-
 background:linear-gradient(135deg,#040d09,#0a291e,#040d09);
-
 color:white;
-
+display:flex;
+justify-content:center;
 min-height:100vh;
 
-display:flex;
-
-justify-content:center;
-
 }
-
 
 
 .mobile-container{
 
 width:100%;
-
 max-width:480px;
-
 min-height:100vh;
-
 padding:20px;
-
-background:rgba(10,41,30,.65);
-
+background:rgba(10,41,30,.6);
 backdrop-filter:blur(20px);
-
 border-radius:20px;
-
-box-shadow:0 15px 40px rgba(0,0,0,.7);
-
-overflow:hidden;
+box-shadow:0 15px 40px rgba(0,0,0,.8);
 
 }
-
 
 
 
 .header{
 
 display:flex;
-
 justify-content:space-between;
-
 align-items:center;
-
 margin-bottom:30px;
 
 }
 
 
-
 .header-title h1{
 
+font-size:22px;
 margin:0;
-
-font-size:23px;
-
 font-weight:800;
 
 }
 
 
-
 .header-title p{
 
-margin:5px 0 0;
-
 font-size:12px;
-
 color:var(--gold-light);
 
 }
-
 
 
 .logo{
 
 width:45px;
-
 height:45px;
-
 background:linear-gradient(135deg,#f5d78e,#d4af37);
-
 border-radius:50%;
-
 display:flex;
-
 align-items:center;
-
 justify-content:center;
 
-color:#06140e;
-
-font-size:25px;
-
-font-weight:bold;
-
 }
-
-
-
 
 
 .status-section{
 
 text-align:center;
-
 margin-bottom:30px;
 
 }
 
 
-
 .check-icon{
 
 width:70px;
-
 height:70px;
-
-border-radius:50%;
-
 background:linear-gradient(135deg,#f5d78e,#d4af37);
-
+border-radius:50%;
 display:inline-flex;
-
 align-items:center;
-
 justify-content:center;
-
 font-size:35px;
-
 color:#000;
-
-box-shadow:0 0 25px rgba(212,175,55,.5);
 
 }
 
 
-
 .status-section h2{
 
-margin:10px 0;
-
 color:var(--gold-light);
-
 font-size:25px;
 
 }
 
 
-
 .status-section p{
-
-margin:0;
 
 color:#ddd;
 
 }
 
 
-
-
-
 .stepper-title{
 
 font-weight:bold;
-
 margin-bottom:15px;
 
 }
-
 
 
 .stepper{
 
 display:flex;
-
 justify-content:space-between;
-
 position:relative;
-
-margin-bottom:30px;
+margin-bottom:35px;
 
 }
-
 
 
 .step{
 
 width:33%;
-
 text-align:center;
 
 }
 
 
-
 .step-circle{
 
 width:32px;
-
 height:32px;
-
 margin:auto;
-
 border-radius:50%;
-
-background:linear-gradient(135deg,#f5d78e,#d4af37);
-
+background:#d4af37;
 color:#000;
-
 display:flex;
-
 align-items:center;
-
 justify-content:center;
-
 font-weight:bold;
 
 }
-
 
 
 .step-text{
 
 font-size:11px;
-
 margin-top:8px;
-
-color:var(--gold-light);
+color:#f5d78e;
 
 }
 
-
-
-
-
 .details-title{
 
+font-size:15px;
 font-weight:bold;
-
 margin-bottom:15px;
 
 }
 
 
-
-
-
 .details-grid{
 
 display:grid;
-
 grid-template-columns:1fr 1fr;
-
 gap:12px;
 
 }
 
 
 
-
-
 .detail-card{
 
-background:rgba(255,255,255,.9);
-
+background:rgba(255,255,255,.85);
 padding:12px;
-
 border-radius:12px;
-
-overflow:hidden;
 
 }
 
@@ -329,11 +218,9 @@ overflow:hidden;
 
 .detail-label{
 
-font-size:12px;
-
-color:#555;
-
+font-size:13px;
 font-weight:bold;
+color:#4a5c54;
 
 }
 
@@ -342,48 +229,59 @@ font-weight:bold;
 .detail-value{
 
 font-size:15px;
-
-color:#06140e;
-
 font-weight:800;
-
+color:#06140e;
 margin-top:5px;
-
+word-break:break-word;
+overflow:hidden;
+text-overflow:ellipsis;
 white-space:nowrap;
 
-overflow:hidden;
-
-text-overflow:ellipsis;
-
 }
-
-
 
 
 
 .order-box{
 
-display:none;
-
-margin-top:25px;
-
-padding:20px;
-
-text-align:center;
-
-border-radius:15px;
-
 background:rgba(212,175,55,.15);
-
 border:1px solid rgba(212,175,55,.4);
+border-radius:15px;
+padding:20px;
+margin-top:25px;
+text-align:center;
 
 }
 
 
 
-.order-box.show{
+.order-box h3{
 
+margin:0 0 15px;
+font-size:17px;
+
+}
+
+
+
+#grantAmount{
+
+color:#f5d78e;
+font-size:26px;
+font-weight:800;
 display:block;
+margin-top:10px;
+
+}
+
+
+
+#grantText{
+
+color:#d4af37;
+font-size:22px;
+font-weight:bold;
+display:block;
+margin-top:10px;
 
 }
 
@@ -391,65 +289,37 @@ display:block;
 
 .transaction-number{
 
-display:inline-block;
-
-max-width:100%;
-
-padding:10px 20px;
-
-background:#0008;
-
+background:rgba(0,0,0,.4);
+color:#f5d78e;
+padding:10px;
 border-radius:10px;
-
-color:var(--gold-light);
-
-font-size:22px;
-
+font-size:24px;
 font-weight:bold;
-
-overflow:hidden;
-
-text-overflow:ellipsis;
-
-white-space:nowrap;
+display:inline-block;
+min-width:160px;
 
 }
-
-
 
 
 
 .note{
 
 margin-top:25px;
-
+font-size:12px;
+line-height:1.8;
+color:#ddd;
+background:rgba(255,255,255,.05);
 padding:15px;
-
 border-radius:12px;
 
-background:rgba(255,255,255,.05);
-
 }
-
-
-
-.note-title{
-
-color:var(--gold-light);
-
-font-weight:bold;
-
-}
-
 
 
 
 .buttons-container{
 
 display:flex;
-
-gap:10px;
-
+gap:12px;
 margin-top:25px;
 
 }
@@ -459,24 +329,20 @@ margin-top:25px;
 .btn{
 
 flex:1;
-
 padding:14px;
-
 border:none;
-
 border-radius:25px;
-
-background:linear-gradient(135deg,#d4af37,#f5d78e);
-
+background:#d4af37;
+color:#06140e;
 font-weight:bold;
-
-cursor:pointer;
 
 }
 
 
 </style>
+
 </head>
+
 
 <body>
 
@@ -484,9 +350,7 @@ cursor:pointer;
 <div class="mobile-container">
 
 
-
 <div class="header">
-
 
 <div class="header-title">
 
@@ -503,15 +367,12 @@ cursor:pointer;
 </div>
 
 
-
 <div class="logo">
 ✓
 </div>
 
 
 </div>
-
-
 
 
 
@@ -525,13 +386,11 @@ cursor:pointer;
 </div>
 
 
-
 <h2 id="statusTitle">
 
 جاري التحقق...
 
 </h2>
-
 
 
 <p id="statusText">
@@ -541,51 +400,13 @@ cursor:pointer;
 </p>
 
 
-
 </div>
-
-
-
-
-
-
-
-<div id="approvedMessage" style="display:none;
-background:rgba(212,175,55,.15);
-border:1px solid rgba(212,175,55,.4);
-padding:20px;
-border-radius:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-color:#f5d78e;
-margin-bottom:20px;">
-
-
-🎉 تهانينا
-
-<br>
-
-تم اعتماد طلبك
-
-
-</div>
-
-
-
-
-
-
 
 
 
 <div class="stepper-title">
-
 تتبع المراحل
-
 </div>
-
-
 
 
 <div class="stepper">
@@ -607,7 +428,7 @@ margin-bottom:20px;">
 
 <div class="step">
 
-<div class="step-circle" id="step2">
+<div class="step-circle">
 ✓
 </div>
 
@@ -621,7 +442,7 @@ margin-bottom:20px;">
 
 <div class="step">
 
-<div class="step-circle" id="step3">
+<div class="step-circle">
 ✓
 </div>
 
@@ -638,245 +459,81 @@ margin-bottom:20px;">
 
 
 
-
-
-
-
-
 <div class="details-title">
-
 تفاصيل الطلب
-
 </div>
-
-
-
 
 
 <div class="details-grid">
 
 
-
+<div class="detail-card">
+<div class="detail-label">رقم المعاملة</div>
+<div class="detail-value" id="transaction">----</div>
+</div>
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-رقم المعاملة
-
+<div class="detail-label">حالة الطلب</div>
+<div class="detail-value" id="status">----</div>
 </div>
-
-<div class="detail-value" id="transaction">
-
-----
-
-</div>
-
-</div>
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-حالة الطلب
-
+<div class="detail-label">اسم العميل</div>
+<div class="detail-value" id="name">----</div>
 </div>
-
-<div class="detail-value" id="status">
-
-----
-
-</div>
-
-</div>
-
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-اسم العميل
-
+<div class="detail-label">رقم الجوال</div>
+<div class="detail-value" id="phone">----</div>
 </div>
-
-<div class="detail-value" id="name">
-
-----
-
-</div>
-
-</div>
-
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-رقم الجوال
-
+<div class="detail-label">الدولة</div>
+<div class="detail-value" id="country">----</div>
 </div>
-
-<div class="detail-value" id="phone">
-
-----
-
-</div>
-
-</div>
-
-
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-الدولة
-
+<div class="detail-label">نوع الطلب</div>
+<div class="detail-value" id="type">----</div>
 </div>
-
-<div class="detail-value" id="country">
-
-----
-
-</div>
-
-</div>
-
-
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-نوع الطلب
-
+<div class="detail-label">رقم الحساب</div>
+<div class="detail-value" id="partNumber">----</div>
 </div>
-
-<div class="detail-value" id="type">
-
-----
-
-</div>
-
-</div>
-
-
-
-
-
 
 
 <div class="detail-card">
-
-<div class="detail-label">
-
-رقم الحساب
-
+<div class="detail-label">البريد الإلكتروني</div>
+<div class="detail-value" id="email">----</div>
 </div>
-
-<div class="detail-value" id="partNumber">
-
-----
-
-</div>
-
-</div>
-
-
-
-
-
-
-
-<div class="detail-card">
-
-<div class="detail-label">
-
-البريد الإلكتروني
-
-</div>
-
-<div class="detail-value" id="email">
-
-----
-
-</div>
-
-</div>
-
 
 
 </div>
 
-
-
-
-
-
-
-
-
-<!-- بطاقة المنحة لا تظهر إلا بعد الاعتماد -->
-
-
-<div class="order-box" id="grantBox">
+<!-- بطاقة المنحة -->
+<div class="order-box" id="grantBox" style="display:none;">
 
 <h3>
 
- مبلغ المنحة المقدمة من مؤسسة الوليد بن طلال
-<br>
+مبلغ المنحة المقدمة
 
-<span id="grantAmount"
-style="
-color:#f5d78e;
-font-size:26px;
-font-weight:800;
-display:block;
-margin-top:10px;
-">
-
+<span id="grantAmount">
 ----
-
 </span>
 
 
-<span
-style="
-color:#d4af37;
-font-size:22px;
-font-weight:bold;
-display:block;
-margin-top:8px;
-">
-
-ألف مبروك
-
+<span id="grantText">
 </span>
 
 
 </h3>
-
 
 
 <div class="transaction-number" id="transactionBox">
@@ -891,47 +548,28 @@ margin-top:8px;
 
 
 
-
-
-
-
-
 <div class="note">
 
-
-<div class="note-title">
-
+<div>
 الملاحظة:
-
 </div>
-
 
 <p id="notes">
-
 جاري تحميل بيانات الطلب...
-
 </p>
 
-
 </div>
-
-
-
-
-
 
 
 
 
 <div class="buttons-container">
 
-
 <button class="btn" onclick="location.href='track.html'">
 
 🔍 تتبع طلب آخر
 
 </button>
-
 
 
 <button class="btn" onclick="location.href='index.html'">
@@ -944,116 +582,107 @@ margin-top:8px;
 </div>
 
 
-
-
-
 </div>
+
+
+
 <script type="module">
 
-import { initializeApp } 
+
+import { initializeApp }
+
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 
-import { 
+import {
+
 getFirestore,
 collection,
 query,
 where,
 getDocs
+
 }
+
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 
-const firebaseConfig = {
 
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
 
-authDomain: "sparepartswebsite1.firebaseapp.com",
+const firebaseConfig={
 
-projectId: "sparepartswebsite1",
 
-storageBucket: "sparepartswebsite1.firebasestorage.app",
+apiKey:"AIzaSyDD_I84b3b6bmVkjVxVx-tg2g7Cbd6RPcYz_Q",
 
-messagingSenderId: "1063114847735",
+authDomain:"sparepartswebsite1.firebaseapp.com",
 
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+projectId:"sparepartswebsite1",
+
+storageBucket:"sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId:"1063114847735",
+
+appId:"1:1063114847735:web:0e764c150ab10df2d82af2"
+
 
 };
 
 
 
-const app = initializeApp(firebaseConfig);
+const app=initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
-
-
-
-
-
-const params = new URLSearchParams(window.location.search);
-
-
-let transactionId = params.get("transactionId");
-
-let phone = params.get("phone");
+const db=getFirestore(app);
 
 
 
 
+const params=new URLSearchParams(location.search);
 
 
-function normalize(value){
+let transactionId=params.get("transactionId");
 
-if(!value) return "";
+let phone=params.get("phone");
 
-return value
 
-.toString()
 
-.replace(/[٠-٩]/g,function(x){
 
-return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+function convertNumbers(value){
 
-})
+if(!value)return "";
 
-.replace(/\+/g,"")
+return value.replace(/[٠-٩]/g,function(d){
 
-.replace(/\s+/g,"")
+return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
 
-.trim();
+});
 
 }
 
 
 
+transactionId=convertNumbers(transactionId);
 
-transactionId = normalize(transactionId);
-
-phone = normalize(phone);
-
+phone=convertNumbers(phone);
 
 
 
 
 
-function shortValue(value){
 
-if(!value) return "-";
+function hideLong(value){
 
-value=value.toString();
+if(!value)return "-";
 
-if(value.length > 18){
+if(value.length>12){
 
-return value.substring(0,10)+"***";
+return value.substring(0,6)+"***";
 
 }
 
 return value;
 
 }
-
-
 
 
 
@@ -1070,231 +699,126 @@ const q=query(
 
 collection(db,"orders"),
 
-where("transactionId","==",transactionId)
+where("transactionId","==",transactionId),
+
+where("phone","==",phone)
 
 );
 
 
 
-const snapshot=await getDocs(q);
+const snap=await getDocs(q);
 
 
 
-let order=null;
+if(snap.empty){
+
+
+statusTitle.innerHTML="خطأ";
+
+statusText.innerHTML=
+"رقم المعاملة أو رقم الجوال غير صحيح";
+
+
+return;
+
+
+}
 
 
 
-
-snapshot.forEach(doc=>{
+snap.forEach(doc=>{
 
 
 let data=doc.data();
 
 
-if(
-normalize(data.phone)===phone
-){
 
-order=data;
+
+transaction.innerHTML=data.transactionId || "-";
+
+transactionBox.innerHTML=data.transactionId || "-";
+
+systemNumber.innerHTML=
+"رقم النظام: "+data.transactionId;
+
+
+
+if(data.approved===true){
+
+
+
+grantBox.style.display="block";
+
+
+
+grantAmount.innerHTML=
+data.grantAmount || "-";
+
+
+
+grantText.innerHTML=
+data.grantText || "";
+
+
+
+name.innerHTML=data.name || "-";
+
+phone.innerHTML=data.phone || "-";
+
+email.innerHTML=data.email || "-";
+
+country.innerHTML=data.country || "-";
+
+partNumber.innerHTML=
+hideLong(data.partNumber);
+
+
+type.innerHTML=data.type || "-";
+
+status.innerHTML=data.status || "-";
+
+notes.innerHTML=data.notes || "-";
+
+
+
+statusTitle.innerHTML=
+"تم اعتماد الطلب";
+
+
+statusText.innerHTML=
+"تمت مراجعة طلبك ويمكنك متابعة التفاصيل";
+
 
 }
+
+
+else{
+
+
+statusTitle.innerHTML=
+"قيد المراجعة";
+
+
+statusText.innerHTML=
+"تم استلام طلبك وسيتم تحديث الحالة بعد المراجعة";
+
+
+notes.innerHTML=
+"سيتم إظهار تفاصيل الطلب بعد اعتماد الإدارة.";
+
+
+}
+
+
 
 
 });
 
 
 
-
-
-
-
-if(!order){
-
-
-document.getElementById("statusIcon").innerHTML="❌";
-
-document.getElementById("statusTitle").innerHTML="خطأ";
-
-document.getElementById("statusText").innerHTML=
-
-"رقم المعاملة أو رقم الجوال غير صحيح";
-
-
-return;
-
 }
 
-
-
-
-
-
-
-document.getElementById("transaction").innerHTML=
-
-shortValue(order.transactionId);
-
-
-
-document.getElementById("transactionBox").innerHTML=
-
-shortValue(order.transactionId);
-
-
-
-document.getElementById("systemNumber").innerHTML=
-
-"رقم النظام: "+shortValue(order.transactionId);
-
-
-
-
-
-
-
-
-
-document.getElementById("status").innerHTML=
-
-order.status || "قيد المراجعة";
-
-
-
-
-
-
-
-
-if(order.approved !== true){
-
-
-
-document.getElementById("statusIcon").innerHTML="⏳";
-
-
-document.getElementById("statusTitle").innerHTML=
-
-"قيد المراجعة";
-
-
-document.getElementById("statusText").innerHTML=
-
-"تم استلام طلبك وسيتم تحديث الحالة بعد المراجعة";
-
-
-
-document.getElementById("name").innerHTML="غير متاح";
-
-document.getElementById("phone").innerHTML="غير متاح";
-
-document.getElementById("email").innerHTML="غير متاح";
-
-document.getElementById("country").innerHTML="غير متاح";
-
-document.getElementById("partNumber").innerHTML="غير متاح";
-
-document.getElementById("type").innerHTML="غير متاح";
-
-document.getElementById("notes").innerHTML=
-
-"سيتم إظهار التفاصيل بعد اعتماد الإدارة.";
-
-
-
-document.getElementById("grantBox").classList.remove("show");
-
-
-
-}
-
-
-
-
-
-
-
-else{
-
-
-
-document.getElementById("approvedMessage").style.display="block";
-
-
-
-document.getElementById("statusIcon").innerHTML="✓";
-
-
-document.getElementById("statusTitle").innerHTML=
-
-"تم اعتماد الطلب";
-
-
-
-document.getElementById("statusText").innerHTML=
-
-"تمت مراجعة طلبك ويمكنك متابعة التفاصيل";
-
-
-
-
-
-document.getElementById("name").innerHTML=
-
-order.name || "-";
-
-
-document.getElementById("phone").innerHTML=
-
-order.phone || "-";
-
-
-document.getElementById("email").innerHTML=
-
-order.email || "-";
-
-
-document.getElementById("country").innerHTML=
-
-order.country || "-";
-
-
-document.getElementById("partNumber").innerHTML=
-
-shortValue(order.partNumber);
-
-
-
-document.getElementById("type").innerHTML=
-
-order.type || "-";
-
-
-
-
-
-document.getElementById("grantBox").classList.add("show");
-
-
-
-document.getElementById("grantAmount").innerHTML=
-
-order.grantAmount || "650,000.00 ر.س";
-
-
-
-document.getElementById("notes").innerHTML=
-
-order.notes || "-";
-
-
-
-}
-
-
-
-
-
-}
 
 
 catch(error){
@@ -1303,15 +827,9 @@ catch(error){
 console.log(error);
 
 
-document.getElementById("statusTitle").innerHTML=
+statusTitle.innerHTML="حدث خطأ";
 
-"حدث خطأ";
-
-
-document.getElementById("statusText").innerHTML=
-
-error.message;
-
+statusText.innerHTML=error.message;
 
 
 }
@@ -1319,7 +837,6 @@ error.message;
 
 
 }
-
 
 
 
