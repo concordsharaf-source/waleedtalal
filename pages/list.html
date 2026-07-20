@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>طلبات المساعدة</title>
+
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+margin:0;
+
+padding:15px;
+
+font-family:'Cairo',sans-serif;
+
+background:#f0f2f5;
+
+}
+
+
+
+.container{
+
+width:100%;
+
+max-width:900px;
+
+margin:auto;
+
+}
+
+
+
+
+.header{
+
+background:#1a4332;
+
+color:white;
+
+padding:20px;
+
+border-radius:20px;
+
+text-align:center;
+
+margin-bottom:20px;
+
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+
+}
+
+
+
+.header h1{
+
+margin:0;
+
+font-size:25px;
+
+}
+
+
+
+.header p{
+
+margin:8px 0 0;
+
+}
+
+
+
+.table-box{
+
+background:white;
+
+border-radius:18px;
+
+overflow:hidden;
+
+box-shadow:0 8px 25px rgba(0,0,0,.1);
+
+}
+
+
+
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+table-layout:fixed;
+
+}
+
+
+
+
+th{
+
+background:#1a4332;
+
+color:white;
+
+padding:14px;
+
+font-size:15px;
+
+}
+
+
+
+
+td{
+
+padding:12px 8px;
+
+text-align:center;
+
+border-bottom:1px solid #eee;
+
+font-size:14px;
+
+word-break:break-word;
+
+}
+
+
+
+
+tr:nth-child(even){
+
+background:#f8f9fa;
+
+}
+
+
+
+
+.loading{
+
+padding:30px;
+
+text-align:center;
+
+color:#1a4332;
+
+font-weight:bold;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+
+<div class="header">
+
+<h1>
+طلبات المساعدة
+</h1>
+
+<p>
+آخر الطلبات المستلمة
+</p>
+
+</div>
+
+
+
+
+<div class="table-box">
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>
+اسم العميل
+</th>
+
+
+<th>
+نوع المساعدة
+</th>
+
+
+<th>
+الدولة
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="orders">
+
+
+<tr>
+
+<td colspan="3" class="loading">
+
+جاري تحميل الطلبات...
+
+</td>
+
+
+</tr>
+
+
+
+</tbody>
+
+
+</table>
+
+
+
+</div>
+
+
+
+</div>
+<script type="module">
+
+import { initializeApp }
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+import {
+
+getFirestore,
+
+collection,
+
+getDocs
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+
+const app = initializeApp(firebaseConfig);
+
+
+const db = getFirestore(app);
+
+
+
+const ordersTable = document.getElementById("orders");
+
+
+
+let orders = [];
+
+
+
+
+
+async function loadOrders(){
+
+
+try{
+
+
+const snapshot = await getDocs(
+collection(db,"orders")
+);
+
+
+
+orders=[];
+
+
+
+snapshot.forEach((doc)=>{
+
+
+orders.push({
+
+id:doc.id,
+
+...doc.data()
+
+});
+
+
+});
+
+
+
+
+
+// إضافة 500 طلب وهمي للعرض فقط
+
+
+const names = [
+
+"محمد أحمد العتيبي",
+"خالد عبدالله القحطاني",
+"يوسف حسن المغربي",
+"علي سالم العماني",
+"أحمد صالح الكويتي",
+"سارة محمد الأردنية",
+"نور الدين السوري",
+"مريم عبدالله الجزائرية",
+"ليلى حسن التونسية",
+"إبراهيم خالد الإماراتي"
+
+];
+
+
+
+const countries = [
+
+"السعودية",
+"المغرب",
+"عمان",
+"الكويت",
+"الأردن",
+"سوريا",
+"الإمارات",
+"قطر",
+"تونس",
+"الجزائر"
+
+];
+
+
+
+const types = [
+
+"مساعدة مالية",
+"مساعدة علاجية",
+"مساعدة زواج",
+"مساعدة أسرية",
+"مساعدة تعليمية"
+
+];
+
+
+
+
+
+for(let i=1;i<=500;i++){
+
+
+orders.push({
+
+id:"fake-"+i,
+
+
+name:
+names[Math.floor(Math.random()*names.length)],
+
+
+country:
+countries[Math.floor(Math.random()*countries.length)],
+
+
+type:
+types[Math.floor(Math.random()*types.length)],
+
+
+createdAt:{
+seconds:0
+}
+
+
+});
+
+
+}
+
+
+
+
+
+
+// ترتيب الطلبات الحقيقية أولا ثم الوهمية
+
+
+orders.sort((a,b)=>{
+
+
+let dateA =
+a.createdAt?.seconds || 0;
+
+
+let dateB =
+b.createdAt?.seconds || 0;
+
+
+return dateB-dateA;
+
+
+});
+
+
+
+displayOrders();
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.log(error);
+
+
+ordersTable.innerHTML=`
+
+<tr>
+
+<td colspan="3">
+
+حدث خطأ في تحميل البيانات
+
+</td>
+
+</tr>
+
+`;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+function shortName(name){
+
+
+if(!name) return "-";
+
+
+return name
+
+.trim()
+
+.split(" ")
+
+.slice(0,3)
+
+.join(" ");
+
+
+}
+
+
+
+
+
+
+
+function displayOrders(){
+
+
+ordersTable.innerHTML="";
+
+
+
+orders.forEach(order=>{
+
+
+ordersTable.innerHTML += `
+
+
+<tr>
+
+
+<td>
+
+${shortName(order.name)}
+
+</td>
+
+
+
+<td>
+
+${order.type || "-"}
+
+</td>
+
+
+
+<td>
+
+${order.country || "-"}
+
+</td>
+
+
+
+</tr>
+
+
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+loadOrders();
+
+
+
+</script>
+</body>
+</html>
+
