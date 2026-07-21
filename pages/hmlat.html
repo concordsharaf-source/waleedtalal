@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاريعنا | الوليد للإنسانية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-green: #008444;
+            --dark-green: #06140e;
+            --gold: #d4af37;
+            --gold-light: #f5d78e;
+            --accent-green: #25D366;
+            --transition-speed: 0.3s;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Cairo', 'Tajawal', sans-serif; 
+        }
+
+        body { 
+            background-color: #040d09; 
+            color: #ffffff;
+            overflow-x: hidden;
+            padding-top: 80px;
+        }
+
+        /* --- الهيدر وشريط التنقل --- */
+        header#header {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            padding: 10px 5%;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .logo-container img { height: 45px; width: auto; filter: brightness(1.2); }
+        nav ul { display: flex; list-style: none; color: white; gap: 15px; }
+        nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.85rem; transition: 0.3s; }
+        nav ul li a:hover { color: var(--accent-green); }
+
+        /* --- القائمة المنسدلة للجوّال --- */
+        .hamburger-menu { position: relative; z-index: 200; }
+        .hamburger-btn {
+            background: transparent; border: none; cursor: pointer; padding: 8px;
+            display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+            width: 45px; height: 45px; transition: 0.3s;
+        }
+        .hamburger-btn span {
+            display: block; width: 28px; height: 3px; background-color: var(--accent-green);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger-btn.active span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+        .dropdown-menu {
+            position: absolute; top: 55px; left: 0; background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 0; min-width: 220px;
+            display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.3s ease;
+        }
+        .dropdown-menu.show { display: flex; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu a {
+            color: white; text-decoration: none; padding: 12px 20px; font-size: 0.9rem;
+            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .dropdown-menu a:last-child { border-bottom: none; }
+        .dropdown-menu a:hover { background: var(--accent-green); color: white; padding-right: 25px; }
+        .dropdown-menu a i { color: var(--accent-green); font-size: 1rem; width: 20px; text-align: center; }
+
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .hamburger-menu { margin-right: auto; }
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            background: linear-gradient(rgba(4, 13, 9, 0.75), rgba(4, 13, 9, 0.85)), 
+                        url('../images/xx.jpg') no-repeat center center/cover;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--gold-light);
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 8px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+        }
+
+        /* --- Filter Container --- */
+        .container {
+            padding: 40px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 22px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            background: rgba(10, 41, 30, 0.6);
+            color: #fff;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            color: var(--dark-green);
+            border-color: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: var(--gold-light);
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+
+        .hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            width: 80%;
+            margin: 20px auto 40px;
+            opacity: 0.5;
+        }
+
+        /* --- Projects Grid & Cards --- */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 25px;
+            width: 100%;
+        }
+
+        @media (max-width: 992px) {
+            .projects-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .projects-grid { grid-template-columns: 1fr; gap: 20px; }
+        }
+
+        .project-card {
+            border-radius: 16px;
+            background: rgba(10, 41, 30, 0.7);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+        }
+
+        .project-image {
+            height: 200px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .project-card:hover .project-image img {
+            transform: scale(1.08);
+        }
+
+        .project-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .project-category {
+            color: var(--gold-light);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .project-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.5;
+            min-height: 48px;
+        }
+
+        .read-more {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .read-more:hover {
+            color: var(--gold-light);
+            transform: translateX(-5px);
+        }
+
+        /* Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- الفوتر --- */
+        .main-footer {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            padding: 50px 20px 20px;
+            border-top: 4px solid #38bdf8;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 60px;
+        }
+
+        .footer-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .footer-section { margin-bottom: 30px; width: 100%; }
+        .footer-section h3 { color: #38bdf8; margin-bottom: 20px; font-size: 1.2rem; }
+
+        .contact-links, .links-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .contact-item, .links-grid a { color: #94a3b8; text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .contact-item i { color: #38bdf8; font-size: 1.2rem; }
+        .contact-item:hover, .links-grid a:hover { color: #fff; transform: translateY(-3px); }
+
+        .footer-divider { width: 100%; height: 1px; background: rgba(148, 163, 184, 0.2); margin: 20px 0; }
+        .footer-bottom { color: #64748b; font-size: 0.9rem; }
+        .footer-bottom .branding { margin-top: 5px; font-size: 0.8rem; opacity: 0.7; }
+
+        @media (max-width: 600px) {
+            .contact-links, .links-grid { flex-direction: column; gap: 15px; }
+        }
+
+        /* Floating WhatsApp Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background-color: var(--accent-green);
+            color: #ffffff;
+            border-radius: 50px;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 999;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .whatsapp-float:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <!-- الهيدر الموحد -->
+    <header id="header">
+        <div class="logo-container">
+            <a href="../index.html"><img src="../images/ad.png" alt="شعار مؤسسة الوليد"></a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="hmlat.html" style="color: var(--accent-green)">المشاريع</a></li>
+                <li><a href="we.html">من نحن</a></li>
+                <li><a href="list.html">المساعدات</a></li>
+            </ul>
+        </nav>
+
+        <!-- زر القائمة المنسدلة -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="القائمة">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="../index.html"><i class="fas fa-home"></i> الرئيسية</a>
+                <a href="we.html"><i class="fas fa-users"></i> من نحن</a>
+                <a href="hmlat.html"><i class="fas fa-project-diagram"></i> المشاريع</a>
+                <a href="list.html"><i class="fas fa-hands-helping"></i> المساعدات</a>
+                <a href="us.html"><i class="fas fa-file-alt"></i> تقديم طلب</a>
+                <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
+                <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
+                <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero reveal">
+        <h1>مشاريعنا الإنسانية</h1>
+    </section>
+
+    <!-- Content & Filters -->
+    <div class="container">
+        <div class="filters reveal">
+            <button class="filter-btn active">الكل</button>
+            <button class="filter-btn">تنمية المجتمعات</button>
+            <button class="filter-btn">تمكين المرأة والشباب</button>
+            <button class="filter-btn">الإغاثة العاجلة</button>
+            <button class="filter-btn">التبادل الثقافي</button>
+        </div>
+
+        <h2 class="section-title reveal">المشاريع الحالية والمستمرة</h2>
+        <div class="hr"></div>
+
+        <section class="projects-grid reveal">      
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/www.jpg" alt="دعم التعليم">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">التعليم والتأهيل</div>
+                    <div class="project-title">مشروع دعم وتطوير تطبيقات صعوبات التعلم</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wwq.jpg" alt="تمكين الشباب">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">تمكين الشباب</div>
+                    <div class="project-title">مبادرة التدريب المهني والتقني لسوق العمل</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/qql.jpg" alt="بناء الجسور الثقافية">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">التبادل الثقافي</div>
+                    <div class="project-title">الحفاظ على التراث والثقافة من خلال الفنون</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/qqp.jpg" alt="التنمية المجتمعية">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">تنمية المجتمعات</div>
+                    <div class="project-title">مشروع المستقبل: التعليم الفعال من أجل التوظيف</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wwr.jpg" alt="البيئة المستدامة">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">البيئة والتنمية المستدامة</div>
+                    <div class="project-title">مبادرات الحد من التلوث وحماية البيئة المحلية</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wws.jpeg" alt="الإسكان الخيري">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">الإسكان الخيري</div>
+                    <div class="project-title">توزيع الوحدات السكنية للأيتام والأسر الأشد حاجة</div>
+                    <a href="us.html" class="read-more">تقديم طلب إسكان ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wwt.jpg" alt="تمكين المرأة">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">تمكين المرأة</div>
+                    <div class="project-title">برامج التوعية والحماية والدعم الأسري للمرأة</div>
+                    <a href="us.html" class="read-more">طلب دعم للمشروع ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wwy.jpg" alt="التعليم المستمر">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">التعليم والشراكات</div>
+                    <div class="project-title">توفير خيارات تعليمية مرنة وتسهيل المنح الدراسية</div>
+                    <a href="us.html" class="read-more">طلب منحة دراسية ←</a>
+                </div>
+            </div>
+
+            <div class="project-card reveal">
+                <div class="project-image">
+                    <img src="../images/wwu.jpg" alt="القطاع الصحي">
+                </div>
+                <div class="project-content">
+                    <div class="project-category">الرعاية الصحية</div>
+                    <div class="project-title">دعم المناطق النائية وبناء العيادات والمراكز الصحية</div>
+                    <a href="us.html" class="read-more">طلب علاج أو دعم صحي ←</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- زر واتساب عائم -->
+    <a href="https://wa.me/966580272758" class="whatsapp-float" target="_blank" aria-label="واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- الفوتر الموحد -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-section contact-info">
+                <h3>تواصل معنا</h3>
+                <div class="contact-links">
+                    <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+                        <i class="fas fa-envelope"></i> البريد الإلكتروني
+                    </a>
+                    <a href="https://wa.me/966580272758" class="contact-item" target="_blank">
+                        <i class="fab fa-whatsapp"></i> واتساب الدعم
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-section legal-links">
+                <h3>الروابط القانونية</h3>
+                <div class="links-grid">
+                    <a href="privacy-policy.html">سياسة الخصوصية</a>
+                    <a href="terms.html">شروط الاستخدام</a>
+                </div>
+            </div>
+
+            <div class="footer-divider"></div>
+
+            <div class="footer-bottom">
+                <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+                <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // تشغيل الهيدر والقائمة المنسدلة
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        if (hamburgerBtn && dropdownMenu) {
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    hamburgerBtn.classList.remove('active');
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // إخفاء/إظهار الهيدر أثناء التمرير
+        let lastScrollTop = 0;
+        const header = document.getElementById('header');
+
+        if (header) {
+            window.addEventListener('scroll', function() {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    header.style.transform = 'translateY(-100%)'; 
+                } else {
+                    header.style.transform = 'translateY(0)'; 
+                }
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
+        }
+
+        // تأثيرات الظهور السلس عند التمرير
+        document.addEventListener("DOMContentLoaded", function() {
+            const observerOptions = { threshold: 0.1 };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+        });
+    </script>
+</body>
+</html>
+er = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+            } else {
+                // حذف الكلاس عند الخروج لجعل الحركة تتكرر دوماً
+                entry.target.classList.remove("active");
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    });
+    </script>
+
+    <script>
+// تأكد أن الدالة موجودة هنا بين وسومي السكريبت
+    function toggleWhatsAppModal() {
+        const modal = document.getElementById('whatsappModal');
+        if (modal.style.display ==='none' || modal.style.display === '') {
+            modal.style.display ='flex';
+        } else {
+            modal.style.display ='none';
+        }
+    }
+
+// دالة الإرسال بالرقم الجديد التي أعطيتك إياها
+    function sendToWhatsApp() {
+        const noteElement = document.getElementById('userNote');
+        const note = noteElement.value.trim();
+        const phoneNumber ="966580272758"; 
+
+        if (note ==="") {
+            alert("فضلاً اكتب الملاحظة أولاً");
+            return;
+        }
+        
+         const prefix="📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
+         const suffix="\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
+        
+        const fullMessage = prefix + note + suffix;
+
+
+        const encodedText = encodeURIComponent(fullMessage);
+        const whatsappUrl ="https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
+
+        window.open(whatsappUrl,'_blank');
+        toggleWhatsAppModal();
+        noteElement.value =""; 
+    }
+    
+    </script>
+    
+
+</body>
+</html>
