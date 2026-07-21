@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>مؤسسة الوليد للمساعدات الإنسانية | طلب مساعدة</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+
+:root {
+
+--header-bg-image:url('../images/xx.jpg');
+
+--card-bg-dark:#1a4332;
+
+--input-bg-light:#f8f9fa;
+
+--text-on-dark:#ffffff;
+
+--accent-green:#25D366;
+
+--primary-green: #008444;
+
+}
+
+*{
+box-sizing:border-box;
+margin: 0;
+padding: 0;
+font-family: 'Cairo', sans-serif;
+}
+
+body{
+background:#f0f2f5;
+
+color:#333;
+
+line-height:1.6;
+
+padding-top: 80px;
+
+overflow-x: hidden;
+}
+
+/* --- الهيدر وشريط التنقل --- */
+header#header {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    padding: 10px 5%;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+/* شعار الموقع مع زوايا دائرية */
+.logo-container img { 
+    height: 45px; 
+    width: auto; 
+    filter: brightness(1.2); 
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+nav ul { display: flex; list-style: none; color: white; gap: 15px; }
+nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
+nav ul li a:hover { color: var(--accent-green); }
+
+/* --- القائمة المنسدلة للجوّال --- */
+.hamburger-menu { position: relative; z-index: 200; }
+.hamburger-btn {
+    background: transparent; border: none; cursor: pointer; padding: 8px;
+    display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+    width: 45px; height: 45px; transition: 0.3s;
+}
+.hamburger-btn span {
+    display: block; width: 28px; height: 3px; background-color: var(--accent-green);
+    border-radius: 2px; transition: 0.3s ease;
+}
+.hamburger-btn:hover span { background-color: #00cc66; }
+.hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger-btn.active span:nth-child(2) { opacity: 0; }
+.hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+.dropdown-menu {
+    position: absolute; top: 55px; left: 0; background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 0; min-width: 220px;
+    display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.3s ease;
+}
+.dropdown-menu.show { display: flex; }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-menu a {
+    color: white; text-decoration: none; padding: 12px 20px; font-size: 0.9rem;
+    font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.dropdown-menu a:last-child { border-bottom: none; }
+.dropdown-menu a:hover { background: var(--accent-green); color: white; padding-right: 25px; }
+.dropdown-menu a i { color: var(--accent-green); font-size: 1rem; width: 20px; text-align: center; }
+.dropdown-menu a:hover i { color: white; }
+
+@media (max-width: 768px) {
+    nav ul { display: none; }
+    .hamburger-menu { margin-right: auto; }
+}
+
+/* --- الهيرو الخاص بالمستند --- */
+.hero-banner {
+
+background:
+linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
+var(--header-bg-image);
+
+background-size:cover;
+
+background-position:center;
+
+height:30vh;
+
+color:white;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:center;
+
+text-align:center;
+
+padding:20px;
+
+}
+
+.hero-banner h1{
+
+margin:5px 0;
+
+font-size:2.2rem;
+
+}
+
+.hero-banner p{
+
+margin:0;
+
+font-size:1.1rem;
+
+opacity:.9;
+
+}
+
+.support-section{
+
+max-width:1100px;
+
+margin:-40px auto 40px;
+
+padding:0 20px;
+
+}
+
+.support-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+
+gap:25px;
+
+margin-bottom:50px;
+
+}
+
+.support-item{
+
+height:220px;
+
+border-radius:15px;
+
+overflow:hidden;
+
+display:flex;
+
+align-items:flex-end;
+
+box-shadow:0 10px 25px rgba(0,0,0,.1);
+
+background-size:cover;
+
+background-position:center;
+
+position:relative;
+
+}
+
+.overlay{
+
+position:absolute;
+
+inset:0;
+
+background:linear-gradient(
+to top,
+rgba(0,0,0,.9),
+rgba(0,0,0,.2)
+);
+
+}
+
+.content{
+
+position:relative;
+
+z-index:2;
+
+padding:20px;
+
+color:white;
+
+}
+
+.content h3{
+
+color:#25D366;
+
+margin:0 0 8px;
+
+}
+
+.card{
+
+background:#1a4332;
+
+padding:35px;
+
+border-radius:25px;
+
+box-shadow:0 20px 45px rgba(0,0,0,.5);
+
+}
+
+h2{
+
+color:white;
+
+text-align:center;
+
+border-bottom:2px solid rgba(255,255,255,.2);
+
+padding-bottom:15px;
+
+}
+
+.form-group{
+
+margin-bottom:18px;
+
+}
+
+label{
+
+display:block;
+
+font-weight:bold;
+
+color:white;
+
+margin-bottom:8px;
+
+}
+
+input,
+select,
+textarea{
+
+width:100%;
+
+padding:14px;
+
+border-radius:12px;
+
+border:none;
+
+font-size:1rem;
+
+background:#f8f9fa;
+
+color: #333;
+
+}
+
+select {
+cursor: pointer;
+}
+
+button#sendBtn{
+
+width:100%;
+
+padding:18px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+border:none;
+
+border-radius:15px;
+
+font-size:1.2rem;
+
+font-weight:bold;
+
+cursor:pointer;
+
+margin-top:15px;
+
+}
+
+button#sendBtn:disabled{
+
+opacity:.6;
+
+cursor:not-allowed;
+
+}
+
+.note{
+
+background:#fff9cd;
+
+color:#856404;
+
+padding:12px;
+
+border-radius:12px;
+
+text-align:center;
+
+margin-bottom:20px;
+
+}
+
+/* --- الفوتر --- */
+.main-footer {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    padding: 50px 20px 20px;
+    border-top: 4px solid #38bdf8;
+    font-family: 'Cairo', sans-serif;
+    margin-top: 50px;
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-section { margin-bottom: 30px; width: 100%; }
+.footer-section h3 { color: #38bdf8; margin-bottom: 20px; font-size: 1.2rem; }
+
+.contact-links, .links-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+.contact-item, .links-grid a { color: #94a3b8; text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+.contact-item i { color: #38bdf8; font-size: 1.2rem; }
+.contact-item:hover, .links-grid a:hover { color: #fff; transform: translateY(-3px); }
+
+.footer-divider { width: 100%; height: 1px; background: rgba(148, 163, 184, 0.2); margin: 20px 0; }
+.footer-bottom { color: #64748b; font-size: 0.9rem; }
+.footer-bottom .branding { margin-top: 5px; font-size: 0.8rem; opacity: 0.7; }
+
+@media (max-width: 600px) {
+    .contact-links, .links-grid { flex-direction: column; gap: 15px; }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- الهيدر الموحد -->
+<header id="header">
+    <div class="logo-container">
+        <a href="../index.html"><img src="../images/ad.png" alt="شعار مؤسسة الوليد"></a>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="hmlat.html" style="color: white">المشاريع</a></li>
+            <li><a href="we.html" style="color: white">من نحن</a></li>
+            <li><a href="list.html" style="color: white">المساعدات</a></li>
+        </ul>
+    </nav>
+
+    <!-- زر القائمة المنسدلة -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="القائمة">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="../index.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="we.html"><i class="fas fa-users"></i> من نحن</a>
+            <a href="hmlat.html"><i class="fas fa-project-diagram"></i> المشاريع</a>
+            <a href="list.html"><i class="fas fa-hands-helping"></i> المساعدات</a>
+            <a href="us.html"><i class="fas fa-file-alt"></i> تقديم طلب</a>
+            <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
+            <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
+            <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
+        </div>
+    </div>
+</header>
+
+<div class="hero-banner">
+
+<h1>مؤسسة الوليد للمساعدات الإنسانية</h1>
+
+<p>تقديم طلبات المساعدات</p>
+
+</div>
+
+<div style="height:30px;"></div>
+
+<section class="support-section">
+
+<div class="support-grid">
+
+<div class="support-item" style="background-image:url('../images/de.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>مساعدات إنسانية</h3>
+
+<p>
+نقدم المساعدات الإنسانية للمحتاجين.
+</p>
+
+</div>
+
+</div>
+
+<div class="support-item" style="background-image:url('../images/ds.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>تقديم يد العون</h3>
+
+<p>
+حلول ومساعدات لمختلف الاحتياجات.
+</p>
+
+</div>
+
+</div>
+
+<div class="support-item" style="background-image:url('../images/dx.jpg');">
+
+<div class="overlay"></div>
+
+<div class="content">
+
+<h3>خدماتنا</h3>
+
+<p>
+استقبال الطلبات ومتابعة التنفيذ.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+طلب مساعدة
+</h2>
+
+<div class="note">
+
+💡 بعد إرسال الطلب سيظهر لك رقم معاملة مكون من 4 أرقام لمتابعة طلبك.
+
+</div>
+
+<div class="form-group">
+
+<label>
+الاسم الكامل:
+</label>
+
+<input 
+type="text"
+id="name"
+placeholder="الاسم">
+
+</div>
+
+<div class="form-group">
+
+<label>
+رقم الجوال:
+</label>
+
+<input
+type="tel"
+id="phone"
+placeholder="مع مفتاح الدولة">
+
+</div>
+
+<div class="form-group">
+
+<label>
+البريد الإلكتروني:
+</label>
+
+<input
+type="text"
+id="email"
+placeholder="البريد الإلكتروني (اختياري)">
+
+</div>
+
+<div class="form-group">
+
+<label>
+رقم الهوية:
+</label>
+
+<input
+type="text"
+id="idNumber"
+placeholder="رقم الهوية أو السجل">
+
+</div>
+
+<div class="form-group">
+
+<label>
+رقم الحساب أو الآيبان:
+</label>
+
+<input
+type="text"
+id="partNumber"
+placeholder="رقم الحساب البنكي">
+
+</div>
+
+<div class="form-group">
+
+<label>
+الدولة:
+</label>
+
+<input
+type="text"
+id="country"
+placeholder="الدولة">
+
+</div>
+
+<div class="form-group">
+
+<label>
+نوع المساعدة:
+</label>
+
+<select id="type">
+
+<option value="" disabled selected hidden>
+-- اختر نوع المساعدة --
+</option>
+
+<option value="مساعدة مالية">
+مساعدة مالية
+</option>
+
+<option value="مساعدة علاجية">
+مساعدة علاجية
+</option>
+
+<option value="مساعدة تعليمية">
+مساعدة تعليمية
+</option>
+
+<option value="طلب إسكان">
+طلب إسكان
+</option>
+
+<option value="مساعدة زواج">
+مساعدة زواج
+</option>
+
+<option value="مساعدة تأثيث">
+مساعدة تأثيث
+</option>
+
+<option value="دعم مشروع">
+دعم مشروع
+</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>
+تفاصيل الطلب:
+</label>
+
+<textarea
+
+id="notes"
+
+rows="4"
+
+placeholder="اكتب تفاصيل الطلب">
+
+</textarea>
+
+</div>
+
+<button id="sendBtn">
+
+إرسال الطلب عبر واتساب
+
+</button>
+
+</div>
+
+</section>
+
+<!-- الفوتر الموحد -->
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
+            <div class="contact-links">
+                <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </a>
+                <a href="https://wa.me/966580272758" class="contact-item">
+                    <i class="fab fa-whatsapp"></i> واتساب الدعم
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // تشغيل الهيدر والقائمة المنسدلة
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    if (hamburgerBtn && dropdownMenu) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        dropdownMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+    }
+
+    // إخفاء/إظهار الهيدر أثناء التمرير
+    let lastScrollTop = 0;
+    const header = document.getElementById('header');
+
+    if (header) {
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop) {
+                header.style.transform = 'translateY(-100%)'; 
+            } else {
+                header.style.transform = 'translateY(0)'; 
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    }
+</script>
+
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+getFirestore,
+collection,
+addDoc,
+serverTimestamp
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// إعدادات Firebase
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const sendBtn = document.getElementById("sendBtn");
+
+sendBtn.onclick = async function(){
+
+// منع الضغط المتكرر
+
+sendBtn.disabled = true;
+
+sendBtn.innerText = "جاري إرسال الطلب...";
+
+const adminPhone = "966580272758";
+
+const name =
+document.getElementById("name").value.trim();
+
+const phone =
+document.getElementById("phone").value.trim();
+
+const email =
+document.getElementById("email").value.trim();
+
+const idNumber =
+document.getElementById("idNumber").value.trim();
+
+const partNumber =
+document.getElementById("partNumber").value.trim();
+
+const country =
+document.getElementById("country").value.trim();
+
+const type =
+document.getElementById("type").value;
+
+const notes =
+document.getElementById("notes").value.trim();
+
+if(
+!name ||
+!phone ||
+!email ||
+!country ||
+!type ||
+!notes
+){
+
+alert("يرجى تعبئة جميع البيانات المطلوبة");
+
+sendBtn.disabled=false;
+
+sendBtn.innerText="إرسال الطلب عبر واتساب";
+
+return;
+
+}
+
+// رقم معاملة 4 أرقام
+
+const transactionId =
+Math.floor(1000 + Math.random()*9000);
+
+try{
+
+await addDoc(collection(db,"orders"),{
+
+transactionId:String(transactionId),
+
+name:name,
+
+phone:phone,
+
+email:email,
+
+idNumber:idNumber,
+
+partNumber:partNumber,
+
+country:country,
+
+type:type,
+
+notes:notes,
+
+status:"قيد المراجعة",
+
+approved:false,
+
+createdAt:serverTimestamp()
+
+});
+
+let message =
+
+"📌 طلب مساعدة جديد\n\n"+
+
+"رقم المعاملة: "+transactionId+"\n\n"+
+
+"الاسم: "+name+"\n"+
+
+"الجوال: "+phone+"\n"+
+
+"البريد: "+email+"\n"+
+
+"الدولة: "+country+"\n"+
+
+"نوع المساعدة: "+type+"\n"+
+
+"رقم الهوية: "+idNumber+"\n"+
+
+"رقم الحساب: "+partNumber+"\n"+
+
+"التفاصيل: "+notes;
+
+// رسالة للمستخدم
+
+alert(
+
+"تم إرسال طلبك بنجاح ✅\n\n"+
+
+"رقم معاملتك: "+transactionId+
+
+"\n\nاحتفظ بالرقم لمتابعة الطلب."
+
+);
+
+// فتح واتساب مباشرة
+
+const whatsappApp =
+
+"whatsapp://send?phone="+adminPhone+
+
+"&text="+encodeURIComponent(message);
+
+const whatsappWeb =
+
+"https://wa.me/"+adminPhone+
+
+"?text="+encodeURIComponent(message);
+
+// محاولة فتح التطبيق
+
+window.location.href = whatsappApp;
+
+}
+
+catch(error){
+
+console.log(error);
+
+alert("حدث خطأ أثناء حفظ الطلب");
+
+sendBtn.disabled=false;
+
+sendBtn.innerText="إرسال الطلب عبر واتساب";
+
+}
+
+};
+
+</script>
+
+</body>
+
+</html>
