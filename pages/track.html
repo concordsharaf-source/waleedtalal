@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>تتبع المعاملة - مؤسسة الوليد للإنسانية</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+:root {
+    --primary-green: #008444;
+    --accent-green: #25D366;
+}
+
+*{
+    box-sizing:border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+body{
+    background:#f0f2f5;
+    color: #333;
+    min-height:100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 100px;
+}
+
+/* --- الهيدر وشريط التنقل --- */
+header#header {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    padding: 10px 5%;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.logo-container img { height: 45px; width: auto; filter: brightness(1.2); }
+nav ul { display: flex; list-style: none; color: white; gap: 15px; }
+nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
+nav ul li a:hover { color: var(--accent-green); }
+
+/* --- القائمة المنسدلة للجوّال --- */
+.hamburger-menu { position: relative; z-index: 200; }
+.hamburger-btn {
+    background: transparent; border: none; cursor: pointer; padding: 8px;
+    display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+    width: 45px; height: 45px; transition: 0.3s;
+}
+.hamburger-btn span {
+    display: block; width: 28px; height: 3px; background-color: var(--accent-green);
+    border-radius: 2px; transition: 0.3s ease;
+}
+.hamburger-btn:hover span { background-color: #00cc66; }
+.hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger-btn.active span:nth-child(2) { opacity: 0; }
+.hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+.dropdown-menu {
+    position: absolute; top: 55px; left: 0; background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 0; min-width: 220px;
+    display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.3s ease;
+}
+.dropdown-menu.show { display: flex; }
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-menu a {
+    color: white; text-decoration: none; padding: 12px 20px; font-size: 0.9rem;
+    font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.dropdown-menu a:last-child { border-bottom: none; }
+.dropdown-menu a:hover { background: var(--accent-green); color: white; padding-right: 25px; }
+.dropdown-menu a i { color: var(--accent-green); font-size: 1rem; width: 20px; text-align: center; }
+.dropdown-menu a:hover i { color: white; }
+
+@media (max-width: 768px) {
+    nav ul { display: none; }
+    .hamburger-menu { margin-right: auto; }
+}
+
+/* --- محتوى البطاقة الرئيسية --- */
+.main-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.card{
+width:100%;
+
+max-width:420px;
+
+background:#1a4332;
+
+padding:35px;
+
+border-radius:25px;
+
+box-shadow:0 15px 40px rgba(0,0,0,.3);
+
+color:white;
+
+text-align:center;
+
+}
+
+.logo{
+
+width:100px;
+
+height:100px;
+
+border-radius:50%;
+
+background:url('../images/xx.jpg');
+
+background-size:cover;
+
+background-position:center;
+
+margin:auto;
+
+border:4px solid white;
+
+}
+
+h1{
+
+font-size:28px;
+
+margin:20px 0;
+
+}
+
+p{
+
+opacity:.9;
+
+}
+
+label{
+
+display:block;
+
+text-align:right;
+
+margin:15px 0 7px;
+
+font-weight:bold;
+
+}
+
+input{
+
+width:100%;
+
+padding:15px;
+
+border-radius:12px;
+
+border:none;
+
+font-size:16px;
+
+box-sizing:border-box;
+
+}
+
+button.btn-search{
+
+width:100%;
+
+padding:16px;
+
+margin-top:25px;
+
+border:none;
+
+border-radius:15px;
+
+background:linear-gradient(to right,#25D366,#128C7E);
+
+color:white;
+
+font-size:18px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+transition: 0.3s;
+
+}
+
+button.btn-search:hover {
+    opacity: 0.9;
+}
+
+.result{
+
+display:none;
+
+margin-top:25px;
+
+background:white;
+
+color:#333;
+
+padding:20px;
+
+border-radius:15px;
+
+}
+
+/* --- الفوتر --- */
+.main-footer {
+    background-color: #0f172a;
+    color: #f1f5f9;
+    padding: 50px 20px 20px;
+    border-top: 4px solid #38bdf8;
+    font-family: 'Cairo', sans-serif;
+    margin-top: 50px;
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.footer-section { margin-bottom: 30px; width: 100%; }
+.footer-section h3 { color: #38bdf8; margin-bottom: 20px; font-size: 1.2rem; }
+
+.contact-links, .links-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+.contact-item, .links-grid a { color: #94a3b8; text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+.contact-item i { color: #38bdf8; font-size: 1.2rem; }
+.contact-item:hover, .links-grid a:hover { color: #fff; transform: translateY(-3px); }
+
+.footer-divider { width: 100%; height: 1px; background: rgba(148, 163, 184, 0.2); margin: 20px 0; }
+.footer-bottom { color: #64748b; font-size: 0.9rem; }
+.footer-bottom .branding { margin-top: 5px; font-size: 0.8rem; opacity: 0.7; }
+
+@media (max-width: 600px) {
+    .contact-links, .links-grid { flex-direction: column; gap: 15px; }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- الهيدر الموحد -->
+<header id="header">
+    <div class="logo-container">
+        <a href="../index.html"><img src="../images/ad.png" alt="شعار مؤسسة الوليد"></a>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="hmlat.html" style="color: white">المشاريع</a></li>
+            <li><a href="we.html" style="color: white">من نحن</a></li>
+            <li><a href="list.html" style="color: white">المساعدات</a></li>
+        </ul>
+    </nav>
+
+    <!-- زر القائمة المنسدلة -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="القائمة">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="../index.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="we.html"><i class="fas fa-users"></i> من نحن</a>
+            <a href="hmlat.html"><i class="fas fa-project-diagram"></i> المشاريع</a>
+            <a href="list.html"><i class="fas fa-hands-helping"></i> المساعدات</a>
+            <a href="us.html"><i class="fas fa-file-alt"></i> تقديم طلب</a>
+            <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
+            <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
+            <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrapper">
+    <div class="card">
+
+    <div class="logo"></div>
+
+    <h1>
+    تتبع المعاملة
+    </h1>
+
+    <p>
+    أدخل بياناتك لمعرفة حالة الطلب
+    </p>
+
+    <!-- رقم الجوال أولاً -->
+    <label>
+    رقم الجوال
+    </label>
+
+    <input 
+    id="phone"
+    type="text"
+    placeholder="كما هو مسجل في نموذج طلب المساعدة">
+
+    <!-- رقم المعاملة ثانياً -->
+    <label>
+    رقم المعاملة
+    </label>
+
+    <input 
+    id="transactionId"
+    type="text"
+    placeholder="أدخل الرقم الذي ظهر لك بعد إرسال الطلب ">
+
+    <button class="btn-search" onclick="checkTransaction()">
+
+    بحث عن المعاملة
+
+    </button>
+
+    <div id="result" class="result"></div>
+
+    </div>
+</div>
+
+<!-- الفوتر الموحد -->
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
+            <div class="contact-links">
+                <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </a>
+                <a href="https://wa.me/966580272758" class="contact-item">
+                    <i class="fab fa-whatsapp"></i> واتساب الدعم
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // تشغيل الهيدر والقائمة المنسدلة
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    if (hamburgerBtn && dropdownMenu) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        dropdownMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+    }
+
+    // إخفاء/إظهار الهيدر أثناء التمرير
+    let lastScrollTop = 0;
+    const header = document.getElementById('header');
+
+    if (header) {
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop) {
+                header.style.transform = 'translateY(-100%)'; 
+            } else {
+                header.style.transform = 'translateY(0)'; 
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    }
+</script>
+
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+
+getFirestore,
+
+collection,
+
+query,
+
+where,
+
+getDocs
+
+}
+
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDD_I84b3b6bmVx-t2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+function convertNumbers(value){
+
+return value.replace(/[٠-٩]/g,function(d){
+
+return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+
+});
+
+}
+
+window.checkTransaction = async function(){
+
+let transactionId =
+document.getElementById("transactionId").value.trim();
+
+let phone =
+document.getElementById("phone").value.trim();
+
+transactionId = convertNumbers(transactionId);
+
+phone = convertNumbers(phone);
+
+let result =
+document.getElementById("result");
+
+if(!transactionId || !phone){
+
+result.style.display="block";
+
+result.innerHTML=
+
+`
+
+<h3 style="color:red">
+تنبيه
+</h3>
+
+<p>
+أدخل رقم المعاملة ورقم الجوال
+</p>
+
+`;
+
+return;
+
+}
+
+try{
+
+const q = query(
+
+collection(db,"orders"),
+
+where("transactionId","==",transactionId),
+
+where("phone","==",phone)
+
+);
+
+const snapshot = await getDocs(q);
+
+if(snapshot.empty){
+
+result.style.display="block";
+
+result.innerHTML=
+
+`
+
+<h3 style="color:red">
+خطأ
+</h3>
+
+<p>
+رقم المعاملة أو رقم الجوال غير صحيح
+</p>
+
+`;
+
+return;
+
+}
+
+snapshot.forEach((doc)=>{
+
+let data = doc.data();
+
+// الانتقال إلى صفحة الحالة
+
+window.location.href =
+
+"status.html?transactionId="
+
++ data.transactionId
+
++"&phone="
+
++ data.phone;
+
+});
+
+}
+
+catch(error){
+
+console.log(error);
+
+result.style.display="block";
+
+result.innerHTML=
+
+`
+
+<h3 style="color:red">
+حدث خطأ
+</h3>
+
+<p>
+تعذر الاتصال بقاعدة البيانات
+</p>
+
+`;
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

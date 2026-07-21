@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شروط الاستخدام - مؤسسة الوليد للإنسانية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-color: #0f172a; 
+            --card-bg: #1e293b;
+            --primary-blue: #38bdf8; 
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #0ea5e9;
+            --accent-green: #25D366;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding-top: 100px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- الهيدر وشريط التنقل --- */
+        header#header {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            width: 100%; 
+            padding: 10px 5%;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .logo-container img { height: 45px; width: auto; filter: brightness(1.2); }
+        nav ul { display: flex; list-style: none; color: white; gap: 15px; }
+        nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
+        nav ul li a:hover { color: var(--accent-green); }
+
+        /* --- القائمة المنسدلة للجوّال --- */
+        .hamburger-menu { position: relative; z-index: 200; }
+        .hamburger-btn {
+            background: transparent; border: none; cursor: pointer; padding: 8px;
+            display: flex; flex-direction: column; gap: 5px; align-items: center; justify-content: center;
+            width: 45px; height: 45px; transition: 0.3s;
+        }
+        .hamburger-btn span {
+            display: block; width: 28px; height: 3px; background-color: var(--accent-green);
+            border-radius: 2px; transition: 0.3s ease;
+        }
+        .hamburger-btn:hover span { background-color: #00cc66; }
+        .hamburger-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+        .hamburger-btn.active span:nth-child(2) { opacity: 0; }
+        .hamburger-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+
+        .dropdown-menu {
+            position: absolute; top: 55px; left: 0; background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 0; min-width: 220px;
+            display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1); animation: slideDown 0.3s ease;
+        }
+        .dropdown-menu.show { display: flex; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-menu a {
+            color: white; text-decoration: none; padding: 12px 20px; font-size: 0.9rem;
+            font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .dropdown-menu a:last-child { border-bottom: none; }
+        .dropdown-menu a:hover { background: var(--accent-green); color: white; padding-right: 25px; }
+        .dropdown-menu a i { color: var(--accent-green); font-size: 1rem; width: 20px; text-align: center; }
+        .dropdown-menu a:hover i { color: white; }
+
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .hamburger-menu { margin-right: auto; }
+        }
+
+        /* --- محتوى الشروط --- */
+        .main-wrapper {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .terms-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-top: 6px solid var(--primary-blue);
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        h3 {
+            color: var(--accent-color);
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+        }
+
+        h3::before {
+            content: "";
+            width: 8px;
+            height: 25px;
+            background-color: var(--primary-blue);
+            margin-left: 15px;
+            border-radius: 4px;
+        }
+
+        p, li {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+
+        ul {
+            padding-right: 25px;
+            list-style-type: square;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        .footer-note {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: rgba(56, 189, 248, 0.05);
+            border-right: 5px solid var(--primary-blue);
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* --- الفوتر الموحد --- */
+        .main-footer {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            padding: 50px 20px 20px;
+            border-top: 4px solid #38bdf8;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 50px;
+        }
+
+        .footer-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .footer-section { margin-bottom: 30px; width: 100%; }
+        .footer-section h3 { color: #38bdf8; margin-bottom: 20px; font-size: 1.2rem; }
+
+        .contact-links, .links-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .contact-item, .links-grid a { color: #94a3b8; text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .contact-item i { color: #38bdf8; font-size: 1.2rem; }
+        .contact-item:hover, .links-grid a:hover { color: #fff; transform: translateY(-3px); }
+
+        .footer-divider { width: 100%; height: 1px; background: rgba(148, 163, 184, 0.2); margin: 20px 0; }
+        .footer-bottom { color: #64748b; font-size: 0.9rem; }
+        .footer-bottom .branding { margin-top: 5px; font-size: 0.8rem; opacity: 0.7; }
+
+        @media (max-width: 600px) {
+            .terms-container {
+                padding: 20px;
+            }
+            h1 { font-size: 1.8rem; }
+            .contact-links, .links-grid { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- الهيدر الموحد -->
+<header id="header">
+    <div class="logo-container">
+        <a href="../index.html"><img src="../images/ad.png" alt="شعار مؤسسة الوليد"></a>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="hmlat.html" style="color: white">المشاريع</a></li>
+            <li><a href="we.html" style="color: white">من نحن</a></li>
+            <li><a href="list.html" style="color: white">المساعدات</a></li>
+        </ul>
+    </nav>
+
+    <!-- زر القائمة المنسدلة -->
+    <div class="hamburger-menu">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="القائمة">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="../index.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="we.html"><i class="fas fa-users"></i> من نحن</a>
+            <a href="hmlat.html"><i class="fas fa-project-diagram"></i> المشاريع</a>
+            <a href="list.html"><i class="fas fa-hands-helping"></i> المساعدات</a>
+            <a href="us.html"><i class="fas fa-file-alt"></i> تقديم طلب</a>
+            <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
+            <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
+            <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
+        </div>
+    </div>
+</header>
+
+<div class="main-wrapper">
+    <div class="terms-container">
+        <h1>شروط الاستخدام</h1>
+        <p style="text-align: center;">أهلاً بكم في موقعنا. تسري هذه الشروط والأحكام على استخدامك للموقع وكافة الخدمات المرتبطة به. من خلال الوصول إلى هذا الموقع، فإنك توافق على الالتزام بهذه الشروط بالكامل.</p>
+
+        <h3>1. قبول الشروط</h3>
+        <p>بمجرد استخدامك للموقع، فإنك تقر بأنك قرأت وفهمت هذه الشروط وتوافق على الالتزام بها. إذا كنت لا توافق على أي جزء من هذه الشروط، يجب عليك التوقف عن استخدام الموقع فوراً.</p>
+
+        <h3>2. حقوق الملكية الفكرية</h3>
+        <p>كافة المحتويات الموجودة على هذا الموقع، بما في ذلك النصوص، الرسوم البيانية، الشعارات، الأيقونات، الصور، والبرمجيات، هي ملك للموقع ومحمية بموجب قوانين الملكية الفكرية الدولية. لا يجوز إعادة إنتاج أو توزيع أي جزء من هذا الموقع دون إذن كتابي مسبق.</p>
+
+        <h3>3. سلوك المستخدم</h3>
+        <p>يُحظر على المستخدم القيام بما يلي:</p>
+        <ul>
+            <li>استخدام الموقع بأي طريقة قد تؤدي إلى إتلافه أو تعطيله.</li>
+            <li>استخدام الموقع لنشر أو نقل أي مواد غير قانونية أو مسيئة.</li>
+            <li>محاولة الوصول غير المصرح به إلى أي جزء من الموقع أو الخوادم الخاصة بنا.</li>
+            <li>جمع بيانات مستخدمين آخرين لأغراض تسويقية أو غير قانونية.</li>
+        </ul>
+
+        <h3>4. حسابات المستخدمين</h3>
+        <p>في حال تطلب الموقع إنشاء حساب، فأنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور، وتتحمل المسؤولية الكاملة عن جميع الأنشطة التي تحدث بموجب حسابك.</p>
+
+        <h3>5. إخلاء المسؤولية</h3>
+        <p>يتم تقديم المعلومات والخدمات على هذا الموقع "كما هي" دون أي ضمانات من أي نوع، سواء كانت صريحة أو ضمنية. نحن لا نضمن أن الموقع سيعمل بشكل مستمر دون انقطاع أو خلوه من الأخطاء أو الفيروسات.</p>
+
+        <h3>6. حدود المسؤولية</h3>
+        <p>لا يتحمل الموقع أو أصحابه المسؤولية عن أي أضرار مباشرة أو غير مباشرة قد تنتج عن استخدامك للموقع أو عدم القدرة على استخدامه، بما في ذلك على سبيل المثال لا الحصر، خسارة الأرباح أو البيانات.</p>
+
+        <h3>7. روابط الطرف الثالث</h3>
+        <p>قد يحتوي موقعنا على روابط لمواقع خارجية لا تخضع لإدارتنا. نحن غير مسؤولين عن محتوى أو سياسات الخصوصية الخاصة بتلك المواقع، واستخدامك لها يكون على مسؤوليتك الخاصة.</p>
+
+        <h3>8. التعديلات على الشروط</h3>
+        <p>نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سيتم نشر التغييرات على هذه الصفحة مباشرة، ويعتبر استمرارك في استخدام الموقع بعد النشر قبولاً للشروط الجديدة.</p>
+
+        <h3>9. القانون الواجب التطبيق</h3>
+        <p>تخضع هذه الشروط والأحكام وتفسر وفقاً للقوانين واللوائح المعمول بها، ويخضع أي نزاع ينشأ عنها للاختصاص الحصري للمحاكم المختصة.</p>
+
+        <div class="footer-note">
+            <strong>تنبيه قانوني:</strong> يُنصح دائماً بمراجعة هذا النص لضمان التزامك التام باللوائح والشروط المنظمة للخدمات الإلكترونية الإنسانية.
+        </div>
+    </div>
+</div>
+
+<!-- الفوتر الموحد -->
+<footer class="main-footer">
+    <div class="footer-container">
+        <div class="footer-section contact-info">
+            <h3>تواصل معنا</h3>
+            <div class="contact-links">
+                <a href="mailto:lamiamagedoffice1@gmail.com" class="contact-item">
+                    <i class="fas fa-envelope"></i> البريد الإلكتروني
+                </a>
+                <a href="https://wa.me/966580272758" class="contact-item">
+                    <i class="fab fa-whatsapp"></i> واتساب الدعم
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section legal-links">
+            <h3>الروابط القانونية</h3>
+            <div class="links-grid">
+                <a href="privacy-policy.html">سياسة الخصوصية</a>
+                <a href="terms.html">شروط الاستخدام</a>
+            </div>
+        </div>
+
+        <div class="footer-divider"></div>
+
+        <div class="footer-bottom">
+            <p>جميع حقوق النشر والطبع محفوظة لمؤسسة الوليد &copy; 2026</p>
+            <p class="branding">تم تطويره بكل فخر لمستقبل إنساني أفضل</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // تشغيل الهيدر والقائمة المنسدلة
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    if (hamburgerBtn && dropdownMenu) {
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        dropdownMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+    }
+
+    // إخفاء/إظهار الهيدر أثناء التمرير
+    let lastScrollTop = 0;
+    const header = document.getElementById('header');
+
+    if (header) {
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop) {
+                header.style.transform = 'translateY(-100%)'; 
+            } else {
+                header.style.transform = 'translateY(0)'; 
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+    }
+</script>
+
+</body>
+</html>
