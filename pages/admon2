@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>إدارة الطلبات</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:'Cairo',sans-serif;
+background:#f0f2f5;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.header{
+background:#1a4332;
+color:white;
+padding:25px;
+border-radius:20px;
+text-align:center;
+margin-bottom:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+.header h1{
+margin:0;
+font-size:28px;
+}
+
+.search-box{
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 5px 20px rgba(0,0,0,.1);
+margin-bottom:20px;
+display:flex;
+gap:10px;
+}
+
+.search-box input{
+flex:1;
+padding:15px;
+border-radius:12px;
+border:1px solid #ddd;
+font-family:inherit;
+font-size:16px;
+}
+
+.search-box button{
+padding:15px 25px;
+border:none;
+border-radius:12px;
+background:#25D366;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.sort-box{
+background:white;
+padding:15px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 5px 20px rgba(0,0,0,.1);
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.sort-box select{
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+font-family:inherit;
+}
+
+.order-card{
+background:white;
+border-radius:20px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 8px 25px rgba(0,0,0,.1);
+}
+
+.order-title{
+background:#1a4332;
+color:white;
+padding:15px;
+border-radius:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.order-title span{
+color:#d4af37;
+font-size:22px;
+font-weight:bold;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:12px;
+margin-top:20px;
+}
+
+.field{
+background:#f8f9fa;
+padding:12px;
+border-radius:12px;
+}
+
+.label{
+font-size:12px;
+color:#777;
+}
+
+.value{
+font-weight:bold;
+color:#333;
+margin-top:5px;
+}
+
+.edit-btn{
+width:100%;
+margin-top:20px;
+padding:14px;
+background:#1a4332;
+color:white;
+border:none;
+border-radius:12px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.loading{
+text-align:center;
+padding:30px;
+font-size:20px;
+color:#1a4332;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="lockScreen" style="
+position:fixed;
+inset:0;
+background:#1a4332;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+">
+
+<div style="
+background:white;
+padding:30px;
+border-radius:20px;
+width:90%;
+max-width:350px;
+text-align:center;
+">
+
+<h2>🔐 دخول الإدارة</h2>
+
+<input id="adminPass"
+type="password"
+placeholder="كلمة المرور"
+style="
+width:100%;
+padding:15px;
+border-radius:10px;
+border:1px solid #ddd;
+">
+
+<button onclick="checkPass()"
+style="
+margin-top:15px;
+width:100%;
+padding:15px;
+background:#25D366;
+color:white;
+border:0;
+border-radius:10px;
+font-weight:bold;
+">
+دخول
+</button>
+
+<p id="passError"></p>
+
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="header">
+
+<h1>
+لوحة إدارة الطلبات
+</h1>
+
+<p>
+عرض وتعديل جميع طلبات العملاء
+</p>
+
+</div>
+
+<div class="search-box">
+
+<input id="searchInput"
+placeholder="بحث برقم المعاملة أو الجوال">
+
+<button onclick="searchOrders()">
+بحث
+</button>
+
+</div>
+
+<div class="sort-box">
+
+<strong>
+ترتيب الطلبات:
+</strong>
+
+<select id="sortSelect" onchange="sortOrders()">
+
+<option value="new">
+الأحدث أولاً
+</option>
+
+<option value="old">
+الأقدم أولاً
+</option>
+
+</select>
+
+</div>
+
+<div id="orders">
+
+<div class="loading">
+جاري تحميل الطلبات...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- نافذة تعديل الطلب -->
+<div id="editModal" style="display:none;">
+
+<div class="modal-box">
+
+<h2>
+تعديل الطلب
+</h2>
+
+
+<input id="editId" type="hidden">
+
+
+<label>
+الاسم
+</label>
+
+<input id="editName">
+
+
+<label>
+رقم الجوال
+</label>
+
+<input id="editPhone">
+
+
+<label>
+البريد الإلكتروني
+</label>
+
+<input id="editEmail">
+
+
+<label>
+رقم الهوية
+</label>
+
+<input id="editIdNumber">
+
+
+<label>
+الدولة
+</label>
+
+<input id="editCountry">
+
+
+<label>
+رقم الحساب
+</label>
+
+<input id="editPartNumber">
+
+
+<label>
+نوع الطلب
+</label>
+
+<input id="editType">
+
+
+<label>
+الحالة
+</label>
+
+<select id="editStatus">
+
+<option value="قيد المراجعة">
+قيد المراجعة
+</option>
+
+<option value="جاري التجهيز">
+جاري التجهيز
+</option>
+
+<option value="انتظار دفع الرسوم">
+انتظار دفع الرسوم
+</option>
+
+<option value="تم التسليم">
+تم التسليم
+</option>
+
+<option value="مرفوض">
+مرفوض
+</option>
+
+</select>
+
+
+<label>
+ملاحظات الإدارة
+</label>
+
+<textarea id="editNotes"></textarea>
+
+
+<label>
+مبلغ المنحة
+</label>
+
+<input id="editGrantAmount"
+placeholder="مثال: 650,000.00 ر.س">
+
+
+<label>
+حالة الاعتماد
+</label>
+
+<select id="editApproved">
+
+<option value="false">
+غير معتمد
+</option>
+
+<option value="true">
+معتمد
+</option>
+
+</select>
+
+
+<button onclick="saveEdit()">
+💾 حفظ التعديلات
+</button>
+
+
+<button onclick="closeEdit()" style="background:#777;">
+إلغاء
+</button>
+
+
+</div>
+
+</div>
+
+
+<style>
+
+#editModal{
+
+position:fixed;
+
+top:0;
+left:0;
+right:0;
+bottom:0;
+
+background:rgba(0,0,0,.6);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+z-index:999;
+
+}
+
+
+.modal-box{
+
+background:white;
+
+width:100%;
+
+max-width:500px;
+
+max-height:90vh;
+
+overflow-y:auto;
+
+padding:25px;
+
+border-radius:20px;
+
+box-shadow:0 15px 40px rgba(0,0,0,.4);
+
+}
+
+
+.modal-box h2{
+
+text-align:center;
+
+color:#1a4332;
+
+}
+
+
+.modal-box label{
+
+display:block;
+
+margin-top:12px;
+
+margin-bottom:5px;
+
+font-weight:bold;
+
+}
+
+
+.modal-box input,
+.modal-box select,
+.modal-box textarea{
+
+width:100%;
+
+padding:12px;
+
+border-radius:10px;
+
+border:1px solid #ddd;
+
+font-family:inherit;
+
+font-size:15px;
+
+}
+
+
+.modal-box textarea{
+
+height:90px;
+
+resize:none;
+
+}
+
+
+.modal-box button{
+
+width:100%;
+
+padding:14px;
+
+margin-top:15px;
+
+border:none;
+
+border-radius:12px;
+
+background:#25D366;
+
+color:white;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+</style>
+<script type="module">
+
+import { initializeApp } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+
+authDomain: "sparepartswebsite1.firebaseapp.com",
+
+projectId: "sparepartswebsite1",
+
+storageBucket: "sparepartswebsite1.firebasestorage.app",
+
+messagingSenderId: "1063114847735",
+
+appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+let allOrders=[];
+
+
+const ordersDiv=document.getElementById("orders");
+
+
+
+async function loadOrders(){
+
+try{
+
+const snapshot = await getDocs(collection(db,"orders"));
+
+
+allOrders=[];
+
+
+snapshot.forEach(item=>{
+
+allOrders.push({
+
+id:item.id,
+
+...item.data()
+
+});
+
+});
+
+
+
+allOrders.sort((a,b)=>{
+
+return (b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0);
+
+});
+
+
+
+displayOrders(allOrders);
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+ordersDiv.innerHTML="حدث خطأ في تحميل الطلبات";
+
+}
+
+}
+
+
+
+function displayOrders(list){
+
+
+ordersDiv.innerHTML="";
+
+
+if(list.length===0){
+
+ordersDiv.innerHTML=
+"<div class='order-card'>لا توجد طلبات</div>";
+
+return;
+
+}
+
+
+
+list.forEach(data=>{
+
+
+ordersDiv.innerHTML += `
+
+<div class="order-card">
+
+
+<div class="order-title">
+
+<div>
+رقم المعاملة
+</div>
+
+<span>
+${data.transactionId || "-"}
+</span>
+
+</div>
+
+
+<div class="grid">
+
+
+<div class="field">
+<div class="label">الاسم</div>
+<div class="value">${data.name || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">الجوال</div>
+<div class="value">${data.phone || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">الدولة</div>
+<div class="value">${data.country || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">نوع الطلب</div>
+<div class="value">${data.type || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">الحالة</div>
+<div class="value">${data.status || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">المنحة</div>
+<div class="value">${data.grantAmount || "غير محدد"}</div>
+</div>
+
+
+</div>
+
+
+
+<button class="edit-btn"
+onclick="openEdit('${data.id}')">
+
+✏️ تعديل الطلب
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+
+
+window.openEdit=function(id){
+
+
+let order=allOrders.find(x=>x.id===id);
+
+
+if(!order)return;
+
+
+
+editId.value=id;
+
+editName.value=order.name || "";
+
+editPhone.value=order.phone || "";
+
+editEmail.value=order.email || "";
+
+editIdNumber.value=order.idNumber || "";
+
+editCountry.value=order.country || "";
+
+editPartNumber.value=order.partNumber || "";
+
+editType.value=order.type || "";
+
+editStatus.value=order.status || "قيد المراجعة";
+
+editNotes.value=order.notes || "";
+
+editGrantAmount.value=order.grantAmount || "";
+
+editApproved.value=String(order.approved || false);
+
+
+
+editModal.style.display="flex";
+
+
+}
+
+
+
+
+
+window.closeEdit=function(){
+
+editModal.style.display="none";
+
+}
+
+
+
+
+
+window.saveEdit=async function(){
+
+
+let id=editId.value;
+
+
+
+try{
+
+
+await updateDoc(
+
+doc(db,"orders",id),
+
+{
+
+
+name:editName.value,
+
+phone:editPhone.value,
+
+email:editEmail.value,
+
+idNumber:editIdNumber.value,
+
+country:editCountry.value,
+
+partNumber:editPartNumber.value,
+
+type:editType.value,
+
+status:editStatus.value,
+
+notes:editNotes.value,
+
+
+grantAmount:
+editGrantAmount.value,
+
+
+approved:
+editApproved.value==="true"
+
+
+}
+
+);
+
+
+
+alert("تم حفظ التعديلات بنجاح");
+
+
+location.reload();
+
+
+}
+
+catch(error){
+
+console.log(error);
+
+alert("حدث خطأ أثناء الحفظ");
+
+}
+
+
+}
+
+
+
+
+window.searchOrders=function(){
+
+
+let text=searchInput.value.trim();
+
+
+
+if(text===""){
+
+displayOrders(allOrders);
+
+return;
+
+}
+
+
+
+let result=allOrders.filter(item=>{
+
+
+return (
+
+(item.transactionId &&
+item.transactionId.includes(text))
+
+||
+
+(item.phone &&
+item.phone.includes(text))
+
+);
+
+
+});
+
+
+displayOrders(result);
+
+
+}
+
+
+
+
+
+window.sortOrders=function(){
+
+
+let type=sortSelect.value;
+
+
+
+if(type==="new"){
+
+allOrders.sort((a,b)=>
+
+(b.createdAt?.seconds || 0)
+-
+(a.createdAt?.seconds || 0)
+
+);
+
+}
+
+
+if(type==="old"){
+
+allOrders.sort((a,b)=>
+
+(a.createdAt?.seconds || 0)
+-
+(b.createdAt?.seconds || 0)
+
+);
+
+}
+
+
+displayOrders(allOrders);
+
+
+}
+
+
+
+loadOrders();
+
+
+</script>
+
+<button onclick="logout()"
+style="
+margin:20px;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#c0392b;
+color:white;
+font-weight:bold;
+">
+
+تسجيل خروج
+
+</button>
+
+<script>
+
+
+const PASSWORD="232167";
+
+
+function checkPass(){
+
+let p=document.getElementById("adminPass").value;
+
+
+if(p===PASSWORD){
+
+localStorage.setItem("adminLogin","yes");
+
+document.getElementById("lockScreen").style.display="none";
+
+}
+
+else{
+
+document.getElementById("passError").innerHTML=
+"كلمة المرور خطأ";
+
+}
+
+}
+
+
+
+if(localStorage.getItem("adminLogin")==="yes"){
+
+document.getElementById("lockScreen").style.display="none";
+
+}
+
+
+
+function logout(){
+
+localStorage.removeItem("adminLogin");
+
+location.reload();
+
+}
+
+
+</script>
+
+
+
+
+</body>
+
+</html>
