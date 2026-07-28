@@ -37,10 +37,32 @@
             transition: transform 0.3s ease, background-color 0.3s ease;
         }
 
-        .logo-container img { height: 45px; width: auto; filter: brightness(1.2); }
-        nav ul { display: flex; list-style: none; color: white; gap: 15px; }
-        nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
-        nav ul li a:hover { color: var(--primary-green); }
+       .logo-container img {
+  height: 45px;
+  width: auto;
+  filter: brightness(1.2);
+  border-radius: 8px;   /* زوايا مستديرة بسيطة */
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  color: white;
+  gap: 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+nav ul li a:hover {
+  color: var(--primary-green);
+}
+
 
         /* --- القائمة المنسدلة للجوّال --- */
         .hamburger-menu { position: relative; z-index: 200; }
