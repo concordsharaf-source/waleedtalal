@@ -51,10 +51,32 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .logo-container img { height: 45px; width: auto; filter: brightness(1.2); }
-        nav ul { display: flex; list-style: none; color: white; gap: 15px; }
-        nav ul li a { color: white; text-decoration: none; font-weight: bold; font-size: 0.8rem; transition: 0.3s; }
-        nav ul li a:hover { color: var(--primary-green); }
+       .logo-container img {
+  height: 45px;
+  width: auto;
+  filter: brightness(1.2);
+  border-radius: 8px;   /* زوايا مستديرة بسيطة */
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  color: white;
+  gap: 15px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: 0.3s;
+}
+
+nav ul li a:hover {
+  color: var(--primary-green);
+}
+
 
         /* --- خلفية متغيرة (Slider) --- */
         .hero {
