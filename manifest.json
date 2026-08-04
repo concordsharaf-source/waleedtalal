@@ -1,27 +1,25 @@
 {
-  "name": "سمارت إكس",
-  "short_name": "Smart X",
-  "description": "تطبيق سمارت إكس",
+  "id": "/",
+  "name": "مؤسسة الوليد الإنسانية",
+  "short_name": "الوليد",
+  "description": "خدمات مؤسسة الوليد الإنسانية",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#0d6efd",
+  "theme_color": "#0066cc",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
