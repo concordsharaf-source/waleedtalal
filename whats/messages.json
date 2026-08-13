@@ -1,0 +1,16 @@
+[
+  {
+    "id": "ABC123XYZ",
+    "from": "967770388100@s.whatsapp.net",
+    "text": "مرحباً! كيف الحال؟",
+    "time": "2026-01-15 14:30:25",
+    "is_replied": false
+  },
+  {
+    "id": "DEF456UVW",
+    "from": "966501234567@s.whatsapp.net",
+    "text": "السلام عليكم",
+    "time": "2026-01-15 14:28:10",
+    "is_replied": false
+  }
+]
