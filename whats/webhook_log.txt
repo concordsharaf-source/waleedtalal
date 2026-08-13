@@ -1,0 +1,3 @@
+2026-01-15 14:30:25 - {"event":"messages.upsert","data":{...}}
+📌 الحدث: messages.upsert
+✅ تم تخزين رسالة من 967770388100@s.whatsapp.net
