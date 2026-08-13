@@ -15,14 +15,18 @@
             background: linear-gradient(135deg, #075e54, #128C7E);
             min-height: 100vh;
             padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
         .container {
             background: white;
             border-radius: 25px;
             padding: 25px;
             max-width: 700px;
-            margin: 0 auto;
+            width: 100%;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin: 10px auto;
         }
         h1 {
             color: #075e54;
@@ -34,7 +38,17 @@
             text-align: center;
             color: #888;
             font-size: 13px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #856404;
+            margin-bottom: 15px;
+            border-right: 4px solid #ffc107;
+            text-align: center;
         }
         .section {
             background: #f8fafc;
@@ -47,6 +61,9 @@
             color: #075e54;
             margin-bottom: 10px;
             font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         label {
             display: block;
@@ -99,7 +116,7 @@
             background: linear-gradient(135deg, #075e54, #128C7E);
             color: white;
         }
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: scale(1.02);
             opacity: 0.9;
         }
@@ -107,7 +124,7 @@
             background: #28a745;
             color: white;
         }
-        .btn-success:hover {
+        .btn-success:hover:not(:disabled) {
             background: #218838;
         }
         .btn-outline {
@@ -117,6 +134,15 @@
         }
         .btn-outline:hover {
             background: #075e54;
+            color: white;
+        }
+        .btn-danger-outline {
+            background: transparent;
+            border: 2px solid #dc3545;
+            color: #dc3545;
+        }
+        .btn-danger-outline:hover {
+            background: #dc3545;
             color: white;
         }
         .btn:disabled {
@@ -129,7 +155,7 @@
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             padding: 10px;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
             margin-top: 8px;
         }
@@ -139,6 +165,10 @@
             border-radius: 10px;
             margin-bottom: 8px;
             border-right: 4px solid #128C7E;
+            transition: 0.3s;
+        }
+        .msg-item:hover {
+            background: #e8f5f2;
         }
         .msg-item .from {
             font-weight: bold;
@@ -154,6 +184,7 @@
             margin-top: 4px;
             color: #333;
             font-size: 14px;
+            word-break: break-word;
         }
         .msg-item .reply-btn {
             margin-top: 6px;
@@ -164,9 +195,19 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
+            transition: 0.3s;
         }
         .msg-item .reply-btn:hover {
             background: #0a7a6a;
+        }
+        .msg-item .replied-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-right: 5px;
         }
         .empty-msg {
             text-align: center;
@@ -204,13 +245,36 @@
             color: #aaa;
             margin-top: 15px;
         }
-        .badge-list {
-            display: inline-block;
-            background: #e0e0e0;
+        .counter {
+            text-align: center;
+            font-size: 13px;
+            color: #dc3545;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .badge-count {
+            background: #075e54;
+            color: white;
             padding: 2px 10px;
             border-radius: 20px;
-            font-size: 11px;
-            margin-right: 5px;
+            font-size: 12px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        .status-connected {
+            background: #28a745;
+        }
+        .status-disconnected {
+            background: #dc3545;
+        }
+        @media (max-width: 500px) {
+            .container { padding: 15px; }
+            .flex-row .btn { min-width: 60px; font-size: 12px; padding: 8px 12px; }
         }
     </style>
 </head>
@@ -219,6 +283,14 @@
     <div class="container">
         <h1>💬 نظام المراسلة</h1>
         <p class="sub">إرسال • استقبال • ردود • قوائم</p>
+
+        <div class="note">
+            ⏳ الخطة المجانية: رسالة واحدة كل 60 ثانية
+            <span id="statusBadge" style="float:left;">
+                <span class="status-dot status-disconnected" id="statusDot"></span>
+                <span id="statusText" style="font-size:12px;color:#333;">جاري التحقق...</span>
+            </span>
+        </div>
 
         <!-- ==================== قسم الإرسال ==================== -->
         <div class="section">
@@ -231,12 +303,12 @@
                 <button class="btn btn-success" id="sendReplyBtn">↩️ رد على المحدد</button>
             </div>
 
-            <!-- حقل مخفي لتخزين معرف الرسالة للرد -->
             <input type="hidden" id="replyToId" value="">
             <small style="color:#888;font-size:12px;" id="replyHint">لم يتم تحديد رسالة للرد عليها</small>
+            <div id="counterDisplay" class="counter"></div>
         </div>
 
-        <!-- ==================== قسم جهات الاتصال والمجموعات ==================== -->
+        <!-- ==================== قسم القوائم ==================== -->
         <div class="section">
             <div class="section-title">📇 القوائم</div>
             <div class="flex-row">
@@ -246,15 +318,18 @@
             <select id="listSelect" style="margin-top:8px;">
                 <option value="">-- اختر جهة اتصال أو مجموعة --</option>
             </select>
-            <small style="color:#888;font-size:12px;">اختر جهة اتصال وستظهر في حقل الرقم أعلاه</small>
+            <small style="color:#888;font-size:12px;">اختر جهة وستظهر في حقل الرقم أعلاه</small>
         </div>
 
         <!-- ==================== قسم الرسائل الواردة ==================== -->
         <div class="section">
-            <div class="section-title">📥 الرسائل الواردة</div>
+            <div class="section-title">
+                <span>📥 الرسائل الواردة</span>
+                <span class="badge-count" id="msgCount">0</span>
+            </div>
             <div class="flex-row">
                 <button class="btn btn-outline" id="refreshMessagesBtn">🔄 تحديث</button>
-                <button class="btn btn-outline" id="clearMessagesBtn" style="border-color:#dc3545;color:#dc3545;">🗑️ مسح الكل</button>
+                <button class="btn btn-danger-outline" id="clearMessagesBtn">🗑️ مسح الكل</button>
             </div>
             <div id="messagesContainer" class="messages-box">
                 <div class="empty-msg">⏳ جاري تحميل الرسائل...</div>
@@ -263,15 +338,20 @@
 
         <!-- ==================== نتيجة العمليات ==================== -->
         <div id="result"></div>
-        <div class="footer">WasenderAPI · نظام متكامل للجوال والكمبيوتر</div>
+        <div class="footer">WasenderAPI · نظام متكامل | التوكن مخفي 🔒</div>
     </div>
 
     <script>
-        // =========================================================
+        // =============================================================
         // الكود الرئيسي - يتعامل مع الـ API الخلفي (api.php)
-        // =========================================================
+        // =============================================================
 
         const API_URL = 'api.php';
+        let selectedReplyId = null;
+        let selectedReplyFrom = null;
+        let countdownInterval = null;
+        let isCooldown = false;
+        let refreshInterval = null;
 
         // عناصر الواجهة
         const phoneInput = document.getElementById('phone');
@@ -283,13 +363,14 @@
         const resultDiv = document.getElementById('result');
         const messagesContainer = document.getElementById('messagesContainer');
         const listSelect = document.getElementById('listSelect');
+        const counterDiv = document.getElementById('counterDisplay');
+        const msgCountSpan = document.getElementById('msgCount');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
 
-        let selectedReplyId = null;
-        let refreshInterval = null;
-
-        // =========================================================
+        // =============================================================
         // دوال مساعدة
-        // =========================================================
+        // =============================================================
 
         function showResult(msg, type) {
             resultDiv.textContent = msg;
@@ -318,9 +399,38 @@
             return phone;
         }
 
-        // =========================================================
-        // 1. إرسال رسالة (عادي أو رد)
-        // =========================================================
+        // =============================================================
+        // 1. عداد الخطة المجانية
+        // =============================================================
+
+        function startCooldown(seconds = 60) {
+            if (isCooldown) return;
+            isCooldown = true;
+            sendBtn.disabled = true;
+            sendReplyBtn.disabled = true;
+            let remaining = seconds;
+
+            counterDiv.textContent = `⏳ انتظر ${remaining} ثانية قبل الإرسال التالي...`;
+
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    counterDiv.textContent = '';
+                    sendBtn.disabled = false;
+                    sendReplyBtn.disabled = false;
+                    isCooldown = false;
+                } else {
+                    counterDiv.textContent = `⏳ انتظر ${remaining} ثانية قبل الإرسال التالي...`;
+                }
+            }, 1000);
+        }
+
+        // =============================================================
+        // 2. إرسال رسالة (عادي أو رد)
+        // =============================================================
 
         async function sendMessage(to, text, replyTo = null) {
             const formData = new FormData();
@@ -344,6 +454,8 @@
         }
 
         sendBtn.addEventListener('click', async () => {
+            if (isCooldown || sendBtn.disabled) return;
+
             let phone = phoneInput.value.trim();
             const text = msgInput.value.trim();
 
@@ -351,7 +463,7 @@
             if (!text) { showResult('⚠️ اكتب الرسالة', 'error'); return; }
 
             phone = formatPhone(phone);
-            phoneInput.value = phone; // تحديث الحقل
+            phoneInput.value = phone;
 
             sendBtn.disabled = true;
             showResult('⏳ جاري الإرسال...', 'loading');
@@ -360,22 +472,32 @@
 
             if (result.success) {
                 showResult('✅ تم الإرسال بنجاح! 🎉', 'success');
-                // إلغاء تحديد الرد بعد الإرسال
                 selectedReplyId = null;
                 replyToId.value = '';
                 replyHint.textContent = 'لم يتم تحديد رسالة للرد عليها';
-                fetchMessages(); // تحديث قائمة الرسائل
+                startCooldown(60);
+                fetchMessages();
             } else {
-                showResult(`❌ ${result.message || 'فشل الإرسال'}`, 'error');
+                if (result.retry_after) {
+                    showResult(`⏳ حد مجاني: انتظر ${result.retry_after} ثانية`, 'error');
+                    startCooldown(result.retry_after);
+                } else {
+                    showResult(`❌ ${result.message || 'فشل الإرسال'}`, 'error');
+                    setTimeout(() => {
+                        if (!isCooldown) sendBtn.disabled = false;
+                    }, 5000);
+                }
             }
-            sendBtn.disabled = false;
+            if (!isCooldown) sendBtn.disabled = false;
         });
 
-        // =========================================================
-        // 2. الرد على رسالة محددة
-        // =========================================================
+        // =============================================================
+        // 3. الرد على رسالة محددة
+        // =============================================================
 
         sendReplyBtn.addEventListener('click', async () => {
+            if (isCooldown || sendReplyBtn.disabled) return;
+
             if (!selectedReplyId) {
                 showResult('⚠️ اختر رسالة واردة أولاً بالضغط على "رد" بجانبها', 'error');
                 return;
@@ -391,26 +513,46 @@
             phoneInput.value = phone;
 
             sendReplyBtn.disabled = true;
-            showResult(`⏳ جاري الرد على الرسالة ${selectedReplyId}...`, 'loading');
+            showResult(`⏳ جاري الرد على ${selectedReplyFrom}...`, 'loading');
 
             const result = await sendMessage(phone, text, selectedReplyId);
 
             if (result.success) {
                 showResult('✅ تم الرد بنجاح! 🎉', 'success');
-                // مسح التحديد
                 selectedReplyId = null;
                 replyToId.value = '';
                 replyHint.textContent = 'لم يتم تحديد رسالة للرد عليها';
+                startCooldown(60);
                 fetchMessages();
             } else {
-                showResult(`❌ فشل الرد: ${result.message || 'خطأ'}`, 'error');
+                if (result.retry_after) {
+                    showResult(`⏳ حد مجاني: انتظر ${result.retry_after} ثانية`, 'error');
+                    startCooldown(result.retry_after);
+                } else {
+                    showResult(`❌ ${result.message || 'فشل الرد'}`, 'error');
+                }
             }
-            sendReplyBtn.disabled = false;
+            if (!isCooldown) sendReplyBtn.disabled = false;
         });
 
-        // =========================================================
-        // 3. جلب الرسائل الواردة
-        // =========================================================
+        // =============================================================
+        // 4. تحديد رسالة للرد عليها
+        // =============================================================
+
+        window.setReply = function(msgId, from) {
+            selectedReplyId = msgId;
+            selectedReplyFrom = from;
+            replyToId.value = msgId;
+            phoneInput.value = from;
+            replyHint.textContent = `↩️ سترد على: ${from} (معرف: ${msgId.substring(0, 8)}...)`;
+            showResult(`✅ تم تحديد الرسالة للرد عليها`, 'success');
+            // تمرير للردود
+            document.getElementById('replyToId').value = msgId;
+        };
+
+        // =============================================================
+        // 5. جلب الرسائل الواردة (من api.php)
+        // =============================================================
 
         async function fetchMessages() {
             try {
@@ -419,8 +561,11 @@
 
                 if (data.success && data.data) {
                     const msgs = data.data;
+                    msgCountSpan.textContent = msgs.length;
+
                     if (msgs.length === 0) {
-                        messagesContainer.innerHTML = `<div class="empty-msg">📭 لا توجد رسائل واردة بعد</div>`;
+                        messagesContainer.innerHTML =
+                        `<div class="empty-msg">📭 لا توجد رسائل واردة بعد</div>`;
                         return;
                     }
 
@@ -430,59 +575,56 @@
                         const text = msg.text || '📎 وسائط';
                         const time = msg.time || '';
                         const msgId = msg.id || '';
+                        const isReplied = msg.is_replied || false;
 
                         html += `
                             <div class="msg-item" data-msgid="${msgId}">
                                 <div>
                                     <span class="from">📩 ${from}</span>
                                     <span class="time">${time}</span>
+                                    ${isReplied ? '<span class="replied-badge">✓ تم الرد</span>' : ''}
                                 </div>
                                 <div class="text">${text}</div>
-                                <button class="reply-btn" onclick="setReply('${msgId}', '${from}')">↩️ رد على هذه الرسالة</button>
+                                <button class="reply-btn" onclick="setReply('${msgId}', '${from}')">↩️ رد</button>
                             </div>
                         `;
                     });
                     messagesContainer.innerHTML = html;
                 } else {
-                    messagesContainer.innerHTML = `<div class="empty-msg">⚠️ خطأ في تحميل الرسائل</div>`;
+                    messagesContainer.innerHTML =
+                    `<div class="empty-msg">⚠️ خطأ في تحميل الرسائل: ${data.message || ''}</div>`;
                 }
             } catch (e) {
-                messagesContainer.innerHTML = `<div class="empty-msg">❌ خطأ في الاتصال بالخادوم</div>`;
+                messagesContainer.innerHTML =
+                `<div class="empty-msg">❌ خطأ في الاتصال بالخادوم: ${e.message}</div>`;
             }
         }
 
-        // =========================================================
-        // 4. تحديد رسالة للرد عليها
-        // =========================================================
-
-        window.setReply = function(msgId, from) {
-            selectedReplyId = msgId;
-            replyToId.value = msgId;
-            phoneInput.value = from;
-            replyHint.textContent = `↩️ سترد على: ${from} (معرف: ${msgId.substring(0,8)}...)`;
-            showResult(`✅ تم تحديد الرسالة للرد عليها`, 'success');
-        };
-
-        // =========================================================
-        // 5. جلب جهات الاتصال والمجموعات
-        // =========================================================
+        // =============================================================
+        // 6. جلب جهات الاتصال والمجموعات
+        // =============================================================
 
         async function fetchContacts() {
             try {
+                showResult('⏳ جاري جلب جهات الاتصال...', 'loading');
                 const response = await fetch(`${API_URL}?action=contacts`);
                 const data = await response.json();
                 if (data.success && data.data) {
                     const contacts = data.data;
                     listSelect.innerHTML = '<option value="">-- اختر جهة اتصال --</option>';
-                    contacts.forEach(c => {
-                        const option = document.createElement('option');
-                        option.value = c.id || c.jid || c;
-                        option.textContent = c.name || c.jid || c;
-                        listSelect.appendChild(option);
-                    });
-                    showResult(`✅ تم جلب ${contacts.length} جهة اتصال`, 'success');
+                    if (Array.isArray(contacts)) {
+                        contacts.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = c.jid || c.id || c;
+                            opt.textContent = c.name || c.jid || c;
+                            listSelect.appendChild(opt);
+                        });
+                        showResult(`✅ تم جلب ${contacts.length} جهة اتصال`, 'success');
+                    } else {
+                        showResult('⚠️ لا توجد جهات اتصال', 'error');
+                    }
                 } else {
-                    showResult('⚠️ لا توجد جهات اتصال', 'error');
+                    showResult(`⚠️ ${data.message || 'لا توجد جهات اتصال'}`, 'error');
                 }
             } catch (e) {
                 showResult('❌ فشل جلب جهات الاتصال', 'error');
@@ -491,27 +633,32 @@
 
         async function fetchGroups() {
             try {
+                showResult('⏳ جاري جلب المجموعات...', 'loading');
                 const response = await fetch(`${API_URL}?action=groups`);
                 const data = await response.json();
                 if (data.success && data.data) {
                     const groups = data.data;
                     listSelect.innerHTML = '<option value="">-- اختر مجموعة --</option>';
-                    groups.forEach(g => {
-                        const option = document.createElement('option');
-                        option.value = g.id || g.jid || g;
-                        option.textContent = g.subject || g.name || g.jid || g;
-                        listSelect.appendChild(option);
-                    });
-                    showResult(`✅ تم جلب ${groups.length} مجموعة`, 'success');
+                    if (Array.isArray(groups)) {
+                        groups.forEach(g => {
+                            const opt = document.createElement('option');
+                            opt.value = g.jid || g.id || g;
+                            opt.textContent = g.subject || g.name || g.jid || g;
+                            listSelect.appendChild(opt);
+                        });
+                        showResult(`✅ تم جلب ${groups.length} مجموعة`, 'success');
+                    } else {
+                        showResult('⚠️ لا توجد مجموعات', 'error');
+                    }
                 } else {
-                    showResult('⚠️ لا توجد مجموعات', 'error');
+                    showResult(`⚠️ ${data.message || 'لا توجد مجموعات'}`, 'error');
                 }
             } catch (e) {
                 showResult('❌ فشل جلب المجموعات', 'error');
             }
         }
 
-        // عند اختيار جهة من القائمة، تظهر في حقل الرقم
+        // عند اختيار جهة من القائمة
         listSelect.addEventListener('change', function() {
             if (this.value) {
                 phoneInput.value = this.value;
@@ -522,33 +669,73 @@
         document.getElementById('fetchContactsBtn').addEventListener('click', fetchContacts);
         document.getElementById('fetchGroupsBtn').addEventListener('click', fetchGroups);
 
-        // =========================================================
-        // 6. تحديث تلقائي كل 10 ثواني
-        // =========================================================
+        // =============================================================
+        // 7. مسح الرسائل
+        // =============================================================
 
-        document.getElementById('refreshMessagesBtn').addEventListener('click', fetchMessages);
+        document.getElementById('clearMessagesBtn').addEventListener('click', async function() {
+            if (!confirm('⚠️ هل أنت متأكد من مسح جميع الرسائل المخزنة؟')) return;
 
-        document.getElementById('clearMessagesBtn').addEventListener('click', function() {
-            if (confirm('هل تريد مسح جميع الرسائل المخزنة؟')) {
-                // مسح الملف من الخادوم
-                fetch('clear_messages.php') // سننشئ هذا الملف اختيارياً
-                    .then(() => {
-                        showResult('🗑️ تم مسح الرسائل', 'success');
+            try {
+                const response = await fetch('clear_messages.php');
+                const data = await response.json();
+                if (data.success) {
+                    showResult('🗑️ تم مسح جميع الرسائل', 'success');
+                    fetchMessages();
+                } else {
+                    showResult('❌ فشل المسح', 'error');
+                }
+            } catch (e) {
+                // محاولة المسح عبر api.php
+                try {
+                    const resp = await fetch(`${API_URL}?action=clear_messages`);
+                    const data = await resp.json();
+                    if (data.success) {
+                        showResult('🗑️ تم مسح جميع الرسائل', 'success');
                         fetchMessages();
-                    })
-                    .catch(() => {
+                    } else {
                         showResult('❌ فشل المسح', 'error');
-                    });
+                    }
+                } catch (err) {
+                    showResult('❌ فشل المسح: ' + err.message, 'error');
+                }
             }
         });
 
-        // تحديث تلقائي كل 10 ثواني
+        // =============================================================
+        // 8. تحديث تلقائي كل 10 ثواني
+        // =============================================================
+
+        document.getElementById('refreshMessagesBtn').addEventListener('click', fetchMessages);
+
+        // تحديث تلقائي
         if (refreshInterval) clearInterval(refreshInterval);
         refreshInterval = setInterval(fetchMessages, 10000);
 
-        // =========================================================
-        // 7. تحميل أولي
-        // =========================================================
+        // =============================================================
+        // 9. فحص حالة الجلسة
+        // =============================================================
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_URL}?action=status`);
+                const data = await response.json();
+                if (data.success && data.data && data.data.connected) {
+                    statusDot.className = 'status-dot status-connected';
+                    statusText.textContent = 'متصل ✅';
+                } else {
+                    statusDot.className = 'status-dot status-disconnected';
+                    statusText.textContent = 'غير متصل ❌';
+                }
+            } catch (e) {
+                statusDot.className = 'status-dot status-disconnected';
+                statusText.textContent = 'خطأ في الاتصال';
+            }
+        }
+
+        // =============================================================
+        // 10. تحميل أولي
+        // =============================================================
 
         document.addEventListener('DOMContentLoaded', function() {
             // تنسيق الرقم الأولي
@@ -556,10 +743,13 @@
                 phoneInput.value = phoneInput.value + '@s.whatsapp.net';
             }
             fetchMessages();
+            checkStatus();
+            // فحص الحالة كل 30 ثانية
+            setInterval(checkStatus, 30000);
         });
 
-        // ملف clear_messages.php (اختياري)
-        // لو حابب تضيفه، اكتب فيه: <?php unlink('messages.json'); ?>
+        console.log('🚀 نظام واتساب المتكامل جاهز!');
+        console.log('📌 استخدم زر "رد" بجانب أي رسالة للرد عليها.');
     </script>
 
 </body>
