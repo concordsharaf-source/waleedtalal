@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام واتساب المتكامل</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #075e54, #128C7E);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .container {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #075e54;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .sub {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .section {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #075e54;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: 0.3s;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #128C7E;
+            box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.15);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+        .flex-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .flex-row .btn {
+            flex: 1;
+            min-width: 80px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #075e54, #128C7E);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #075e54;
+            color: #075e54;
+        }
+        .btn-outline:hover {
+            background: #075e54;
+            color: white;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .messages-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 8px;
+        }
+        .msg-item {
+            background: #f1f8f7;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-right: 4px solid #128C7E;
+        }
+        .msg-item .from {
+            font-weight: bold;
+            color: #075e54;
+            font-size: 13px;
+        }
+        .msg-item .time {
+            font-size: 11px;
+            color: #999;
+            float: left;
+        }
+        .msg-item .text {
+            margin-top: 4px;
+            color: #333;
+            font-size: 14px;
+        }
+        .msg-item .reply-btn {
+            margin-top: 6px;
+            padding: 4px 12px;
+            background: #075e54;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .msg-item .reply-btn:hover {
+            background: #0a7a6a;
+        }
+        .empty-msg {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-size: 14px;
+        }
+        #result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            display: block !important;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block !important;
+        }
+        .loading {
+            background: #cce5ff;
+            color: #004085;
+            display: block !important;
+        }
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 15px;
+        }
+        .badge-list {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💬 نظام المراسلة</h1>
+        <p class="sub">إرسال • استقبال • ردود • قوائم</p>
+
+        <!-- ==================== قسم الإرسال ==================== -->
+        <div class="section">
+            <div class="section-title">✉️ إرسال رسالة</div>
+            <input type="text" id="phone" placeholder="رقم المستلم (مثال: 967770388100)" value="967770388100">
+            <textarea id="msg" placeholder="اكتب رسالتك...">مرحباً! هذه رسالة من نظامي المتكامل 🚀</textarea>
+
+            <div class="flex-row">
+                <button class="btn btn-primary" id="sendBtn">🚀 إرسال</button>
+                <button class="btn btn-success" id="sendReplyBtn">↩️ رد على المحدد</button>
+            </div>
+
+            <!-- حقل مخفي لتخزين معرف الرسالة للرد -->
+            <input type="hidden" id="replyToId" value="">
+            <small style="color:#888;font-size:12px;" id="replyHint">لم يتم تحديد رسالة للرد عليها</small>
+        </div>
+
+        <!-- ==================== قسم جهات الاتصال والمجموعات ==================== -->
+        <div class="section">
+            <div class="section-title">📇 القوائم</div>
+            <div class="flex-row">
+                <button class="btn btn-outline" id="fetchContactsBtn">📋 جلب جهات الاتصال</button>
+                <button class="btn btn-outline" id="fetchGroupsBtn">👥 جلب المجموعات</button>
+            </div>
+            <select id="listSelect" style="margin-top:8px;">
+                <option value="">-- اختر جهة اتصال أو مجموعة --</option>
+            </select>
+            <small style="color:#888;font-size:12px;">اختر جهة اتصال وستظهر في حقل الرقم أعلاه</small>
+        </div>
+
+        <!-- ==================== قسم الرسائل الواردة ==================== -->
+        <div class="section">
+            <div class="section-title">📥 الرسائل الواردة</div>
+            <div class="flex-row">
+                <button class="btn btn-outline" id="refreshMessagesBtn">🔄 تحديث</button>
+                <button class="btn btn-outline" id="clearMessagesBtn" style="border-color:#dc3545;color:#dc3545;">🗑️ مسح الكل</button>
+            </div>
+            <div id="messagesContainer" class="messages-box">
+                <div class="empty-msg">⏳ جاري تحميل الرسائل...</div>
+            </div>
+        </div>
+
+        <!-- ==================== نتيجة العمليات ==================== -->
+        <div id="result"></div>
+        <div class="footer">WasenderAPI · نظام متكامل للجوال والكمبيوتر</div>
+    </div>
+
+    <script>
+        // =========================================================
+        // الكود الرئيسي - يتعامل مع الـ API الخلفي (api.php)
+        // =========================================================
+
+        const API_URL = 'api.php';
+
+        // عناصر الواجهة
+        const phoneInput = document.getElementById('phone');
+        const msgInput = document.getElementById('msg');
+        const sendBtn = document.getElementById('sendBtn');
+        const sendReplyBtn = document.getElementById('sendReplyBtn');
+        const replyToId = document.getElementById('replyToId');
+        const replyHint = document.getElementById('replyHint');
+        const resultDiv = document.getElementById('result');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const listSelect = document.getElementById('listSelect');
+
+        let selectedReplyId = null;
+        let refreshInterval = null;
+
+        // =========================================================
+        // دوال مساعدة
+        // =========================================================
+
+        function showResult(msg, type) {
+            resultDiv.textContent = msg;
+            resultDiv.className = type;
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    if (resultDiv.className === type) {
+                        resultDiv.style.display = 'none';
+                    }
+                }, 5000);
+            } else {
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        function clearResult() {
+            resultDiv.style.display = 'none';
+            resultDiv.className = '';
+        }
+
+        function formatPhone(phone) {
+            phone = phone.trim();
+            if (!phone.includes('@')) {
+                return phone + '@s.whatsapp.net';
+            }
+            return phone;
+        }
+
+        // =========================================================
+        // 1. إرسال رسالة (عادي أو رد)
+        // =========================================================
+
+        async function sendMessage(to, text, replyTo = null) {
+            const formData = new FormData();
+            formData.append('action', 'send');
+            formData.append('to', to);
+            formData.append('text', text);
+            if (replyTo) {
+                formData.append('replyTo', replyTo);
+            }
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                return data;
+            } catch (e) {
+                return { success: false, message: 'خطأ في الاتصال بالخادوم' };
+            }
+        }
+
+        sendBtn.addEventListener('click', async () => {
+            let phone = phoneInput.value.trim();
+            const text = msgInput.value.trim();
+
+            if (!phone) { showResult('⚠️ أدخل رقم الجوال', 'error'); return; }
+            if (!text) { showResult('⚠️ اكتب الرسالة', 'error'); return; }
+
+            phone = formatPhone(phone);
+            phoneInput.value = phone; // تحديث الحقل
+
+            sendBtn.disabled = true;
+            showResult('⏳ جاري الإرسال...', 'loading');
+
+            const result = await sendMessage(phone, text);
+
+            if (result.success) {
+                showResult('✅ تم الإرسال بنجاح! 🎉', 'success');
+                // إلغاء تحديد الرد بعد الإرسال
+                selectedReplyId = null;
+                replyToId.value = '';
+                replyHint.textContent = 'لم يتم تحديد رسالة للرد عليها';
+                fetchMessages(); // تحديث قائمة الرسائل
+            } else {
+                showResult(`❌ ${result.message || 'فشل الإرسال'}`, 'error');
+            }
+            sendBtn.disabled = false;
+        });
+
+        // =========================================================
+        // 2. الرد على رسالة محددة
+        // =========================================================
+
+        sendReplyBtn.addEventListener('click', async () => {
+            if (!selectedReplyId) {
+                showResult('⚠️ اختر رسالة واردة أولاً بالضغط على "رد" بجانبها', 'error');
+                return;
+            }
+
+            let phone = phoneInput.value.trim();
+            const text = msgInput.value.trim();
+
+            if (!phone) { showResult('⚠️ أدخل رقم الجوال', 'error'); return; }
+            if (!text) { showResult('⚠️ اكتب نص الرد', 'error'); return; }
+
+            phone = formatPhone(phone);
+            phoneInput.value = phone;
+
+            sendReplyBtn.disabled = true;
+            showResult(`⏳ جاري الرد على الرسالة ${selectedReplyId}...`, 'loading');
+
+            const result = await sendMessage(phone, text, selectedReplyId);
+
+            if (result.success) {
+                showResult('✅ تم الرد بنجاح! 🎉', 'success');
+                // مسح التحديد
+                selectedReplyId = null;
+                replyToId.value = '';
+                replyHint.textContent = 'لم يتم تحديد رسالة للرد عليها';
+                fetchMessages();
+            } else {
+                showResult(`❌ فشل الرد: ${result.message || 'خطأ'}`, 'error');
+            }
+            sendReplyBtn.disabled = false;
+        });
+
+        // =========================================================
+        // 3. جلب الرسائل الواردة
+        // =========================================================
+
+        async function fetchMessages() {
+            try {
+                const response = await fetch(`${API_URL}?action=get_messages`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    const msgs = data.data;
+                    if (msgs.length === 0) {
+                        messagesContainer.innerHTML = `<div class="empty-msg">📭 لا توجد رسائل واردة بعد</div>`;
+                        return;
+                    }
+
+                    let html = '';
+                    msgs.forEach(msg => {
+                        const from = msg.from || 'غير معروف';
+                        const text = msg.text || '📎 وسائط';
+                        const time = msg.time || '';
+                        const msgId = msg.id || '';
+
+                        html += `
+                            <div class="msg-item" data-msgid="${msgId}">
+                                <div>
+                                    <span class="from">📩 ${from}</span>
+                                    <span class="time">${time}</span>
+                                </div>
+                                <div class="text">${text}</div>
+                                <button class="reply-btn" onclick="setReply('${msgId}', '${from}')">↩️ رد على هذه الرسالة</button>
+                            </div>
+                        `;
+                    });
+                    messagesContainer.innerHTML = html;
+                } else {
+                    messagesContainer.innerHTML = `<div class="empty-msg">⚠️ خطأ في تحميل الرسائل</div>`;
+                }
+            } catch (e) {
+                messagesContainer.innerHTML = `<div class="empty-msg">❌ خطأ في الاتصال بالخادوم</div>`;
+            }
+        }
+
+        // =========================================================
+        // 4. تحديد رسالة للرد عليها
+        // =========================================================
+
+        window.setReply = function(msgId, from) {
+            selectedReplyId = msgId;
+            replyToId.value = msgId;
+            phoneInput.value = from;
+            replyHint.textContent = `↩️ سترد على: ${from} (معرف: ${msgId.substring(0,8)}...)`;
+            showResult(`✅ تم تحديد الرسالة للرد عليها`, 'success');
+        };
+
+        // =========================================================
+        // 5. جلب جهات الاتصال والمجموعات
+        // =========================================================
+
+        async function fetchContacts() {
+            try {
+                const response = await fetch(`${API_URL}?action=contacts`);
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const contacts = data.data;
+                    listSelect.innerHTML = '<option value="">-- اختر جهة اتصال --</option>';
+                    contacts.forEach(c => {
+                        const option = document.createElement('option');
+                        option.value = c.id || c.jid || c;
+                        option.textContent = c.name || c.jid || c;
+                        listSelect.appendChild(option);
+                    });
+                    showResult(`✅ تم جلب ${contacts.length} جهة اتصال`, 'success');
+                } else {
+                    showResult('⚠️ لا توجد جهات اتصال', 'error');
+                }
+            } catch (e) {
+                showResult('❌ فشل جلب جهات الاتصال', 'error');
+            }
+        }
+
+        async function fetchGroups() {
+            try {
+                const response = await fetch(`${API_URL}?action=groups`);
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const groups = data.data;
+                    listSelect.innerHTML = '<option value="">-- اختر مجموعة --</option>';
+                    groups.forEach(g => {
+                        const option = document.createElement('option');
+                        option.value = g.id || g.jid || g;
+                        option.textContent = g.subject || g.name || g.jid || g;
+                        listSelect.appendChild(option);
+                    });
+                    showResult(`✅ تم جلب ${groups.length} مجموعة`, 'success');
+                } else {
+                    showResult('⚠️ لا توجد مجموعات', 'error');
+                }
+            } catch (e) {
+                showResult('❌ فشل جلب المجموعات', 'error');
+            }
+        }
+
+        // عند اختيار جهة من القائمة، تظهر في حقل الرقم
+        listSelect.addEventListener('change', function() {
+            if (this.value) {
+                phoneInput.value = this.value;
+                showResult(`✅ تم اختيار: ${this.options[this.selectedIndex].text}`, 'success');
+            }
+        });
+
+        document.getElementById('fetchContactsBtn').addEventListener('click', fetchContacts);
+        document.getElementById('fetchGroupsBtn').addEventListener('click', fetchGroups);
+
+        // =========================================================
+        // 6. تحديث تلقائي كل 10 ثواني
+        // =========================================================
+
+        document.getElementById('refreshMessagesBtn').addEventListener('click', fetchMessages);
+
+        document.getElementById('clearMessagesBtn').addEventListener('click', function() {
+            if (confirm('هل تريد مسح جميع الرسائل المخزنة؟')) {
+                // مسح الملف من الخادوم
+                fetch('clear_messages.php') // سننشئ هذا الملف اختيارياً
+                    .then(() => {
+                        showResult('🗑️ تم مسح الرسائل', 'success');
+                        fetchMessages();
+                    })
+                    .catch(() => {
+                        showResult('❌ فشل المسح', 'error');
+                    });
+            }
+        });
+
+        // تحديث تلقائي كل 10 ثواني
+        if (refreshInterval) clearInterval(refreshInterval);
+        refreshInterval = setInterval(fetchMessages, 10000);
+
+        // =========================================================
+        // 7. تحميل أولي
+        // =========================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // تنسيق الرقم الأولي
+            if (phoneInput.value && !phoneInput.value.includes('@')) {
+                phoneInput.value = phoneInput.value + '@s.whatsapp.net';
+            }
+            fetchMessages();
+        });
+
+        // ملف clear_messages.php (اختياري)
+        // لو حابب تضيفه، اكتب فيه: <?php unlink('messages.json'); ?>
+    </script>
+
+</body>
+</html>
