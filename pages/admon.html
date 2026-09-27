@@ -432,13 +432,6 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 <label>
-ملاحظات الإدارة
-</label>
-
-<textarea id="editAdminNotes"></textarea>
-
-
-<label>
 مبلغ المنحة
 </label>
 
@@ -837,12 +830,6 @@ ordersDiv.innerHTML += `
 </div>
 
 
-<div class="field" style="grid-column:1/-1;">
-<div class="label">ملاحظات الإدارة</div>
-<div class="value" style="white-space:pre-wrap;font-weight:500;">${esc(data.adminNotes) || "-"}</div>
-</div>
-
-
 </div>
 
 
@@ -903,7 +890,6 @@ editCountry.value=order.country || "";
 
 editBankName.value=order.bankName || "";
 editPartNumber.value=order.partNumber || "";
-editAdminNotes.value=order.adminNotes || "";
 
 editType.value=order.type || "";
 
@@ -1015,7 +1001,6 @@ country:editCountry.value,
 
 bankName:editBankName.value,
 partNumber:editPartNumber.value,
-adminNotes:editAdminNotes.value,
 
 type:editType.value,
 
