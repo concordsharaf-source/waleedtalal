@@ -84,23 +84,7 @@
     white-space: normal;
 }
 
-/* عندما تحتوي الصفحة على صورة هيرو، تظهر الأزرار فوق الصورة مثل الرئيسية */
-.site-actions-host {
-    position: relative !important;
-    isolation: isolate;
-    box-sizing: border-box;
-    min-height: 340px;
-}
-
-.site-actions-host > .site-header-actions {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-    width: min(270px, calc(100% - 36px));
-    flex-direction: column;
-}
-
-/* الصفحات التي لا تحتوي على هيرو تحصل على شريط خدمات أسفل الهيدر مباشرة */
+/* شريط خدمات مستقل في مسار الصفحة حتى لا يغطي نصوص الهيدر أو صورته */
 .site-actions-standalone {
     position: relative;
     z-index: 80;
@@ -118,7 +102,40 @@
     width: min(1180px, 100%);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.pwa-install-btn {
+    font-family: inherit;
+}
+
+.pwa-connection-status {
+    position: fixed;
+    right: 50%;
+    bottom: 24px;
+    z-index: 10000;
+    max-width: min(420px, calc(100% - 30px));
+    padding: 12px 18px;
+    border-radius: 14px;
+    color: #ffffff;
+    background: #7f1d1d;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-size: 0.9rem;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(50%, 16px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.pwa-connection-status.is-online {
+    background: #006b35;
+}
+
+.pwa-connection-status.show {
+    opacity: 1;
+    transform: translate(50%, 0);
 }
 
 /* يحافظ على ترتيب الصفحات التي تستخدم Flex في body مثل صفحة النجاح */
@@ -156,28 +173,7 @@ body.site-actions-no-header-page {
     }
 }
 
-@media (min-width: 769px) {
-    .site-actions-host {
-        padding-inline-end: 305px !important;
-    }
-}
-
 @media (max-width: 768px) {
-    .site-actions-host {
-        min-height: 390px !important;
-        padding: 24px 12px 165px !important;
-    }
-
-    .site-actions-host > .site-header-actions {
-        right: 12px;
-        left: 12px;
-        bottom: 15px;
-        width: auto;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-    }
-
     .site-actions-standalone {
         padding: 15px 12px 20px;
     }
@@ -195,12 +191,6 @@ body.site-actions-no-header-page {
 }
 
 @media (max-width: 390px) {
-    .site-actions-host {
-        min-height: 470px !important;
-        padding-bottom: 245px !important;
-    }
-
-    .site-actions-host > .site-header-actions,
     .site-actions-standalone > .site-header-actions {
         grid-template-columns: 1fr;
     }

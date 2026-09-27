@@ -1,25 +1,67 @@
 {
   "id": "/",
-  "name": "مؤسسة الوليد الإنسانية",
+  "name": "مؤسسة الوليد للإنسانية",
   "short_name": "الوليد",
-  "description": "خدمات مؤسسة الوليد الإنسانية",
+  "description": "خدمات مؤسسة الوليد للإنسانية وتقديم ومتابعة طلبات المساعدة",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#ffffff",
-  "theme_color": "#0066cc",
+  "theme_color": "#006b35",
+  "categories": [
+    "lifestyle",
+    "social"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تقديم طلب مساعدة",
+      "short_name": "طلب مساعدة",
+      "url": "/pages/us.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "تتبع المعاملة",
+      "short_name": "تتبع الطلب",
+      "url": "/pages/track.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

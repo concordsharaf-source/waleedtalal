@@ -95,32 +95,20 @@
 
         const actions = createHeaderActions();
         const heroHost = document.querySelector('.about-hero, .hero-banner, section.hero');
-
-        if (heroHost) {
-            heroHost.classList.add('site-actions-host');
-            heroHost.appendChild(actions);
-            return;
-        }
-
-        // صفحة التبرع القديمة تستخدم عنصر header نفسه كبانر رئيسي.
         const directHeader = document.querySelector('body > header');
-        const headerIsHero = directHeader && directHeader.querySelector('h1') && !directHeader.querySelector('nav');
 
-        if (headerIsHero) {
-            directHeader.classList.add('site-actions-host');
-            directHeader.appendChild(actions);
-            return;
-        }
-
-        // بقية الصفحات تحصل على شريط واضح أسفل شريط التنقل مباشرة.
+        // نضع الأزرار في مسار الصفحة بعد الهيرو أو الهيدر، وليس فوق النصوص والصور.
+        // بهذه الطريقة لا يمكن أن تغطي العناوين، خصوصاً على شاشات الجوال الصغيرة.
         const standalone = document.createElement('section');
         standalone.className = 'site-actions-standalone';
         standalone.setAttribute('aria-label', 'روابط الخدمات السريعة');
         standalone.appendChild(actions);
         document.body.classList.add('site-actions-standalone-page');
 
-        if (directHeader) {
-            directHeader.insertAdjacentElement('afterend', standalone);
+        const placementAnchor = heroHost || directHeader;
+
+        if (placementAnchor) {
+            placementAnchor.insertAdjacentElement('afterend', standalone);
         } else {
             document.body.classList.add('site-actions-no-header-page');
             document.body.insertAdjacentElement('afterbegin', standalone);

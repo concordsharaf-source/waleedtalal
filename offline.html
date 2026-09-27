@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#006b35">
+    <title>أنت غير متصل | مؤسسة الوليد للإنسانية</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, #06140e, #0a291e);
+            color: #ffffff;
+            font-family: Tahoma, Arial, sans-serif;
+            text-align: center;
+        }
+        main {
+            width: min(440px, 100%);
+            padding: 34px 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 24px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        }
+        img {
+            width: 112px;
+            height: 112px;
+            border-radius: 24px;
+            margin-bottom: 18px;
+        }
+        h1 { margin: 0 0 12px; font-size: 1.65rem; }
+        p { margin: 0 0 28px; color: #d4e6dc; line-height: 1.8; }
+        a, button {
+            min-height: 48px;
+            padding: 12px 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.42);
+            border-radius: 30px;
+            color: #ffffff;
+            background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(0,0,0,.16)), #006b35;
+            box-shadow: inset 0 2px 1px rgba(255,255,255,.36), inset 0 -3px 2px rgba(0,0,0,.28), 0 4px 0 #003d1d, 0 8px 16px rgba(0,0,0,.3);
+            font: inherit;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <img src="./icons/icon-192.png" alt="شعار مؤسسة الوليد للإنسانية">
+        <h1>لا يوجد اتصال بالإنترنت</h1>
+        <p>تعذر تحميل الصفحة الآن. تحقق من اتصالك بالإنترنت ثم حاول مرة أخرى.</p>
+        <button type="button" onclick="window.location.reload()">إعادة المحاولة</button>
+    </main>
+</body>
+</html>
