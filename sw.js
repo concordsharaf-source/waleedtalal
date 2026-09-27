@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-v2";
+const CACHE_NAME = "waleedtalal-v3";
 
 const FILES = [
   "./",
