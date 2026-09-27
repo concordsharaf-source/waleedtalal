@@ -364,13 +364,6 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 <label>
-ملاحظات الإدارة
-</label>
-
-<textarea id="editNotes"></textarea>
-
-
-<label>
 مبلغ المنحة
 </label>
 
@@ -757,8 +750,6 @@ editType.value=order.type || "";
 
 editStatus.value=order.status || "قيد المراجعة";
 
-editNotes.value=order.notes || "";
-
 editGrantAmount.value=order.grantAmount || "";
 
 editApproved.value=String(order.approved || false);
@@ -816,8 +807,6 @@ partNumber:editPartNumber.value,
 type:editType.value,
 
 status:editStatus.value,
-
-notes:editNotes.value,
 
 
 grantAmount:
