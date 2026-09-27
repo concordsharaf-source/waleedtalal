@@ -520,6 +520,33 @@ transition: 0.3s;
     .contact-links, .links-grid { flex-direction: column; gap: 15px; }
 }
 
+/* إبراز بيانات التواصل والرسوم الواردة في ملاحظة حالة المعاملة. */
+#notes {
+    white-space: pre-wrap;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+.note-phone {
+    color: #2f9bff !important;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+.note-phone:hover,
+.note-phone:focus-visible {
+    color: #75bdff !important;
+    opacity: 0.9;
+}
+
+.note-fee {
+    color: #d4af37;
+    font-weight: 800;
+}
+
 </style>
 
     <!-- إعدادات تطبيق الويب PWA -->
@@ -1187,7 +1214,7 @@ order.grantAmount || "650,000.00 ر.س";
 
 document.getElementById("notes").innerHTML=
 
-order.notes || "-";
+renderNote(order.notes || "-");
 
 }
 
@@ -1207,6 +1234,55 @@ error.message;
 
 }
 
+}
+
+/*
+ * نحول رقم التواصل الدولي داخل الملاحظة إلى رابط واتساب،
+ * ونبرز أي مبلغ مكتوب بالريال باللون الذهبي، بعد تعقيم النص بالكامل.
+ */
+function escapeNote(value){
+return String(value ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+}
+
+function toEnglishDigits(value){
+return String(value)
+.replace(/[٠-٩]/g,function(x){
+return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
+})
+.replace(/[۰-۹]/g,function(x){
+return "۰۱۲۳۴۵۶۷۸۹".indexOf(x);
+});
+}
+
+function renderNote(text){
+if(!text) return "-";
+
+let output=escapeNote(text);
+
+/* أرقام التواصل: لون أزرق وفتح محادثة واتساب مباشرة. */
+output=output.replace(
+/(?:\+|00)[0-9٠-٩۰-۹](?:[0-9٠-٩۰-۹\s-]{7,18})[0-9٠-٩۰-۹]/g,
+function(number){
+let digits=toEnglishDigits(number).replace(/\D/g,"");
+if(number.trim().startsWith("00")) digits=digits.slice(2);
+return '<a class="note-phone" href="https://wa.me/'+digits+'" target="_blank" rel="noopener noreferrer" aria-label="فتح محادثة واتساب مع '+digits+'">'+number+'</a>';
+}
+);
+
+/* مبالغ الرسوم المكتوبة بالريال: لون ذهبي واضح. */
+output=output.replace(
+/\(?[0-9٠-٩۰-۹][0-9٠-٩۰-۹,٬.٫]*\s*ريال(?:\s+سعودي)?\)?/g,
+function(amount){
+return '<span class="note-fee">'+amount+'</span>';
+}
+);
+
+return output;
 }
 
 loadOrder();
