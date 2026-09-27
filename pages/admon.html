@@ -115,6 +115,25 @@ font-size:22px;
 font-weight:bold;
 }
 
+.order-title{
+flex-wrap:wrap;
+gap:10px;
+}
+
+.order-title .t-label{
+font-size:12px;
+color:rgba(255,255,255,.85);
+margin-bottom:4px;
+}
+
+.order-title .t-date{
+text-align:left;
+}
+
+.order-title .date-value{
+font-size:16px;
+}
+
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -590,6 +609,19 @@ const ordersDiv=document.getElementById("orders");
 
 function esc(v){return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
+function fmtDate(ts){
+try{
+if(!ts) return "-";
+let d;
+if(ts.seconds) d=new Date(ts.seconds*1000);
+else if(typeof ts.toDate==="function") d=ts.toDate();
+else d=new Date(ts);
+if(isNaN(d.getTime())) return "-";
+const p=n=>String(n).padStart(2,"0");
+return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
+}catch(e){return "-";}
+}
+
 
 
 async function loadOrders(){
@@ -670,13 +702,15 @@ ordersDiv.innerHTML += `
 
 <div class="order-title">
 
-<div>
-رقم المعاملة
+<div class="t-block">
+<div class="t-label">رقم المعاملة</div>
+<span>${esc(data.transactionId) || "-"}</span>
 </div>
 
-<span>
-${data.transactionId || "-"}
-</span>
+<div class="t-block t-date">
+<div class="t-label">📅 تاريخ تقديم الطلب</div>
+<span class="date-value">${fmtDate(data.createdAt)}</span>
+</div>
 
 </div>
 
