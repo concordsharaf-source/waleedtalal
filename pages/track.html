@@ -13,8 +13,6 @@
 
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-
 :root {
     --primary-green: #008444;
     --accent-green: #25D366;
@@ -287,6 +285,9 @@ border-radius:15px;
     <script src="../scripts/pwa.js" defer></script>
 
     <!-- تنسيق موحد لأزرار الموقع وروابط الخدمات في الهيدر -->
+    <!-- خط عربي محلي مُحمّل مبكراً لمنع تغير ارتفاع النص بعد فتح الصفحة -->
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../styles/site-buttons.css">
     <script src="../scripts/site-ui.js" defer></script>
 </head>

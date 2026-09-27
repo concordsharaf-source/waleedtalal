@@ -14,6 +14,8 @@
                     scope: serviceWorkerScope
                 });
 
+                if (!registration) return;
+
                 if (registration.waiting) {
                     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                 }
@@ -52,15 +54,9 @@
     function showInstallButton() {
         if (!deferredInstallPrompt || isRunningStandalone() || installButton) return;
 
-        const target = document.querySelector('.site-header-actions') ||
-            document.querySelector('.hero-content');
-        if (!target) return;
-
         installButton = document.createElement('button');
         installButton.type = 'button';
-        installButton.className = target.classList.contains('site-header-actions')
-            ? 'site-header-action site-3d-btn pwa-install-btn'
-            : 'btn-main site-3d-btn pwa-install-btn';
+        installButton.className = 'site-3d-btn pwa-install-btn';
         installButton.textContent = 'تثبيت التطبيق';
         installButton.setAttribute('aria-label', 'تثبيت الموقع كتطبيق على الجهاز');
 
@@ -73,7 +69,8 @@
             removeInstallButton();
         });
 
-        target.appendChild(installButton);
+        // زر عائم خارج مسار التخطيط حتى لا يغيّر ارتفاع الصفحة عند ظهوره المتأخر.
+        document.body.appendChild(installButton);
     }
 
     window.addEventListener('beforeinstallprompt', event => {

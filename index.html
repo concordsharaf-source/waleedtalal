@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap');
         :root {
             --primary-green: #008444;
             --accent-purple: #7e57c2;
@@ -220,7 +219,9 @@ nav ul li a:hover {
             padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: flex;
-            max-width: 50%;
+            flex: 1 1 240px;
+            width: min(280px, 100%);
+            max-width: 280px;
             align-items: center; 
             min-height: 150px; 
             flex-direction: column;
@@ -234,6 +235,8 @@ nav ul li a:hover {
             margin-bottom: 5px;
             direction: ltr;
             display: inline-block;
+            min-width: 11ch;
+            font-variant-numeric: tabular-nums;
         }
 
         .stat-label {
@@ -1343,6 +1346,9 @@ nav ul li a:hover {
 </style>
 
     <!-- تنسيق موحد لأزرار الموقع وروابط الخدمات في الهيدر -->
+    <!-- خط عربي محلي مُحمّل مبكراً لمنع تغير ارتفاع النص بعد فتح الصفحة -->
+    <link rel="preload" href="fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="styles/site-buttons.css">
     <script src="scripts/site-ui.js" defer></script>
     <script src="scripts/pwa.js" defer></script>
@@ -2109,46 +2115,56 @@ document.addEventListener("DOMContentLoaded", function() {
     
     </script>
     
-    <!-- سكربت العدادات المتحركة الاحترافي عند التمرير -->
+    <!-- عدادات ثابتة على الجوال، ومتحركة بكفاءة على الشاشات الكبيرة -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const counters = document.querySelectorAll('.counter');
+            const mobileOrTouch = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
             let hasRun = false;
 
-            function animateCounters() {
+            function setFinalCounterValues() {
                 counters.forEach(counter => {
-                    const target = +counter.getAttribute('data-target');
-                    const duration = 2500; // المدة بالملي ثانية
-                    const frameDuration = 1000 / 60; // 60 إطار في الثانية
-                    const totalFrames = Math.round(duration / frameDuration);
-                    let frame = 0;
-
-                    const timer = setInterval(() => {
-                        frame++;
-                        // استخدام دالة التسهيل Ease-Out لتسريع البداية وإبطاء النهاية
-                        const progress = frame / totalFrames;
-                        const easeOutProgress = 1 - Math.pow(1 - progress, 3);
-                        const currentCount = Math.round(target * easeOutProgress);
-
-                        // تنسيق الرقم بوضع فواصل الآلاف
-                        counter.innerText = currentCount.toLocaleString('en-US');
-
-                        if (frame === totalFrames) {
-                            clearInterval(timer);
-                            counter.innerText = target.toLocaleString('en-US');
-                        }
-                    }, frameDuration);
+                    const target = Number(counter.getAttribute('data-target')) || 0;
+                    counter.innerText = target.toLocaleString('en-US');
                 });
             }
 
-            // تشغيل الحركة فقط عند التمرير ووصول المستخدم إلى قسم الإحصائيات
+            // تغيير عرض الأرقام أثناء الوقوف كان يغيّر مقاسات البطاقات على الجوال.
+            if (mobileOrTouch) {
+                setFinalCounterValues();
+                return;
+            }
+
+            function animateCounters() {
+                counters.forEach(counter => {
+                    const target = Number(counter.getAttribute('data-target')) || 0;
+                    const duration = 2500;
+                    const startedAt = performance.now();
+
+                    function updateCounter(now) {
+                        const progress = Math.min((now - startedAt) / duration, 1);
+                        const easedProgress = 1 - Math.pow(1 - progress, 3);
+                        counter.innerText = Math.round(target * easedProgress).toLocaleString('en-US');
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.innerText = target.toLocaleString('en-US');
+                        }
+                    }
+
+                    requestAnimationFrame(updateCounter);
+                });
+            }
+
             const statsSection = document.querySelector('.achievements-section');
-            if(statsSection) {
-                const observer = new IntersectionObserver((entries) => {
+            if (statsSection) {
+                const observer = new IntersectionObserver((entries, statsObserver) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting && !hasRun) {
                             animateCounters();
                             hasRun = true;
+                            statsObserver.unobserve(entry.target);
                         }
                     });
                 }, { threshold: 0.3 });
