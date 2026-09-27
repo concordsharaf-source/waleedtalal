@@ -106,6 +106,19 @@ nav ul li a:hover {
             justify-content: center;
             text-align: center;
             color: white;
+            isolation: isolate;
+        }
+
+        /* طبقة بيضاء شفافة مع تمويه خفيف لتحسين وضوح النص والأزرار */
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: rgba(255, 255, 255, 0.18);
+            -webkit-backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px);
         }
 
         .hero-bg {
