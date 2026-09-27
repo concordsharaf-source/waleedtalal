@@ -106,36 +106,7 @@ nav ul li a:hover {
             isolation: isolate;
         }
 
-        /*
-         * طبقة داكنة مموهة مع مجموعات كثيفة من المثلثات الكبيرة تكشف الصورة الأصلية بوضوح.
-         * القناع يجعل الفرق مقصوداً وفنياً بدلاً من أن يبدو كضعف في جودة الصورة.
-         */
-        .hero::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background: rgba(0, 0, 0, 0.18);
-            -webkit-backdrop-filter: blur(2px);
-            backdrop-filter: blur(2px);
-            -webkit-mask-image: url("images/hero-overlay-mask.svg");
-            mask-image: url("images/hero-overlay-mask.svg");
-            -webkit-mask-position: center;
-            mask-position: center;
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-        }
-
-        @media (max-width: 768px) {
-            .hero::after {
-                -webkit-mask-image: url("images/hero-overlay-mask-mobile.svg");
-                mask-image: url("images/hero-overlay-mask-mobile.svg");
-            }
-        }
-
+        /* صور الهيدر الأصلية بلا طبقات أو تمويه أو أقنعة. */
         .hero-bg {
             position: absolute;
             top: 0; 
@@ -147,27 +118,30 @@ nav ul li a:hover {
             z-index: -1;
             padding-top: 100px; 
             opacity: 0;
-            transition: opacity 1s ease-in-out, transform 6s ease-out;
-            transform: scale(1.1);
+            transition: opacity 1s ease-in-out;
         }
 
         .hero-bg.active {
             opacity: 1;
-            transform: scale(1);
         }
 
-        
+        /*
+         * النص يثبت بصرياً أثناء بداية التمرير، ثم يتوقف عند حد الهيدر.
+         * التحريك مركّب فقط ولا يغيّر التخطيط، لذلك لا يعيد مشكلة اهتزاز الصفحة.
+         */
         .text-group {
+            --hero-text-offset: 0px;
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate3d(-50%, calc(-50% + var(--hero-text-offset)), 0);
             width: 100%;
             text-align: center;
             z-index: 5;
             margin: 0;
             padding: 0;
             pointer-events: none;
+            will-change: transform;
         }
 
         .text-group h1 {
@@ -1972,6 +1946,7 @@ nav ul li a:hover {
     <script>
         const slides = document.querySelectorAll('.hero-bg');
         const heroSection = document.querySelector('.hero');
+        const heroText = heroSection ? heroSection.querySelector('.text-group') : null;
         let currentSlideIndex = 0;
         const slideInterval = 5000;
 
@@ -1988,9 +1963,50 @@ nav ul li a:hover {
         }
 
         setInterval(nextSlideBg, slideInterval);
+
+        /*
+         * نعكس مقدار التمرير بتحويل مركّب كي يبدو النص ثابتاً داخل الشاشة،
+         * ثم نثبته عند الحد السفلي للهيدر حتى لا يخرج منه أبداً.
+         */
+        if (heroSection && heroText) {
+            let heroTop = 0;
+            let maxTextOffset = 0;
+            let textMotionFrame = 0;
+
+            function updateHeroTextPosition() {
+                textMotionFrame = 0;
+                const scrolledInsideHero = Math.max(0, window.scrollY - heroTop);
+                const offset = Math.min(scrolledInsideHero, maxTextOffset);
+                heroText.style.setProperty('--hero-text-offset', `${offset.toFixed(2)}px`);
+            }
+
+            function requestHeroTextUpdate() {
+                if (textMotionFrame) return;
+                textMotionFrame = requestAnimationFrame(updateHeroTextPosition);
+            }
+
+            function measureHeroTextLimits() {
+                const edgeGap = Math.min(28, Math.max(16, heroSection.clientHeight * 0.025));
+                heroTop = heroSection.offsetTop;
+                maxTextOffset = Math.max(
+                    0,
+                    (heroSection.clientHeight - heroText.offsetHeight) / 2 - edgeGap
+                );
+                requestHeroTextUpdate();
+            }
+
+            window.addEventListener('scroll', requestHeroTextUpdate, { passive: true });
+            window.addEventListener('resize', measureHeroTextLimits, { passive: true });
+
+            if ('ResizeObserver' in window) {
+                const heroTextObserver = new ResizeObserver(measureHeroTextLimits);
+                heroTextObserver.observe(heroSection);
+                heroTextObserver.observe(heroText);
+            }
+
+            measureHeroTextLimits();
+        }
     </script>
-    
-    <!-- تم إلغاء تحريك نص الهيدر مع التمرير لمنع الاهتزاز على الجوال -->
     
     
     <script>

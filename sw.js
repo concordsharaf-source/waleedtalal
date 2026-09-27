@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v11";
+const CACHE_NAME = "waleedtalal-pwa-v12";
 
 const APP_SHELL = [
   "./",
@@ -15,8 +15,6 @@ const APP_SHELL = [
   "./icons/icon-maskable-512-v2.png",
   "./icons/apple-touch-icon-v2.png",
   "./images/ad.png",
-  "./images/hero-overlay-mask.svg",
-  "./images/hero-overlay-mask-mobile.svg",
   "./images/aa.jpg",
   "./images/xx.jpg",
   "./pages/us.html",
