@@ -475,14 +475,21 @@ const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
-function convertNumbers(value){
-
-return value.replace(/[٠-٩]/g,function(d){
-
+/* توحيد الأرقام العربية والفارسية والإنجليزية للمقارنة مع السجلات القديمة. */
+function normalizeNumber(value){
+return String(value ?? "")
+.replace(/[٠-٩]/g,function(d){
 return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+})
+.replace(/[۰-۹]/g,function(d){
+return "۰۱۲۳۴۵۶۷۸۹".indexOf(d);
+})
+.replace(/[^0-9]/g,"");
+}
 
-});
-
+function normalizePhone(value){
+let phone=normalizeNumber(value);
+return phone.startsWith("00") ? phone.slice(2) : phone;
 }
 
 window.checkTransaction = async function(){
@@ -493,9 +500,9 @@ document.getElementById("transactionId").value.trim();
 let phone =
 document.getElementById("phone").value.trim();
 
-transactionId = convertNumbers(transactionId);
+transactionId = normalizeNumber(transactionId);
 
-phone = convertNumbers(phone);
+phone = normalizePhone(phone);
 
 let result =
 document.getElementById("result");
@@ -524,19 +531,29 @@ return;
 
 try{
 
+/*
+ * نبحث برقم المعاملة أولاً، ثم نقارن رقم الجوال بعد توحيد الأرقام.
+ * هذا يسمح بالعثور على السجلات القديمة المحفوظة بأرقام عربية أو فارسية.
+ */
 const q = query(
 
 collection(db,"orders"),
 
-where("transactionId","==",transactionId),
-
-where("phone","==",phone)
+where("transactionId","==",transactionId)
 
 );
 
 const snapshot = await getDocs(q);
+let matchedOrder = null;
 
-if(snapshot.empty){
+snapshot.forEach((orderDoc)=>{
+const data = orderDoc.data();
+if(!matchedOrder && normalizePhone(data.phone) === phone){
+matchedOrder = data;
+}
+});
+
+if(!matchedOrder){
 
 result.style.display="block";
 
@@ -558,23 +575,16 @@ return;
 
 }
 
-snapshot.forEach((doc)=>{
-
-let data = doc.data();
-
-// الانتقال إلى صفحة الحالة
-
+// الانتقال إلى صفحة الحالة بقيم موحدة وآمنة داخل الرابط
 window.location.href =
 
 "status.html?transactionId="
 
-+ data.transactionId
++ encodeURIComponent(transactionId)
 
 +"&phone="
 
-+ data.phone;
-
-});
++ encodeURIComponent(phone);
 
 }
 

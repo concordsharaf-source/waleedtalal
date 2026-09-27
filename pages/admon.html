@@ -601,6 +601,23 @@ const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
+/* توحيد الأرقام العربية والفارسية والإنجليزية قبل البحث أو الحفظ. */
+function normalizeNumber(value){
+return String(value ?? "")
+.replace(/[٠-٩]/g,function(d){
+return "٠١٢٣٤٥٦٧٨٩".indexOf(d);
+})
+.replace(/[۰-۹]/g,function(d){
+return "۰۱۲۳۴۵۶۷۸۹".indexOf(d);
+})
+.replace(/[^0-9]/g,"");
+}
+
+function normalizePhone(value){
+let phone=normalizeNumber(value);
+return phone.startsWith("00") ? phone.slice(2) : phone;
+}
+
 
 let allOrders=[];
 
@@ -891,7 +908,7 @@ doc(db,"orders",id),
 
 name:editName.value,
 
-phone:editPhone.value,
+phone:normalizePhone(editPhone.value),
 
 email:editEmail.value,
 
@@ -963,25 +980,30 @@ return;
 
 
 
+const normalizedText=text.toLowerCase();
+const numericText=normalizeNumber(text);
+const phoneText=normalizePhone(text);
+
 let result=allOrders.filter(item=>{
 
-
-let t=text.toLowerCase();
-return (
-(item.transactionId && item.transactionId.includes(text))
+const matchesNumbers = numericText !== "" && (
+normalizeNumber(item.transactionId).includes(numericText)
 ||
-(item.phone && item.phone.includes(text))
+(phoneText !== "" && normalizePhone(item.phone).includes(phoneText))
 ||
-(item.name && item.name.toLowerCase().includes(t))
+normalizeNumber(item.idNumber).includes(numericText)
 ||
-(item.email && item.email.toLowerCase().includes(t))
-||
-(item.idNumber && item.idNumber.includes(text))
-||
-(item.bankName && item.bankName.toLowerCase().includes(t))
-||
-(item.partNumber && item.partNumber.includes(text))
+normalizeNumber(item.partNumber).includes(numericText)
 );
+
+const matchesText =
+String(item.name ?? "").toLowerCase().includes(normalizedText)
+||
+String(item.email ?? "").toLowerCase().includes(normalizedText)
+||
+String(item.bankName ?? "").toLowerCase().includes(normalizedText);
+
+return matchesNumbers || matchesText;
 
 
 });

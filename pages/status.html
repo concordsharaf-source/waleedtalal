@@ -1034,13 +1034,9 @@ let transactionId = params.get("transactionId");
 
 let phone = params.get("phone");
 
-function normalize(value){
+function normalizeNumber(value){
 
-if(!value) return "";
-
-return value
-
-.toString()
+return String(value ?? "")
 
 .replace(/[٠-٩]/g,function(x){
 
@@ -1048,17 +1044,24 @@ return "٠١٢٣٤٥٦٧٨٩".indexOf(x);
 
 })
 
-.replace(/\+/g,"")
+.replace(/[۰-۹]/g,function(x){
 
-.replace(/\s+/g,"")
+return "۰۱۲۳۴۵۶۷۸۹".indexOf(x);
 
-.trim();
+})
+
+.replace(/[^0-9]/g,"");
 
 }
 
-transactionId = normalize(transactionId);
+function normalizePhone(value){
+let normalized=normalizeNumber(value);
+return normalized.startsWith("00") ? normalized.slice(2) : normalized;
+}
 
-phone = normalize(phone);
+transactionId = normalizeNumber(transactionId);
+
+phone = normalizePhone(phone);
 
 function shortValue(value){
 
@@ -1097,7 +1100,7 @@ snapshot.forEach(doc=>{
 let data=doc.data();
 
 if(
-normalize(data.phone)===phone
+normalizePhone(data.phone)===phone
 ){
 
 order=data;
