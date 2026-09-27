@@ -1208,6 +1208,28 @@ nav ul li a:hover {
                 margin-right: auto;
             }
         }
+
+        /* --- نبضة خفيفة جداً لزر تطبيق الواتس الخاص بالمؤسسة --- */
+        .btn-wa-pulse {
+            animation: waPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes waPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(0, 100, 0, 0);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 0 12px 2px rgba(0, 100, 0, 0.18);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn-wa-pulse {
+                animation: none;
+            }
+        }
 </style>
 </head>
 <body>
@@ -1265,6 +1287,7 @@ nav ul li a:hover {
         <div class="hero-content reveal"> 
             <a href="pages/us.html" class="btn-main" target="_self">تقديم طلب مساعدة</a>
             <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+            <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
             <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
         </div>
     </section>
@@ -1314,6 +1337,7 @@ nav ul li a:hover {
             <i class="fas fa-globe-africa"></i> <span class="line-text">تعرف على خدماتنا</span>
             <div class="styled-line"></div>
             <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+            <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
             
         </div>
         
@@ -1327,6 +1351,7 @@ nav ul li a:hover {
                 <div class="card-buttons reveal">
                     <a href="pages/us.html" class="btn-main" style="margin-top:10px;"> طلب مساعدة من المؤسسة</a>
                     <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+                    <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                     <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
                 </div>
             </div>
@@ -1340,6 +1365,7 @@ nav ul li a:hover {
                 <div class="card-buttons reveal">
                     <a href="pages/us.html" class="btn-main" style="margin-top:10px;">طلب مساعدة عاجلة</a>
                     <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+                    <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                     <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
                 </div>
             </div>
@@ -1352,6 +1378,7 @@ nav ul li a:hover {
                 <div class="card-buttons reveal">
                     <a href="pages/us.html" class="btn-main" style="margin-top:10px;">طلب مساعدة</a>
                    <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+                   <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                    <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
                 </div>
             </div>
@@ -1405,6 +1432,7 @@ nav ul li a:hover {
             <i class="fas fa-globe-africa"></i> <span class="line-text">مبادرات فردية</span>
             <div class="styled-line"></div>
             <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
+            <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
             
         </div>
         
