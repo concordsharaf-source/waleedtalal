@@ -106,7 +106,10 @@ nav ul li a:hover {
             isolation: isolate;
         }
 
-        /* طبقة سوداء شفافة مع تمويه خفيف لتحسين وضوح النص والأزرار */
+        /*
+         * طبقة داكنة مموهة مع فتحات مثلثة صغيرة تكشف الصورة الأصلية بوضوح.
+         * القناع يجعل الفرق مقصوداً وفنياً بدلاً من أن يبدو كضعف في جودة الصورة.
+         */
         .hero::after {
             content: "";
             position: absolute;
@@ -116,6 +119,21 @@ nav ul li a:hover {
             background: rgba(0, 0, 0, 0.18);
             -webkit-backdrop-filter: blur(2px);
             backdrop-filter: blur(2px);
+            -webkit-mask-image: url("images/hero-overlay-mask.svg");
+            mask-image: url("images/hero-overlay-mask.svg");
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+        }
+
+        @media (max-width: 768px) {
+            .hero::after {
+                -webkit-mask-image: url("images/hero-overlay-mask-mobile.svg");
+                mask-image: url("images/hero-overlay-mask-mobile.svg");
+            }
         }
 
         .hero-bg {
