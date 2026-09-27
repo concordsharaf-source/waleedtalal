@@ -176,54 +176,6 @@ nav ul li a:hover {
             text-align: center;
         }
 
-        /* --- 2. أزرار قسم الهيرو --- */
-        .hero-content {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: auto;
-            z-index: 20;
-        }
-
-        .hero-content .btn-main {
-            width: auto;
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            position: relative;
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.07) 42%, rgba(0, 0, 0, 0.08) 52%, rgba(0, 0, 0, 0.22) 100%),
-                linear-gradient(135deg, #149750 0%, #006b35 55%, #005126 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.42);
-            box-shadow:
-                inset 0 2px 1px rgba(255, 255, 255, 0.38),
-                inset 0 -3px 2px rgba(0, 0, 0, 0.28),
-                0 4px 0 #003d1d,
-                0 8px 16px rgba(0, 0, 0, 0.32);
-            text-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
-            transform: translateY(0);
-        }
-
-        .hero-content .btn-main:hover {
-            transform: translateY(-3px);
-            box-shadow:
-                inset 0 2px 1px rgba(255, 255, 255, 0.48),
-                inset 0 -3px 2px rgba(0, 0, 0, 0.25),
-                0 5px 0 #003d1d,
-                0 11px 20px rgba(0, 0, 0, 0.36);
-        }
-
-        .hero-content .btn-main:active {
-            transform: translateY(3px);
-            box-shadow:
-                inset 0 2px 4px rgba(0, 0, 0, 0.3),
-                inset 0 -1px 1px rgba(255, 255, 255, 0.2),
-                0 1px 0 #003d1d,
-                0 4px 8px rgba(0, 0, 0, 0.28);
-        }
-        
         /* تنسيق الحاوية الرئيسية */
         .achievements-section {
             width: 100%;
@@ -1443,13 +1395,16 @@ nav ul li a:hover {
             <h1 style="color: green;">متكامل الفرص</h1>
             <h1> فقط معاً من أجل الإنسانية</h1>
         </div>
-        
-        <div class="hero-content reveal"> 
-            <a href="pages/us.html" class="btn-main" target="_self">تقديم طلب مساعدة</a>
-            <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
-            <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
-            <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
-        </div>
+    </section>
+
+    <!-- روابط الخدمات أسفل الهيدر حتى تبقى النصوص والصور واضحة -->
+    <section class="site-actions-standalone" aria-label="روابط الخدمات السريعة">
+        <nav class="site-header-actions" aria-label="خدمات المؤسسة السريعة">
+            <a href="pages/us.html" class="site-header-action site-3d-btn">تقديم طلب مساعدة</a>
+            <a href="pages/track.html" class="site-header-action site-3d-btn">تتبع معاملتك</a>
+            <a href="https://messenger-gamma-five.vercel.app/index.html" class="site-header-action site-3d-btn site-wa-pulse" target="_blank" rel="noopener noreferrer">تطبيق الواتس الخاص بالمؤسسة</a>
+            <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="site-header-action site-3d-btn" target="_blank" rel="noopener noreferrer">موقع الأمير الوليد بن طلال</a>
+        </nav>
     </section>
     
         <div style="height: 100px;"></div>

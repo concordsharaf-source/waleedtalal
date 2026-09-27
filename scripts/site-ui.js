@@ -88,8 +88,8 @@
     }
 
     function addHeaderActions() {
-        // الصفحة الرئيسية تحتوي على المجموعة الأصلية بالفعل، فلا نكررها.
-        if (document.querySelector('.hero-content .btn-main') || document.querySelector('.site-header-actions')) {
+        // إذا كانت مجموعة الخدمات موجودة بالفعل (كما في الرئيسية) فلا نكررها.
+        if (document.querySelector('.site-header-actions')) {
             return;
         }
 
