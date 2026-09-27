@@ -106,14 +106,14 @@ nav ul li a:hover {
             isolation: isolate;
         }
 
-        /* طبقة بيضاء شفافة مع تمويه خفيف لتحسين وضوح النص والأزرار */
+        /* طبقة سوداء شفافة مع تمويه خفيف لتحسين وضوح النص والأزرار */
         .hero::after {
             content: "";
             position: absolute;
             inset: 0;
             z-index: 1;
             pointer-events: none;
-            background: rgba(255, 255, 255, 0.18);
+            background: rgba(0, 0, 0, 0.18);
             -webkit-backdrop-filter: blur(2px);
             backdrop-filter: blur(2px);
         }

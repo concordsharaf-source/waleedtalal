@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v8";
+const CACHE_NAME = "waleedtalal-pwa-v9";
 
 const APP_SHELL = [
   "./",
