@@ -2115,25 +2115,11 @@ document.addEventListener("DOMContentLoaded", function() {
     
     </script>
     
-    <!-- عدادات ثابتة على الجوال، ومتحركة بكفاءة على الشاشات الكبيرة -->
+    <!-- عدادات متحركة بكفاءة عند وصول المستخدم إلى قسم الإحصائيات -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const counters = document.querySelectorAll('.counter');
-            const mobileOrTouch = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
             let hasRun = false;
-
-            function setFinalCounterValues() {
-                counters.forEach(counter => {
-                    const target = Number(counter.getAttribute('data-target')) || 0;
-                    counter.innerText = target.toLocaleString('en-US');
-                });
-            }
-
-            // تغيير عرض الأرقام أثناء الوقوف كان يغيّر مقاسات البطاقات على الجوال.
-            if (mobileOrTouch) {
-                setFinalCounterValues();
-                return;
-            }
 
             function animateCounters() {
                 counters.forEach(counter => {

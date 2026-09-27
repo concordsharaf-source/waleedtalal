@@ -251,18 +251,7 @@ body.site-actions-no-header-page {
 }
 
 @media (max-width: 768px) {
-    /* على الجوال نظهر المحتوى مباشرة ونوقف الحركات المتكررة التي قد تسبب رجفة */
-    .reveal {
-        opacity: 1 !important;
-        transform: none !important;
-        transition: none !important;
-    }
-
-    .site-wa-pulse,
-    .btn-wa-pulse {
-        animation: none !important;
-    }
-
+    /* نحافظ على تأثيرات الظهور والنبض، مع تخفيف المؤثرات الثقيلة فقط. */
     header#header,
     .dropdown-menu {
         -webkit-backdrop-filter: none !important;
