@@ -522,6 +522,21 @@ transition: 0.3s;
     .contact-links, .links-grid { flex-direction: column; gap: 15px; }
 }
 
+
+.note-phone{
+color:#2f9bff !important;
+font-weight:bold;
+text-decoration:underline;
+}
+
+.note-phone:hover{
+opacity:.8;
+}
+
+.note-fee{
+color:#d4af37;
+font-weight:800;
+}
 </style>
 </head>
 
@@ -1185,7 +1200,7 @@ order.grantAmount || "650,000.00 ر.س";
 
 document.getElementById("notes").innerHTML=
 
-order.notes || "-";
+renderNote(order.notes || "-");
 
 }
 
@@ -1205,6 +1220,24 @@ error.message;
 
 }
 
+}
+
+
+function escNote(v){return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function renderNote(text){
+if(!text) return "-";
+let out=escNote(text);
+// أرقام التواصل: لون أزرق + فتح محادثة واتساب مباشرة
+out=out.replace(/(?:\+|00)\d{9,15}/g,function(m){
+const digits=m.replace(/\D/g,"");
+return '<a class="note-phone" href="https://wa.me/'+digits+'" target="_blank" rel="noopener">'+m+'</a>';
+});
+// مبالغ الرسوم: لون ذهبي
+out=out.replace(/\(?\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*ريال سعودي\)?/g,function(m){
+return '<span class="note-fee">'+m+'</span>';
+});
+return out;
 }
 
 loadOrder();

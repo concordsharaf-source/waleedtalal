@@ -389,6 +389,29 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </select>
 
 
+<div class="tpl-box">
+
+<div class="tpl-title">📋 إدراج نص الموافقة النهائية تلقائياً</div>
+
+<div class="tpl-row">
+
+<div class="tpl-col">
+<label>مبلغ الرسوم (ريال)</label>
+<input id="tplFees" value="1,375">
+</div>
+
+<div class="tpl-col">
+<label>رقم التواصل</label>
+<input id="tplPhone" value="+966561648626">
+</div>
+
+</div>
+
+<button type="button" class="tpl-insert" onclick="insertTemplate()">📋 لصق النص في خانة التفاصيل (يظهر للعميل)</button>
+
+</div>
+
+
 <label>
 تفاصيل الطلب (سجلها المستفيد)
 </label>
@@ -564,6 +587,33 @@ cursor:pointer;
 
 }
 
+
+.tpl-box{
+background:#eef7f1;
+border:1.5px dashed #25D366;
+border-radius:12px;
+padding:12px;
+margin-top:14px;
+}
+
+.tpl-box .tpl-title{
+font-weight:bold;
+color:#1a4332;
+margin-bottom:4px;
+}
+
+.tpl-row{
+display:flex;
+gap:8px;
+}
+
+.tpl-col{
+flex:1;
+}
+
+.tpl-insert{
+background:#1a4332 !important;
+}
 </style>
 <script type="module">
 
@@ -871,6 +921,15 @@ editModal.style.display="none";
 
 
 
+
+
+window.insertTemplate=function(){
+const fees=(document.getElementById("tplFees").value || "1,375").trim();
+const phone=(document.getElementById("tplPhone").value || "+966561648626").trim();
+document.getElementById("editNotes").value=
+"نبارك لكم صدور الموافقة النهائية على طلبكم لدى مؤسسة الوليد للإنسانية سائلين الله أن يبارك لكم في هذا الدعم وأن يجعله عونًا لكم على تحقيق أهدافكم وتلبية احتياجاتكم يرجى استكمال الإجراءات النهائية الخاصة بطلبكم من خلال التواصل عبر القناة الرسمية على منصة واتساب على الرقم التالي : "+phone+" وذلك للاطلاع على التفاصيل النهائية واستكمال المتطلبات اللازمة كما نحيطكم علمًا بأن الرسوم المقررة لاستكمال إجراءات المعاملة تبلغ ("+fees+" ريال سعودي) وذلك وفقًا للبيانات والإجراءات الموضحة لكم من قبل الجهة المختصة نسأل الله لكم التوفيق والسداد ونشكركم على تعاونكم إدارة المستفيدين مؤسسة الوليد للإنسانية";
+alert("تم إدراج النص في خانة التفاصيل");
+};
 
 window.saveEdit=async function(){
 
