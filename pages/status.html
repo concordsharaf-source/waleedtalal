@@ -379,6 +379,49 @@ text-overflow:ellipsis;
 
 }
 
+/* القيم الطويلة تتحرك ببطء من اليمين إلى اليسار والعكس داخل خانتها فقط. */
+.detail-value.is-overflowing{
+text-align:left;
+direction:ltr;
+text-overflow:clip;
+}
+
+.detail-value .marquee-content{
+display:inline-block;
+min-width:max-content;
+max-width:none;
+}
+
+.detail-value.is-overflowing .marquee-content{
+display:block;
+width:max-content;
+margin:0;
+will-change:transform;
+animation:detailValueMarquee var(--marquee-duration, 14s) linear infinite alternate;
+}
+
+@keyframes detailValueMarquee{
+from{
+transform:translate3d(var(--marquee-start, 0px),0,0);
+}
+to{
+transform:translate3d(var(--marquee-end, 0px),0,0);
+}
+}
+
+/* رقم الحساب يبقى مختصراً وثابتاً ولا يدخل في حركة التمرير. */
+#partNumber{
+direction:ltr;
+unicode-bidi:isolate;
+text-align:center;
+}
+
+@media (prefers-reduced-motion:reduce){
+.detail-value.is-overflowing .marquee-content{
+animation:none;
+}
+}
+
 .order-box{
 
 display:none;
@@ -1079,6 +1122,69 @@ return value;
 
 }
 
+/* إخفاء بقية رقم الحساب دائماً، مهما كان طوله. */
+function maskAccount(value){
+const compact=String(value ?? "").replace(/\s+/g,"").trim();
+if(!compact)return "-";
+if(compact.length<=4)return "***";
+const visibleLength=Math.min(10,compact.length-4);
+return compact.substring(0,visibleLength)+"***";
+}
+
+/*
+ * نضيف الحركة فقط عندما يكون النص أعرض فعلياً من الخانة.
+ * التحريك Transform فقط، لذلك لا يغيّر ارتفاع الصفحة أو يسبب اهتزازاً.
+ */
+function setDetailValue(id,value,allowScroll=true){
+const element=document.getElementById(id);
+if(!element)return;
+
+const text=String(value ?? "-");
+element.classList.remove("is-overflowing");
+element.style.removeProperty("--marquee-start");
+element.style.removeProperty("--marquee-end");
+element.style.removeProperty("--marquee-duration");
+element.dataset.fullValue=text;
+element.textContent="";
+
+const content=document.createElement("span");
+content.className="marquee-content";
+content.dir="auto";
+content.textContent=text;
+element.appendChild(content);
+
+if(!allowScroll)return;
+
+requestAnimationFrame(function(){
+const distance=Math.ceil(content.scrollWidth-element.clientWidth);
+if(distance<=3)return;
+
+/* يبدأ النص العربي من يمين الخانة، بينما يبدأ النص اللاتيني من اليسار. */
+const isRtl=/[\u0590-\u08FF]/.test(text);
+const start=isRtl ? -distance : 0;
+const end=isRtl ? 0 : -distance;
+
+/* سرعة هادئة تقارب 12 بكسل في الثانية لكل اتجاه. */
+const duration=Math.max(10,Math.min(32,distance/12));
+element.style.setProperty("--marquee-start",start+"px");
+element.style.setProperty("--marquee-end",end+"px");
+element.style.setProperty("--marquee-duration",duration+"s");
+element.classList.add("is-overflowing");
+});
+}
+
+let detailResizeFrame=0;
+window.addEventListener("resize",function(){
+if(detailResizeFrame)return;
+detailResizeFrame=requestAnimationFrame(function(){
+detailResizeFrame=0;
+document.querySelectorAll(".detail-value").forEach(function(element){
+const value=element.dataset.fullValue ?? element.textContent;
+setDetailValue(element.id,value,element.id!=="partNumber");
+});
+});
+},{passive:true});
+
 async function loadOrder(){
 
 try{
@@ -1123,11 +1229,9 @@ return;
 
 }
 
-document.getElementById("transaction").innerHTML=
+setDetailValue("transaction",shortValue(order.transactionId));
 
-shortValue(order.transactionId);
-
-document.getElementById("transactionBox").innerHTML=
+document.getElementById("transactionBox").textContent=
 
 shortValue(order.transactionId);
 
@@ -1135,9 +1239,7 @@ document.getElementById("systemNumber").innerHTML=
 
 "رقم النظام: "+shortValue(order.transactionId);
 
-document.getElementById("status").innerHTML=
-
-order.status || "قيد المراجعة";
+setDetailValue("status",order.status || "قيد المراجعة");
 
 if(order.approved !== true){
 
@@ -1151,17 +1253,17 @@ document.getElementById("statusText").innerHTML=
 
 "تم استلام طلبك وسيتم تحديث الحالة بعد المراجعة";
 
-document.getElementById("name").innerHTML="غير متاح";
+setDetailValue("name","غير متاح");
 
-document.getElementById("phone").innerHTML="غير متاح";
+setDetailValue("phone","غير متاح");
 
-document.getElementById("bankName").innerHTML="غير متاح";
+setDetailValue("bankName","غير متاح");
 
-document.getElementById("country").innerHTML="غير متاح";
+setDetailValue("country","غير متاح");
 
-document.getElementById("partNumber").innerHTML="غير متاح";
+setDetailValue("partNumber","غير متاح",false);
 
-document.getElementById("type").innerHTML="غير متاح";
+setDetailValue("type","غير متاح");
 
 document.getElementById("notes").innerHTML=
 
@@ -1185,29 +1287,17 @@ document.getElementById("statusText").innerHTML=
 
 "تمت مراجعة طلبك ويمكنك متابعة التفاصيل";
 
-document.getElementById("name").innerHTML=
+setDetailValue("name",order.name || "-");
 
-order.name || "-";
+setDetailValue("phone",order.phone || "-");
 
-document.getElementById("phone").innerHTML=
+setDetailValue("bankName",order.bankName || "-");
 
-order.phone || "-";
+setDetailValue("country",order.country || "-");
 
-document.getElementById("bankName").innerHTML=
+setDetailValue("partNumber",maskAccount(order.partNumber),false);
 
-order.bankName || "-";
-
-document.getElementById("country").innerHTML=
-
-order.country || "-";
-
-document.getElementById("partNumber").innerHTML=
-
-shortValue(order.partNumber);
-
-document.getElementById("type").innerHTML=
-
-order.type || "-";
+setDetailValue("type",order.type || "-");
 
 document.getElementById("grantBox").classList.add("show");
 
