@@ -158,17 +158,52 @@ color:#333;
 margin-top:5px;
 }
 
-.edit-btn{
-width:100%;
+.order-actions{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:10px;
 margin-top:20px;
+}
+
+.edit-btn,
+.delete-btn{
+width:100%;
+margin:0;
 padding:14px;
-background:#1a4332;
 color:white;
 border:none;
 border-radius:12px;
 font-size:17px;
 font-weight:bold;
 cursor:pointer;
+transition:opacity .2s ease, transform .2s ease;
+}
+
+.edit-btn{
+background:#1a4332;
+}
+
+.delete-btn{
+background:#b42318;
+}
+
+.edit-btn:hover,
+.delete-btn:hover{
+opacity:.9;
+transform:translateY(-1px);
+}
+
+.edit-btn:disabled,
+.delete-btn:disabled{
+opacity:.6;
+cursor:wait;
+transform:none;
+}
+
+@media (max-width:520px){
+.order-actions{
+grid-template-columns:1fr;
+}
 }
 
 .loading{
@@ -575,7 +610,8 @@ getFirestore,
 collection,
 getDocs,
 doc,
-updateDoc
+updateDoc,
+deleteDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -811,12 +847,23 @@ ordersDiv.innerHTML += `
 
 
 
+<div class="order-actions">
+
 <button class="edit-btn"
 onclick="openEdit('${data.id}')">
 
 ✏️ تعديل الطلب
 
 </button>
+
+<button class="delete-btn"
+onclick="deleteOrder('${data.id}', this)">
+
+🗑️ حذف المعاملة
+
+</button>
+
+</div>
 
 
 </div>
@@ -886,7 +933,57 @@ editModal.style.display="none";
 }
 
 
+/* حذف نهائي مع رسالة تأكيد واضحة لمنع الضغط غير المقصود. */
+window.deleteOrder=async function(id,button){
 
+const order=allOrders.find(item=>item.id===id);
+if(!order)return;
+
+const transactionId=String(order.transactionId || "غير محدد");
+const customerName=String(order.name || "بدون اسم");
+
+const confirmed=window.confirm(
+"هل أنت متأكد من حذف هذه المعاملة نهائياً؟\n\n"+
+"رقم المعاملة: "+transactionId+"\n"+
+"الاسم: "+customerName+"\n\n"+
+"لا يمكن التراجع عن الحذف."
+);
+
+if(!confirmed)return;
+
+const oldText=button ? button.innerHTML : "";
+if(button){
+button.disabled=true;
+button.textContent="جاري الحذف...";
+}
+
+try{
+
+await deleteDoc(doc(db,"orders",id));
+allOrders=allOrders.filter(item=>item.id!==id);
+
+if(document.getElementById("searchInput").value.trim()){
+window.searchOrders();
+}else{
+displayOrders(allOrders);
+}
+
+alert("تم حذف المعاملة رقم "+transactionId+" بنجاح");
+
+}
+catch(error){
+
+console.log(error);
+alert("تعذر حذف المعاملة، يرجى المحاولة مرة أخرى");
+
+if(button){
+button.disabled=false;
+button.innerHTML=oldText;
+}
+
+}
+
+}
 
 
 window.saveEdit=async function(){
