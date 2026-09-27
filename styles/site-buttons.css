@@ -1,0 +1,215 @@
+/*
+ * الأزرار الموحدة للموقع
+ * نفس تأثير أزرار هيدر الصفحة الرئيسية: تدرج أخضر، لمعة، بروز وظل ثلاثي الأبعاد.
+ */
+
+.site-3d-btn {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-height: 44px;
+    color: #ffffff !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.07) 42%, rgba(0, 0, 0, 0.08) 52%, rgba(0, 0, 0, 0.22) 100%),
+        linear-gradient(135deg, #149750 0%, #006b35 55%, #005126 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.42) !important;
+    border-radius: 30px !important;
+    box-shadow:
+        inset 0 2px 1px rgba(255, 255, 255, 0.38),
+        inset 0 -3px 2px rgba(0, 0, 0, 0.28),
+        0 4px 0 #003d1d,
+        0 8px 16px rgba(0, 0, 0, 0.32);
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+    text-decoration: none !important;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    cursor: pointer;
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease !important;
+}
+
+.site-3d-btn:hover {
+    color: #ffffff !important;
+    filter: brightness(1.07);
+    transform: translateY(-3px);
+    box-shadow:
+        inset 0 2px 1px rgba(255, 255, 255, 0.48),
+        inset 0 -3px 2px rgba(0, 0, 0, 0.25),
+        0 5px 0 #003d1d,
+        0 11px 20px rgba(0, 0, 0, 0.36);
+}
+
+.site-3d-btn:active {
+    filter: brightness(0.98);
+    transform: translateY(3px);
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.2),
+        0 1px 0 #003d1d,
+        0 4px 8px rgba(0, 0, 0, 0.28);
+}
+
+.site-3d-btn:focus-visible {
+    outline: 3px solid rgba(20, 151, 80, 0.38);
+    outline-offset: 4px;
+}
+
+.site-3d-btn:disabled,
+.site-3d-btn[aria-disabled="true"] {
+    opacity: 0.62;
+    cursor: not-allowed;
+    filter: grayscale(0.25);
+    transform: none;
+}
+
+/* مجموعة روابط الخدمات التي تظهر في هيدر الصفحات الداخلية */
+.site-header-actions {
+    direction: rtl;
+    display: flex;
+    gap: 11px;
+    z-index: 90;
+}
+
+.site-header-action {
+    width: 100%;
+    padding: 11px 18px;
+    font-size: 0.88rem;
+    white-space: normal;
+}
+
+/* عندما تحتوي الصفحة على صورة هيرو، تظهر الأزرار فوق الصورة مثل الرئيسية */
+.site-actions-host {
+    position: relative !important;
+    isolation: isolate;
+    box-sizing: border-box;
+    min-height: 340px;
+}
+
+.site-actions-host > .site-header-actions {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: min(270px, calc(100% - 36px));
+    flex-direction: column;
+}
+
+/* الصفحات التي لا تحتوي على هيرو تحصل على شريط خدمات أسفل الهيدر مباشرة */
+.site-actions-standalone {
+    position: relative;
+    z-index: 80;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18px max(18px, 5vw) 22px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.18)),
+        linear-gradient(135deg, #0a291e, #06140e);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.site-actions-standalone > .site-header-actions {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* يحافظ على ترتيب الصفحات التي تستخدم Flex في body مثل صفحة النجاح */
+body.site-actions-standalone-page {
+    flex-direction: column !important;
+}
+
+body.site-actions-no-header-page {
+    justify-content: flex-start !important;
+}
+
+/* نبضة خفيفة لزر واتساب مع الاحتفاظ بالبروز ثلاثي الأبعاد */
+.site-header-action.site-wa-pulse {
+    animation: siteWaPulse 3s ease-in-out infinite;
+}
+
+@keyframes siteWaPulse {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        box-shadow:
+            inset 0 2px 1px rgba(255, 255, 255, 0.38),
+            inset 0 -3px 2px rgba(0, 0, 0, 0.28),
+            0 4px 0 #003d1d,
+            0 8px 16px rgba(0, 0, 0, 0.32),
+            0 0 0 0 rgba(0, 100, 0, 0);
+    }
+    50% {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow:
+            inset 0 2px 1px rgba(255, 255, 255, 0.44),
+            inset 0 -3px 2px rgba(0, 0, 0, 0.26),
+            0 4px 0 #003d1d,
+            0 9px 18px rgba(0, 0, 0, 0.34),
+            0 0 12px 2px rgba(0, 100, 0, 0.18);
+    }
+}
+
+@media (min-width: 769px) {
+    .site-actions-host {
+        padding-inline-end: 305px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-actions-host {
+        min-height: 390px !important;
+        padding: 24px 12px 165px !important;
+    }
+
+    .site-actions-host > .site-header-actions {
+        right: 12px;
+        left: 12px;
+        bottom: 15px;
+        width: auto;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .site-actions-standalone {
+        padding: 15px 12px 20px;
+    }
+
+    .site-actions-standalone > .site-header-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .site-header-action {
+        min-height: 52px;
+        padding: 9px 8px;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .site-actions-host {
+        min-height: 470px !important;
+        padding-bottom: 245px !important;
+    }
+
+    .site-actions-host > .site-header-actions,
+    .site-actions-standalone > .site-header-actions {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-3d-btn,
+    .site-header-action.site-wa-pulse {
+        animation: none !important;
+        transition: none !important;
+    }
+}
