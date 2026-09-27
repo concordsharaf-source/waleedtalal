@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v7";
+const CACHE_NAME = "waleedtalal-pwa-v8";
 
 const APP_SHELL = [
   "./",
@@ -10,10 +10,10 @@ const APP_SHELL = [
   "./scripts/pwa.js",
   "./fonts/cairo-arabic.woff2",
   "./fonts/cairo-latin.woff2",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/icon-maskable-512.png",
-  "./icons/apple-touch-icon.png",
+  "./icons/icon-192-v2.png",
+  "./icons/icon-512-v2.png",
+  "./icons/icon-maskable-512-v2.png",
+  "./icons/apple-touch-icon-v2.png",
   "./images/ad.png",
   "./images/aa.jpg",
   "./images/xx.jpg",
