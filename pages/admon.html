@@ -321,7 +321,14 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 <label>
-رقم الحساب
+اسم البنك
+</label>
+
+<input id="editBankName">
+
+
+<label>
+رقم الحساب / الآيبان
 </label>
 
 <input id="editPartNumber">
@@ -364,10 +371,17 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 
 <label>
-ملاحظات الإدارة
+تفاصيل الطلب (سجلها المستفيد)
 </label>
 
 <textarea id="editNotes"></textarea>
+
+
+<label>
+ملاحظات الإدارة
+</label>
+
+<textarea id="editAdminNotes"></textarea>
 
 
 <label>
@@ -574,6 +588,8 @@ let allOrders=[];
 
 const ordersDiv=document.getElementById("orders");
 
+function esc(v){return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
 
 
 async function loadOrders(){
@@ -670,37 +686,73 @@ ${data.transactionId || "-"}
 
 <div class="field">
 <div class="label">الاسم</div>
-<div class="value">${data.name || "-"}</div>
+<div class="value">${esc(data.name) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">الجوال</div>
-<div class="value">${data.phone || "-"}</div>
+<div class="value">${esc(data.phone) || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">البريد الإلكتروني</div>
+<div class="value">${esc(data.email) || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">رقم الهوية</div>
+<div class="value">${esc(data.idNumber) || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">اسم البنك</div>
+<div class="value">${esc(data.bankName) || "-"}</div>
+</div>
+
+
+<div class="field">
+<div class="label">رقم الحساب / الآيبان</div>
+<div class="value" style="word-break:break-all;">${esc(data.partNumber) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">الدولة</div>
-<div class="value">${data.country || "-"}</div>
+<div class="value">${esc(data.country) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">نوع الطلب</div>
-<div class="value">${data.type || "-"}</div>
+<div class="value">${esc(data.type) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">الحالة</div>
-<div class="value">${data.status || "-"}</div>
+<div class="value">${esc(data.status) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">المنحة</div>
-<div class="value">${data.grantAmount || "غير محدد"}</div>
+<div class="value">${esc(data.grantAmount) || "غير محدد"}</div>
+</div>
+
+
+<div class="field" style="grid-column:1/-1;">
+<div class="label">تفاصيل الطلب (سجلها المستفيد)</div>
+<div class="value" style="white-space:pre-wrap;font-weight:500;">${esc(data.notes) || "-"}</div>
+</div>
+
+
+<div class="field" style="grid-column:1/-1;">
+<div class="label">ملاحظات الإدارة</div>
+<div class="value" style="white-space:pre-wrap;font-weight:500;">${esc(data.adminNotes) || "-"}</div>
 </div>
 
 
@@ -751,7 +803,9 @@ editIdNumber.value=order.idNumber || "";
 
 editCountry.value=order.country || "";
 
+editBankName.value=order.bankName || "";
 editPartNumber.value=order.partNumber || "";
+editAdminNotes.value=order.adminNotes || "";
 
 editType.value=order.type || "";
 
@@ -811,7 +865,9 @@ idNumber:editIdNumber.value,
 
 country:editCountry.value,
 
+bankName:editBankName.value,
 partNumber:editPartNumber.value,
+adminNotes:editAdminNotes.value,
 
 type:editType.value,
 
@@ -876,16 +932,21 @@ return;
 let result=allOrders.filter(item=>{
 
 
+let t=text.toLowerCase();
 return (
-
-(item.transactionId &&
-item.transactionId.includes(text))
-
+(item.transactionId && item.transactionId.includes(text))
 ||
-
-(item.phone &&
-item.phone.includes(text))
-
+(item.phone && item.phone.includes(text))
+||
+(item.name && item.name.toLowerCase().includes(t))
+||
+(item.email && item.email.toLowerCase().includes(t))
+||
+(item.idNumber && item.idNumber.includes(text))
+||
+(item.bankName && item.bankName.toLowerCase().includes(t))
+||
+(item.partNumber && item.partNumber.includes(text))
 );
 
 

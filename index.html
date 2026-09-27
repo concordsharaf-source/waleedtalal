@@ -263,18 +263,22 @@ nav ul li a:hover {
         /* --- 3. أزرار البطائق (المجالات) --- */
         .card-buttons {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            bottom: 15px;
+            right: 15px;
+            left: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
             z-index: 20;
         }
 
         .card-buttons .btn-main {
-            width: auto;
-            padding: 8px 15px;
-            font-size: 0.85rem;
+            width: 100%;
+            padding: 10px 8px;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            white-space: normal;
+            text-align: center;
         }
 
         .btn-main:hover {
@@ -368,6 +372,13 @@ nav ul li a:hover {
             padding: 0 5%;
             margin: 50px 0;
             flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .line-container .btn-main {
+            padding: 12px 22px;
+            font-size: 0.95rem;
+            white-space: nowrap;
         }
 
         .line-text {
@@ -1230,6 +1241,37 @@ nav ul li a:hover {
                 animation: none;
             }
         }
+
+        /* --- تنسيق الأزرار على الجوال: بدون زحمة أو تكدس --- */
+        @media (max-width: 768px) {
+            .line-container {
+                gap: 12px;
+            }
+
+            .line-container .styled-line {
+                display: none;
+            }
+
+            .line-container .btn-main {
+                flex: 1 1 calc(50% - 6px);
+                padding: 12px 8px;
+                font-size: 0.82rem;
+                white-space: normal;
+                min-height: 48px;
+            }
+
+            .card-buttons {
+                bottom: 12px;
+                right: 12px;
+                left: 12px;
+                gap: 7px;
+            }
+
+            .card-buttons .btn-main {
+                padding: 9px 6px;
+                font-size: 0.75rem;
+            }
+        }
 </style>
 </head>
 <body>
@@ -1349,7 +1391,7 @@ nav ul li a:hover {
             <div class="card-overlay reveal">
                 <h3> إغاثة الكوارث الطبيعية</h3>
                 <div class="card-buttons reveal">
-                    <a href="pages/us.html" class="btn-main" style="margin-top:10px;"> طلب مساعدة من المؤسسة</a>
+                    <a href="pages/us.html" class="btn-main"> طلب مساعدة من المؤسسة</a>
                     <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
                     <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                     <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
@@ -1363,7 +1405,7 @@ nav ul li a:hover {
             <div class="card-overlay reveal">
                 <h3>تمكين المرأة والشباب</h3>
                 <div class="card-buttons reveal">
-                    <a href="pages/us.html" class="btn-main" style="margin-top:10px;">طلب مساعدة عاجلة</a>
+                    <a href="pages/us.html" class="btn-main">طلب مساعدة عاجلة</a>
                     <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
                     <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                     <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
@@ -1376,7 +1418,7 @@ nav ul li a:hover {
             <div class="card-overlay reveal">
                 <h3>مشروع دعم الطاقة المتجددة والذكاء الإصطناعي</h3>
                 <div class="card-buttons reveal">
-                    <a href="pages/us.html" class="btn-main" style="margin-top:10px;">طلب مساعدة</a>
+                    <a href="pages/us.html" class="btn-main">طلب مساعدة</a>
                    <a href="pages/track.html" class="btn-main" target="_self">تتبع معاملتك</a>
                    <a href="https://messenger-gamma-five.vercel.app/index.html" class="btn-main btn-wa-pulse" target="_blank">تطبيق الواتس الخاص بالمؤسسة</a>
                    <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="btn-main" target="_blank">موقع الأمير الوليد بن طلال</a>
