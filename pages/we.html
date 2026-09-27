@@ -367,22 +367,7 @@ nav ul li a:hover {
             });
         }
 
-        // إخفاء/إظهار الهيدر أثناء التمرير
-        let lastScrollTop = 0;
-        const header = document.getElementById('header');
-
-        if (header) {
-            window.addEventListener('scroll', function() {
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-                if (scrollTop > lastScrollTop) {
-                    header.style.transform = 'translateY(-100%)'; 
-                } else {
-                    header.style.transform = 'translateY(0)'; 
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
-        }
+        // الهيدر ثابت على الجوال لمنع الاهتزاز أثناء التمرير.
     </script>  
 
 </body>  

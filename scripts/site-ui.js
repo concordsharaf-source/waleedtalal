@@ -115,9 +115,40 @@
         }
     }
 
+    function manageContinuousAnimations() {
+        const animatedElements = document.querySelectorAll(
+            '.continuous-scroll, .site-wa-pulse, .btn-wa-pulse'
+        );
+
+        if (!animatedElements.length) return;
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                entry.target.style.animationPlayState =
+                    entry.isIntersecting && !document.hidden ? 'running' : 'paused';
+            });
+        }, { threshold: 0.01 });
+
+        animatedElements.forEach(element => observer.observe(element));
+
+        document.addEventListener('visibilitychange', () => {
+            animatedElements.forEach(element => {
+                if (document.hidden) {
+                    element.style.animationPlayState = 'paused';
+                    return;
+                }
+
+                const rect = element.getBoundingClientRect();
+                const isVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+                element.style.animationPlayState = isVisible ? 'running' : 'paused';
+            });
+        });
+    }
+
     function initializeUnifiedUi() {
         addHeaderActions();
         unifySiteButtons();
+        manageContinuousAnimations();
     }
 
     if (document.readyState === 'loading') {

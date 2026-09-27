@@ -96,6 +96,7 @@ nav ul li a:hover {
             position: relative;
             padding-top: 100px; 
             height: 100vh;
+            height: 100svh;
             width: 100%;
             overflow: hidden;
             display: flex;
@@ -564,11 +565,13 @@ nav ul li a:hover {
             display: flex;
             width: max-content;
             animation: scrolling 50s linear infinite;
+            backface-visibility: hidden;
+            will-change: transform;
         }
 
         @keyframes scrolling {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(50%); }
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(50%, 0, 0); }
         }
 
         .gallery-item {
@@ -621,7 +624,8 @@ nav ul li a:hover {
         /* تنسيق القسم الرئيسي والخلفية (التدرج الأزرق) */
         .ap-hero-section {
             width: 100%;
-            height: 100vh;
+            min-height: 100vh;
+            min-height: 100svh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1943,10 +1947,17 @@ nav ul li a:hover {
     
     <script>
         const slides = document.querySelectorAll('.hero-bg');
+        const heroSection = document.querySelector('.hero');
         let currentSlideIndex = 0;
         const slideInterval = 5000;
 
         function nextSlideBg() {
+            if (document.hidden || !heroSection || slides.length === 0) return;
+
+            const heroRect = heroSection.getBoundingClientRect();
+            const heroIsVisible = heroRect.bottom > 0 && heroRect.top < window.innerHeight;
+            if (!heroIsVisible) return;
+
             slides[currentSlideIndex].classList.remove('active');
             currentSlideIndex = (currentSlideIndex + 1) % slides.length;
             slides[currentSlideIndex].classList.add('active');
@@ -1955,18 +1966,7 @@ nav ul li a:hover {
         setInterval(nextSlideBg, slideInterval);
     </script>
     
-    <script>
-    window.onscroll = function() {
-        var scrollVal = window.pageYOffset;
-        var textGroup = document.querySelector('.text-group');
-
-        if (textGroup) {
-            var moveAmount = (scrollVal * 0.5); 
-            textGroup.style.transform = "translate(-50%, calc(-50% + " + moveAmount + "px))";
-            textGroup.style.opacity = 1 - (scrollVal / 1000);
-        }
-    };
-    </script>
+    <!-- تم إلغاء تحريك نص الهيدر مع التمرير لمنع الاهتزاز على الجوال -->
     
     
     <script>
@@ -1997,21 +1997,7 @@ nav ul li a:hover {
     }
     </script>
     
-   <script>
-    window.onload = function() {
-        let apItems = document.querySelectorAll('.ap-carousel-item');
-        let apCurrentIndex = 0;
-
-        function changeSlide() {
-            if(apItems.length > 0){
-                apItems[apCurrentIndex].classList.remove('active');
-                apCurrentIndex = (apCurrentIndex + 1) % apItems.length;
-                apItems[apCurrentIndex].classList.add('active');
-            }
-        }
-        setInterval(changeSlide, 3000);
-    };
-    </script>
+   <!-- يوجد مؤقت واحد فقط لسلايدر هذا القسم لتجنب تكرار الحركة والرعشة -->
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -2019,12 +2005,11 @@ nav ul li a:hover {
             threshold: 0.1 
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const observer = new IntersectionObserver((entries, revealObserver) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add("active");
-                } else {
-                    entry.target.classList.remove("active");
+                    revealObserver.unobserve(entry.target);
                 }
             });
         }, observerOptions);
@@ -2033,29 +2018,7 @@ nav ul li a:hover {
     });
     </script>
 
-    <script>
-      let lastScrollTop = 0;
-      const header = document.getElementById('header');
-
-      window.addEventListener('scroll', function() {
-          let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-          if (scrollTop > lastScrollTop) {
-              header.style.transform = 'translateY(-100%)'; 
-          } else {
-              header.style.transform = 'translateY(0)'; 
-          }
-          lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-
-          if (scrollTop > 50) {
-              header.classList.add('bg-black', 'shadow-md', 'dark:bg-gray-500');
-              header.classList.remove('bg-transparent');
-          } else {
-              header.classList.remove('bg-black', 'shadow-md', 'dark:bg-gray-900');
-              header.classList.add('bg-transparent');
-          }
-      });
-    </script>
+    <!-- الهيدر ثابت بدون مستمع تمرير مستمر لمنع اهتزاز الصفحة على الجوال -->
     
     <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -2197,6 +2160,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     <script>
         const apItemsSection = document.querySelectorAll('.ap-carousel-item');
+        const apCarouselSection = document.querySelector('.ap-hero-section');
         const dots = document.querySelectorAll('.dot');
         let apCurrentIdx = 0;
 
@@ -2209,10 +2173,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         function nextDotSlide() {
-            if(apItemsSection.length > 0) {
-                apCurrentIdx = (apCurrentIdx + 1) % apItemsSection.length;
-                showSlide(apCurrentIdx);
-            }
+            if (document.hidden || !apCarouselSection || apItemsSection.length === 0) return;
+
+            const sectionRect = apCarouselSection.getBoundingClientRect();
+            const sectionIsVisible = sectionRect.bottom > 0 && sectionRect.top < window.innerHeight;
+            if (!sectionIsVisible) return;
+
+            apCurrentIdx = (apCurrentIdx + 1) % apItemsSection.length;
+            showSlide(apCurrentIdx);
         }
 
         setInterval(nextDotSlide, 3000);

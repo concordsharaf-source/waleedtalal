@@ -3,6 +3,31 @@
  * نفس تأثير أزرار هيدر الصفحة الرئيسية: تدرج أخضر، لمعة، بروز وظل ثلاثي الأبعاد.
  */
 
+/* ثبات التخطيط ومنع الانزياح الأفقي واهتزاز الهيدر أثناء تمرير الجوال */
+html {
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+@supports (overflow: clip) {
+    html {
+        overflow-x: clip;
+    }
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100svh;
+}
+
+header#header {
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden;
+}
+
 .site-3d-btn {
     -webkit-appearance: none;
     appearance: none;
@@ -174,6 +199,24 @@ body.site-actions-no-header-page {
 }
 
 @media (max-width: 768px) {
+    /* على الجوال نظهر المحتوى مباشرة ونوقف الحركات المتكررة التي قد تسبب رجفة */
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .site-wa-pulse,
+    .btn-wa-pulse {
+        animation: none !important;
+    }
+
+    header#header,
+    .dropdown-menu {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+
     .site-actions-standalone {
         padding: 15px 12px 20px;
     }
@@ -187,6 +230,18 @@ body.site-actions-no-header-page {
         min-height: 52px;
         padding: 9px 8px;
         font-size: 0.78rem;
+    }
+}
+
+@media (hover: none) {
+    .site-3d-btn:hover {
+        filter: none;
+        transform: translateY(0);
+        box-shadow:
+            inset 0 2px 1px rgba(255, 255, 255, 0.38),
+            inset 0 -3px 2px rgba(0, 0, 0, 0.28),
+            0 4px 0 #003d1d,
+            0 8px 16px rgba(0, 0, 0, 0.32);
     }
 }
 

@@ -516,21 +516,7 @@
             });
         }
 
-        // إخفاء/إظهار الهيدر عند التمرير
-        let lastScrollTop = 0;
-        const header = document.getElementById('header');
-
-        if (header) {
-            window.addEventListener('scroll', function() {
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    header.style.transform = 'translateY(-100%)'; 
-                } else {
-                    header.style.transform = 'translateY(0)'; 
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
-        }
+        // الهيدر ثابت على الجوال لمنع الاهتزاز أثناء التمرير.
 
         // تأثير الظهور السلس عند التمرير
         document.addEventListener("DOMContentLoaded", function() {

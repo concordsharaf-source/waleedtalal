@@ -556,21 +556,7 @@
             });
         }
 
-        // إخفاء/إظهار الهيدر أثناء التمرير
-        let lastScrollTop = 0;
-        const header = document.getElementById('header');
-
-        if (header) {
-            window.addEventListener('scroll', function() {
-                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    header.style.transform = 'translateY(-100%)'; 
-                } else {
-                    header.style.transform = 'translateY(0)'; 
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
-        }
+        // الهيدر ثابت على الجوال لمنع الاهتزاز أثناء التمرير.
 
         // تأثيرات الظهور السلس عند التمرير
         document.addEventListener("DOMContentLoaded", function() {
@@ -586,61 +572,5 @@
             document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
         });
     </script>
-</body>
-</html>
-er = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("active");
-            } else {
-                // حذف الكلاس عند الخروج لجعل الحركة تتكرر دوماً
-                entry.target.classList.remove("active");
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
-    });
-    </script>
-
-    <script>
-// تأكد أن الدالة موجودة هنا بين وسومي السكريبت
-    function toggleWhatsAppModal() {
-        const modal = document.getElementById('whatsappModal');
-        if (modal.style.display ==='none' || modal.style.display === '') {
-            modal.style.display ='flex';
-        } else {
-            modal.style.display ='none';
-        }
-    }
-
-// دالة الإرسال بالرقم الجديد التي أعطيتك إياها
-    function sendToWhatsApp() {
-        const noteElement = document.getElementById('userNote');
-        const note = noteElement.value.trim();
-        const phoneNumber ="966580272758"; 
-
-        if (note ==="") {
-            alert("فضلاً اكتب الملاحظة أولاً");
-            return;
-        }
-        
-         const prefix="📢 *رسالة جديدة من الموقع الرسمي:*\n\n";
-         const suffix="\n\nــــــــــــــــــــــــــــــــ\n⚠️ *يرجى النظر في مشكلتي وحلها في أسرع وقت.*";
-        
-        const fullMessage = prefix + note + suffix;
-
-
-        const encodedText = encodeURIComponent(fullMessage);
-        const whatsappUrl ="https://api.whatsapp.com/send?phone=" + phoneNumber + "&text=" + encodedText;
-
-        window.open(whatsappUrl,'_blank');
-        toggleWhatsAppModal();
-        noteElement.value =""; 
-    }
-    
-    </script>
-    
-
 </body>
 </html>
