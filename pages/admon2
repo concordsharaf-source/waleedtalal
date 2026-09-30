@@ -338,7 +338,7 @@ placeholder="بحث برقم المعاملة أو الجوال">
 الحالة
 </label>
 
-<select id="editStatus">
+<select id="editStatus" onchange="toggleCustomStatus(true)">
 
 <option value="قيد المراجعة">
 قيد المراجعة
@@ -360,7 +360,16 @@ placeholder="بحث برقم المعاملة أو الجوال">
 مرفوض
 </option>
 
+<option value="__custom__">
+أخرى — كتابة حالة مخصصة
+</option>
+
 </select>
+
+<div id="customStatusWrap" class="custom-status-box" hidden>
+<label for="editCustomStatus">اكتب الحالة المخصصة</label>
+<input id="editCustomStatus" type="text" maxlength="80" placeholder="مثال: بانتظار استكمال المستندات">
+</div>
 
 
 <label>
@@ -491,6 +500,22 @@ font-size:15px;
 }
 
 
+.custom-status-box{
+margin-top:12px;
+padding:12px;
+border:1px dashed #1a4332;
+border-radius:10px;
+background:#f2f8f4;
+}
+
+.custom-status-box[hidden]{
+display:none;
+}
+
+.custom-status-box label{
+margin-top:0;
+}
+
 .modal-box textarea{
 
 height:90px;
@@ -560,6 +585,50 @@ appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
+
+const CUSTOM_STATUS_VALUE="__custom__";
+
+window.toggleCustomStatus=function(shouldFocus=false){
+const select=document.getElementById("editStatus");
+const wrap=document.getElementById("customStatusWrap");
+const input=document.getElementById("editCustomStatus");
+const isCustom=select.value===CUSTOM_STATUS_VALUE;
+wrap.hidden=!isCustom;
+if(isCustom && shouldFocus)input.focus();
+};
+
+function setEditableStatus(status){
+const select=document.getElementById("editStatus");
+const input=document.getElementById("editCustomStatus");
+const value=String(status || "قيد المراجعة").trim() || "قيد المراجعة";
+const isKnown=Array.from(select.options).some(option=>
+option.value===value && option.value!==CUSTOM_STATUS_VALUE
+);
+
+if(isKnown){
+select.value=value;
+input.value="";
+}else{
+select.value=CUSTOM_STATUS_VALUE;
+input.value=value;
+}
+
+window.toggleCustomStatus(false);
+}
+
+function getEditableStatus(){
+const select=document.getElementById("editStatus");
+if(select.value!==CUSTOM_STATUS_VALUE)return select.value;
+
+const input=document.getElementById("editCustomStatus");
+const value=input.value.trim();
+if(!value){
+alert("اكتب الحالة المخصصة أولاً");
+input.focus();
+return null;
+}
+return value;
+}
 
 
 let allOrders=[];
@@ -748,7 +817,7 @@ editPartNumber.value=order.partNumber || "";
 
 editType.value=order.type || "";
 
-editStatus.value=order.status || "قيد المراجعة";
+setEditableStatus(order.status);
 
 editGrantAmount.value=order.grantAmount || "";
 
@@ -779,7 +848,8 @@ window.saveEdit=async function(){
 
 
 let id=editId.value;
-
+const statusValue=getEditableStatus();
+if(statusValue===null)return;
 
 
 try{
@@ -806,7 +876,7 @@ partNumber:editPartNumber.value,
 
 type:editType.value,
 
-status:editStatus.value,
+status:statusValue,
 
 
 grantAmount:
