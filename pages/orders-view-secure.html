@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استعراض المعاملات الكامل | قراءة فقط</title>
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta name="theme-color" content="#064e2a">
+    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../styles/site-buttons.css">
+
+    <style>
+        :root {
+            --green-950: #052e1b;
+            --green-900: #064e2a;
+            --green-700: #00723a;
+            --green-500: #10a35b;
+            --gold: #d4af37;
+            --ink: #17251d;
+            --muted: #67766d;
+            --line: #d9e6de;
+            --surface: #fff;
+            --danger: #a33127;
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 85% 0, rgba(16,163,91,.13), transparent 30rem),
+                linear-gradient(180deg, #f9fcfa, #edf5f0);
+            font-family: "Cairo", Tahoma, Arial, sans-serif;
+        }
+
+        button, input, select { font: inherit; }
+
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(212,175,55,.22), transparent 24rem),
+                linear-gradient(145deg, #041f13, #006b35);
+        }
+
+        .auth-card {
+            width: min(430px, 100%);
+            padding: 28px;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 26px;
+            background: rgba(255,255,255,.97);
+            box-shadow: 0 24px 70px rgba(0,0,0,.32);
+        }
+
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .auth-brand img {
+            width: 72px;
+            height: 58px;
+            padding: 4px;
+            object-fit: contain;
+            border: 1px solid var(--line);
+            border-radius: 13px;
+            background: #fff;
+        }
+
+        .auth-card h1 { margin: 0; color: var(--green-900); font-size: 1.35rem; }
+        .auth-card .subtitle { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+
+        .read-only-badge {
+            margin-bottom: 18px;
+            padding: 10px 12px;
+            border: 1px solid #cde2d5;
+            border-radius: 12px;
+            color: #0a5932;
+            background: #ebf7f0;
+            font-size: .8rem;
+            font-weight: 800;
+        }
+
+        .field-label { display: block; margin: 13px 0 6px; color: #34493d; font-size: .82rem; font-weight: 800; }
+
+        .auth-card input {
+            width: 100%;
+            min-height: 49px;
+            padding: 10px 13px;
+            border: 1px solid #c9d9d0;
+            border-radius: 12px;
+            outline: none;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .auth-card input[readonly] { color: #506158; background: #f4f7f5; }
+        .auth-card input:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(16,163,91,.12); }
+
+        .login-button {
+            width: 100%;
+            min-height: 50px;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 13px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--green-900), var(--green-500));
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(6,78,42,.2);
+        }
+
+        .login-button:disabled { opacity: .62; cursor: wait; }
+        .auth-error { min-height: 24px; margin: 12px 0 0; color: var(--danger); font-size: .8rem; font-weight: 700; text-align: center; }
+
+        .app-shell { min-height: 100vh; }
+
+        .topbar {
+            min-height: 74px;
+            padding: 11px clamp(14px, 4vw, 54px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--green-950), var(--green-700));
+            border-bottom: 3px solid var(--gold);
+            box-shadow: 0 8px 28px rgba(5,46,27,.2);
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .brand img { width: 58px; height: 47px; padding: 3px; object-fit: contain; border-radius: 10px; background: #fff; }
+        .brand strong, .brand span { display: block; }
+        .brand strong { font-size: clamp(.92rem, 2.4vw, 1.12rem); }
+        .brand span { margin-top: 2px; color: #d8eee1; font-size: .72rem; }
+
+        .logout-button {
+            min-height: 42px;
+            padding: 8px 15px;
+            border: 1px solid rgba(255,255,255,.34);
+            border-radius: 999px;
+            color: #fff;
+            background: rgba(255,255,255,.08);
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        main { width: min(1220px, calc(100% - 26px)); margin: 0 auto; padding: 25px 0 58px; }
+
+        .notice {
+            padding: 15px 17px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            border: 1px solid #cde3d5;
+            border-radius: 17px;
+            color: #124f31;
+            background: rgba(235,247,240,.94);
+        }
+
+        .notice strong { display: block; }
+        .notice span { display: block; margin-top: 3px; color: #4d6657; font-size: .78rem; }
+        .viewer-email { direction: ltr; unicode-bidi: isolate; font-size: .78rem; font-weight: 800; }
+
+        .summary {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 11px;
+        }
+
+        .summary-card {
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: rgba(255,255,255,.93);
+            box-shadow: 0 8px 24px rgba(23,37,29,.05);
+        }
+
+        .summary-card span { display: block; color: var(--muted); font-size: .72rem; }
+        .summary-card strong { display: block; margin-top: 3px; color: var(--green-700); font-size: 1.35rem; }
+
+        .toolbar {
+            margin-top: 18px;
+            padding: 14px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 190px;
+            gap: 11px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: rgba(255,255,255,.94);
+        }
+
+        .toolbar input, .toolbar select {
+            width: 100%;
+            min-height: 47px;
+            padding: 9px 13px;
+            border: 1px solid #cadbd1;
+            border-radius: 11px;
+            outline: none;
+            color: var(--ink);
+            background: #fff;
+        }
+
+        .toolbar input:focus, .toolbar select:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(16,163,91,.1); }
+
+        .results-meta { margin: 16px 2px 9px; display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .78rem; }
+        #orders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+
+        .order-card {
+            min-width: 0;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--surface);
+            box-shadow: 0 12px 30px rgba(23,37,29,.07);
+        }
+
+        .order-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #e6eee9; }
+        .transaction-label { display: block; color: var(--muted); font-size: .7rem; }
+        .transaction-number { display: block; margin-top: 2px; color: var(--green-900); font-size: 1.2rem; font-weight: 900; }
+        .order-date { margin-top: 4px; color: #6d7c73; font-size: .7rem; }
+
+        .status-chip {
+            max-width: 54%;
+            padding: 7px 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            color: #6d5000;
+            background: #fff1c2;
+            font-size: .72rem;
+            font-weight: 900;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .approved-chip { display: inline-flex; margin-top: 7px; padding: 4px 8px; border-radius: 999px; color: #0a6636; background: #e0f7e9; font-size: .68rem; font-weight: 800; }
+        .approved-chip.no { color: #8a332b; background: #ffe8e5; }
+
+        .details-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+        .detail { min-width: 0; padding: 10px; border-radius: 11px; background: #f5f8f6; }
+        .detail.wide { grid-column: 1 / -1; }
+        .detail-label { display: block; color: var(--muted); font-size: .68rem; }
+        .detail-value { display: block; margin-top: 4px; overflow-wrap: anywhere; color: var(--ink); font-size: .82rem; font-weight: 800; white-space: pre-wrap; }
+        .detail-value.ltr { direction: ltr; unicode-bidi: isolate; text-align: right; }
+
+        .empty, .loading, .error {
+            grid-column: 1 / -1;
+            padding: 34px 18px;
+            border: 1px dashed #bed0c5;
+            border-radius: 17px;
+            color: var(--muted);
+            background: rgba(255,255,255,.84);
+            text-align: center;
+        }
+        .error { color: var(--danger); border-color: #ebbcb7; background: #fff7f6; }
+
+        @media (max-width: 820px) {
+            .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            #orders { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 620px) {
+            .brand span { display: none; }
+            .topbar { min-height: 66px; padding: 9px 12px; }
+            .brand img { width: 50px; height: 42px; }
+            main { width: min(100% - 18px, 1220px); padding-top: 16px; }
+            .notice { align-items: flex-start; flex-direction: column; }
+            .toolbar { grid-template-columns: 1fr; padding: 11px; }
+            .order-card { padding: 14px; }
+        }
+
+        @media (max-width: 420px) {
+            .details-grid { grid-template-columns: 1fr; }
+            .detail.wide { grid-column: auto; }
+            .logout-button { padding: 7px 10px; font-size: .75rem; }
+            .brand strong { font-size: .85rem; }
+        }
+    </style>
+</head>
+<body>
+    <section id="authScreen" class="auth-screen" aria-labelledby="loginTitle">
+        <form id="loginForm" class="auth-card">
+            <div class="auth-brand">
+                <img src="../images/ad.png" alt="شعار المؤسسة">
+                <div>
+                    <h1 id="loginTitle">دخول المساعد</h1>
+                    <p class="subtitle">استعراض كامل بصلاحية قراءة فقط</p>
+                </div>
+            </div>
+
+            <div class="read-only-badge">🔒 هذا الحساب يستطيع المشاهدة فقط، ولا تحتوي الصفحة على تعديل أو حذف.</div>
+
+            <label class="field-label" for="loginEmail">البريد الإلكتروني</label>
+            <input id="loginEmail" type="email" value="admin@admin.com" readonly autocomplete="username">
+
+            <label class="field-label" for="loginPassword">كلمة المرور</label>
+            <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="أدخل كلمة مرور حساب Firebase">
+
+            <button id="loginButton" class="login-button" type="submit">دخول آمن</button>
+            <p id="authError" class="auth-error" role="alert"></p>
+        </form>
+    </section>
+
+    <div id="appShell" class="app-shell" hidden>
+        <header class="topbar">
+            <div class="brand">
+                <img src="../images/ad.png" alt="شعار المؤسسة">
+                <div>
+                    <strong>استعراض المعاملات الكامل</strong>
+                    <span>قراءة فقط — لا تعديل ولا حذف</span>
+                </div>
+            </div>
+            <button id="logoutButton" class="logout-button" type="button">تسجيل الخروج</button>
+        </header>
+
+        <main>
+            <section class="notice">
+                <div>
+                    <strong>صلاحية مشاهدة فقط</strong>
+                    <span>تعرض هذه الصفحة معلومات المعاملات دون استيراد أي أدوات كتابة أو تعديل أو حذف من Firebase.</span>
+                </div>
+                <div id="viewerEmail" class="viewer-email"></div>
+            </section>
+
+            <section class="summary" aria-label="ملخص المعاملات">
+                <article class="summary-card"><span>إجمالي المعاملات</span><strong id="totalCount">—</strong></article>
+                <article class="summary-card"><span>قيد المراجعة</span><strong id="reviewCount">—</strong></article>
+                <article class="summary-card"><span>معتمدة</span><strong id="approvedCount">—</strong></article>
+                <article class="summary-card"><span>مكتملة</span><strong id="doneCount">—</strong></article>
+            </section>
+
+            <section class="toolbar" aria-label="البحث والترتيب">
+                <input id="searchInput" type="search" autocomplete="off" placeholder="ابحث بأي معلومة: رقم، اسم، جوال، دولة، حالة...">
+                <select id="sortSelect" aria-label="ترتيب المعاملات">
+                    <option value="new">الأحدث أولًا</option>
+                    <option value="old">الأقدم أولًا</option>
+                </select>
+            </section>
+
+            <div class="results-meta">
+                <span id="resultsCount">سجّل الدخول لتحميل المعاملات</span>
+                <span>وضع القراءة فقط</span>
+            </div>
+
+            <section id="orders" aria-live="polite" aria-busy="false"></section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut,
+            setPersistence,
+            browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+            authDomain: "sparepartswebsite1.firebaseapp.com",
+            projectId: "sparepartswebsite1",
+            storageBucket: "sparepartswebsite1.firebasestorage.app",
+            messagingSenderId: "1063114847735",
+            appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+        };
+
+        const ALLOWED_VIEWER_UID = "8Ni42RlbrGTtgepNdSso3li8nD62";
+        const ALLOWED_VIEWER_EMAIL = "admin@admin.com";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const authScreen = document.getElementById("authScreen");
+        const appShell = document.getElementById("appShell");
+        const loginForm = document.getElementById("loginForm");
+        const loginButton = document.getElementById("loginButton");
+        const loginPassword = document.getElementById("loginPassword");
+        const authError = document.getElementById("authError");
+        const ordersElement = document.getElementById("orders");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const resultsCount = document.getElementById("resultsCount");
+        let allOrders = [];
+        let loadedForUid = "";
+
+        function isAllowedViewer(user) {
+            return Boolean(
+                user &&
+                user.uid === ALLOWED_VIEWER_UID &&
+                String(user.email || "").toLowerCase() === ALLOWED_VIEWER_EMAIL
+            );
+        }
+
+        function normalizeDigits(value) {
+            return String(value ?? "")
+                .replace(/[٠-٩]/g, digit => "٠١٢٣٤٥٦٧٨٩".indexOf(digit))
+                .replace(/[۰-۹]/g, digit => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit));
+        }
+
+        function normalizeSearch(value) {
+            return normalizeDigits(value).trim().toLowerCase().replace(/\s+/g, " ");
+        }
+
+        function safeText(value, fallback = "غير محدد") {
+            const result = String(value ?? "").trim();
+            return result || fallback;
+        }
+
+        function parseDate(timestamp) {
+            if (!timestamp) return null;
+            if (typeof timestamp.toDate === "function") return timestamp.toDate();
+            if (timestamp.seconds) return new Date(timestamp.seconds * 1000);
+            const date = new Date(timestamp);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function formatDate(timestamp) {
+            const date = parseDate(timestamp);
+            if (!date) return "غير متاح";
+            return new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            }).format(date);
+        }
+
+        function appendDetail(grid, label, value, options = {}) {
+            const item = document.createElement("div");
+            item.className = `detail${options.wide ? " wide" : ""}`;
+
+            const labelElement = document.createElement("span");
+            labelElement.className = "detail-label";
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("strong");
+            valueElement.className = `detail-value${options.ltr ? " ltr" : ""}`;
+            valueElement.textContent = safeText(value);
+
+            item.append(labelElement, valueElement);
+            grid.appendChild(item);
+        }
+
+        function createOrderCard(order) {
+            const card = document.createElement("article");
+            card.className = "order-card";
+
+            const head = document.createElement("div");
+            head.className = "order-head";
+
+            const transaction = document.createElement("div");
+            const transactionLabel = document.createElement("span");
+            transactionLabel.className = "transaction-label";
+            transactionLabel.textContent = "رقم المعاملة";
+            const transactionNumber = document.createElement("strong");
+            transactionNumber.className = "transaction-number";
+            transactionNumber.textContent = safeText(order.transactionId, "—");
+            const date = document.createElement("div");
+            date.className = "order-date";
+            date.textContent = formatDate(order.createdAt);
+            transaction.append(transactionLabel, transactionNumber, date);
+
+            const statusWrap = document.createElement("div");
+            const statusChip = document.createElement("span");
+            statusChip.className = "status-chip";
+            statusChip.textContent = safeText(order.status, "قيد المراجعة");
+            statusChip.title = statusChip.textContent;
+            const approvedChip = document.createElement("span");
+            approvedChip.className = `approved-chip${order.approved === true ? "" : " no"}`;
+            approvedChip.textContent = order.approved === true ? "معتمد" : "غير معتمد";
+            statusWrap.append(statusChip, approvedChip);
+
+            head.append(transaction, statusWrap);
+
+            const grid = document.createElement("div");
+            grid.className = "details-grid";
+            appendDetail(grid, "الاسم الكامل", order.name, { wide: true });
+            appendDetail(grid, "رقم الجوال", order.phone, { ltr: true });
+            appendDetail(grid, "البريد الإلكتروني", order.email, { ltr: true });
+            appendDetail(grid, "رقم الهوية", order.idNumber, { ltr: true });
+            appendDetail(grid, "الدولة", order.country);
+            appendDetail(grid, "نوع الطلب", order.type);
+            appendDetail(grid, "اسم البنك", order.bankName);
+            appendDetail(grid, "رقم الحساب / الآيبان", order.partNumber, { ltr: true });
+            appendDetail(grid, "مبلغ المنحة", order.grantAmount);
+            appendDetail(grid, "الحالة", order.status || "قيد المراجعة");
+            appendDetail(grid, "تفاصيل الطلب", order.notes, { wide: true });
+
+            card.append(head, grid);
+            return card;
+        }
+
+        function orderSearchText(order) {
+            return normalizeSearch([
+                order.transactionId,
+                order.name,
+                order.phone,
+                order.email,
+                order.idNumber,
+                order.country,
+                order.type,
+                order.bankName,
+                order.partNumber,
+                order.grantAmount,
+                order.status,
+                order.notes
+            ].join(" "));
+        }
+
+        function visibleOrders() {
+            const query = normalizeSearch(searchInput.value);
+            const sorted = [...allOrders].sort((a, b) => {
+                const first = parseDate(a.createdAt)?.getTime() || 0;
+                const second = parseDate(b.createdAt)?.getTime() || 0;
+                return sortSelect.value === "old" ? first - second : second - first;
+            });
+            return query ? sorted.filter(order => orderSearchText(order).includes(query)) : sorted;
+        }
+
+        function updateSummary() {
+            const review = allOrders.filter(order => String(order.status ?? "").includes("مراجعة")).length;
+            const approved = allOrders.filter(order => order.approved === true).length;
+            const done = allOrders.filter(order => {
+                const status = String(order.status ?? "");
+                return status.includes("تسليم") || status.includes("مكتمل");
+            }).length;
+
+            document.getElementById("totalCount").textContent = allOrders.length.toLocaleString("ar");
+            document.getElementById("reviewCount").textContent = review.toLocaleString("ar");
+            document.getElementById("approvedCount").textContent = approved.toLocaleString("ar");
+            document.getElementById("doneCount").textContent = done.toLocaleString("ar");
+        }
+
+        function renderOrders() {
+            const orders = visibleOrders();
+            ordersElement.textContent = "";
+            ordersElement.setAttribute("aria-busy", "false");
+            resultsCount.textContent = `عدد النتائج: ${orders.length.toLocaleString("ar")}`;
+
+            if (!orders.length) {
+                const empty = document.createElement("div");
+                empty.className = "empty";
+                empty.textContent = "لا توجد معاملات مطابقة لعملية البحث.";
+                ordersElement.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            orders.forEach(order => fragment.appendChild(createOrderCard(order)));
+            ordersElement.appendChild(fragment);
+        }
+
+        async function loadOrders(user) {
+            if (loadedForUid === user.uid) return;
+            loadedForUid = user.uid;
+            ordersElement.setAttribute("aria-busy", "true");
+            ordersElement.innerHTML = '<div class="loading">جاري تحميل المعاملات...</div>';
+            resultsCount.textContent = "جاري تحميل المعاملات...";
+
+            try {
+                const snapshot = await getDocs(collection(db, "orders"));
+                if (!isAllowedViewer(auth.currentUser)) throw new Error("unauthorized-viewer");
+                allOrders = snapshot.docs.map(documentSnapshot => ({
+                    id: documentSnapshot.id,
+                    ...documentSnapshot.data()
+                }));
+                updateSummary();
+                renderOrders();
+            } catch (error) {
+                console.error(error);
+                loadedForUid = "";
+                ordersElement.setAttribute("aria-busy", "false");
+                ordersElement.innerHTML = '<div class="error">تعذر تحميل المعاملات. تحقق من صلاحيات حساب المشاهدة وقواعد Firestore.</div>';
+                resultsCount.textContent = "تعذر تحميل النتائج";
+            }
+        }
+
+        function showLogin(message = "") {
+            /* إزالة أي بيانات حساسة من الواجهة فور انتهاء الجلسة. */
+            loadedForUid = "";
+            allOrders = [];
+            ordersElement.textContent = "";
+            resultsCount.textContent = "سجّل الدخول لتحميل المعاملات";
+            ["totalCount", "reviewCount", "approvedCount", "doneCount"].forEach(id => {
+                document.getElementById(id).textContent = "—";
+            });
+
+            appShell.hidden = true;
+            authScreen.hidden = false;
+            authError.textContent = message;
+            loginPassword.value = "";
+            setTimeout(() => loginPassword.focus(), 0);
+        }
+
+        function showViewer(user) {
+            authScreen.hidden = true;
+            appShell.hidden = false;
+            document.getElementById("viewerEmail").textContent = user.email || "";
+            loadOrders(user);
+        }
+
+        loginForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            authError.textContent = "";
+            loginButton.disabled = true;
+            loginButton.textContent = "جاري التحقق...";
+
+            try {
+                await setPersistence(auth, browserSessionPersistence);
+                const credential = await signInWithEmailAndPassword(
+                    auth,
+                    ALLOWED_VIEWER_EMAIL,
+                    loginPassword.value
+                );
+
+                if (!isAllowedViewer(credential.user)) {
+                    await signOut(auth);
+                    throw new Error("unauthorized-viewer");
+                }
+            } catch (error) {
+                console.error(error);
+                const message = error?.message === "unauthorized-viewer"
+                    ? "هذا الحساب غير مصرح له بصفحة المشاهدة."
+                    : "تعذر تسجيل الدخول. تحقق من كلمة المرور ثم حاول مرة أخرى.";
+                showLogin(message);
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "دخول آمن";
+            }
+        });
+
+        document.getElementById("logoutButton").addEventListener("click", async () => {
+            loadedForUid = "";
+            allOrders = [];
+            await signOut(auth);
+        });
+
+        let searchFrame = 0;
+        searchInput.addEventListener("input", () => {
+            if (searchFrame) cancelAnimationFrame(searchFrame);
+            searchFrame = requestAnimationFrame(renderOrders);
+        });
+        sortSelect.addEventListener("change", renderOrders);
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                showLogin();
+                return;
+            }
+
+            if (!isAllowedViewer(user)) {
+                await signOut(auth);
+                showLogin("هذا الحساب غير مصرح له بصفحة المشاهدة.");
+                return;
+            }
+
+            showViewer(user);
+        });
+    </script>
+</body>
+</html>
