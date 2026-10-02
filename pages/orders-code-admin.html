@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإدارة البرمجية للطلبات</title>
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta name="theme-color" content="#07140e">
+    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <style>
+        @font-face {
+            font-family: "Cairo";
+            src: url("../fonts/cairo-arabic.woff2") format("woff2");
+            font-display: swap;
+        }
+
+        :root {
+            --bg: #07140e;
+            --panel: #0d2117;
+            --panel-2: #10291d;
+            --line: #254936;
+            --green: #51d88a;
+            --green-soft: #b9f6d1;
+            --gold: #e9c867;
+            --blue: #8bc7ff;
+            --text: #ecfff3;
+            --muted: #9bbcab;
+            --danger: #ff9b91;
+        }
+
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 85% -10%, rgba(81,216,138,.12), transparent 30rem),
+                var(--bg);
+            font-family: "Cairo", Tahoma, Arial, sans-serif;
+        }
+
+        button, input, select { font: inherit; }
+
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            background: var(--bg);
+        }
+
+        .auth-card {
+            width: min(100%, 430px);
+            padding: 28px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: var(--panel);
+            box-shadow: 0 22px 70px rgba(0,0,0,.35);
+        }
+
+        .auth-brand,
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-brand { margin-bottom: 24px; }
+        .auth-brand img,
+        .brand img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+        }
+
+        h1, p { margin-top: 0; }
+        .auth-brand h1 { margin: 0; font-size: 1.25rem; }
+
+        label {
+            display: block;
+            margin: 14px 0 7px;
+            color: var(--muted);
+            font-size: .86rem;
+            font-weight: 700;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            color: var(--text);
+            background: #081911;
+            padding: 10px 13px;
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(81,216,138,.12);
+        }
+
+        input[readonly] { color: var(--muted); }
+
+        .primary-button,
+        .logout-button {
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .primary-button {
+            width: 100%;
+            min-height: 47px;
+            margin-top: 18px;
+            color: #052012;
+            background: var(--green);
+        }
+
+        .primary-button:disabled { opacity: .65; cursor: wait; }
+        .auth-error { min-height: 24px; margin: 12px 0 0; color: var(--danger); font-size: .85rem; }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            min-height: 72px;
+            padding: 10px clamp(16px, 4vw, 48px);
+            border-bottom: 1px solid var(--line);
+            background: rgba(7,20,14,.94);
+            backdrop-filter: blur(12px);
+        }
+
+        .brand strong { display: block; }
+        .brand span { display: block; color: var(--muted); font-size: .75rem; }
+
+        .logout-button {
+            padding: 9px 14px;
+            color: var(--text);
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+        }
+
+        main {
+            width: min(1180px, calc(100% - 28px));
+            margin: 26px auto 60px;
+        }
+
+        .intro {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+            padding: 20px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(81,216,138,.08), transparent), var(--panel);
+        }
+
+        .intro h1 { margin-bottom: 7px; font-size: clamp(1.2rem, 3vw, 1.7rem); }
+        .intro p { margin: 0; color: var(--muted); line-height: 1.9; font-size: .9rem; }
+        .file-badge {
+            direction: ltr;
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            color: var(--green);
+            background: #071a10;
+            font: 700 .78rem Consolas, Monaco, monospace;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .step {
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--panel);
+            color: var(--muted);
+            font-size: .8rem;
+            line-height: 1.7;
+        }
+
+        .step strong { display: block; margin-bottom: 3px; color: var(--gold); }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr 190px;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .results-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 10px 2px 14px;
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .code-card {
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--panel);
+            box-shadow: 0 12px 30px rgba(0,0,0,.12);
+        }
+
+        .code-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--line);
+            background: var(--panel-2);
+        }
+
+        .document-path {
+            direction: ltr;
+            unicode-bidi: plaintext;
+            overflow: hidden;
+            color: var(--blue);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font: 700 .82rem Consolas, Monaco, monospace;
+        }
+
+        .transaction-number { color: var(--gold); font-size: .84rem; white-space: nowrap; }
+
+        pre {
+            direction: ltr;
+            margin: 0;
+            overflow: auto;
+            padding: 18px;
+            color: var(--green-soft);
+            background: #06110c;
+            text-align: left;
+            white-space: pre;
+            tab-size: 2;
+            font: 500 .82rem/1.85 Consolas, Monaco, "Courier New", monospace;
+        }
+
+        .loading,
+        .empty,
+        .error {
+            padding: 34px 20px;
+            border: 1px dashed var(--line);
+            border-radius: 14px;
+            color: var(--muted);
+            background: var(--panel);
+            text-align: center;
+        }
+
+        .error { color: var(--danger); }
+
+        @media (max-width: 760px) {
+            .intro { grid-template-columns: 1fr; }
+            .file-badge { justify-self: start; }
+            .steps { grid-template-columns: 1fr 1fr; }
+            .toolbar { grid-template-columns: 1fr; }
+            .code-head { align-items: flex-start; flex-direction: column; }
+            .transaction-number { white-space: normal; }
+        }
+
+        @media (max-width: 440px) {
+            .auth-card { padding: 22px 18px; }
+            .steps { grid-template-columns: 1fr; }
+            .brand span { display: none; }
+            .brand img { width: 42px; height: 42px; }
+            pre { padding: 14px; font-size: .72rem; }
+        }
+    </style>
+</head>
+<body>
+    <section id="authScreen" class="auth-screen" aria-labelledby="loginTitle">
+        <form id="loginForm" class="auth-card">
+            <div class="auth-brand">
+                <img src="../images/ad.png" alt="شعار المؤسسة">
+                <h1 id="loginTitle">الإدارة البرمجية للطلبات</h1>
+            </div>
+
+            <label for="loginEmail">البريد الإلكتروني</label>
+            <input id="loginEmail" type="email" value="admin@admin.com" readonly autocomplete="username">
+
+            <label for="loginPassword">كلمة المرور</label>
+            <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="أدخل كلمة المرور">
+
+            <button id="loginButton" class="primary-button" type="submit">دخول</button>
+            <p id="authError" class="auth-error" role="alert"></p>
+        </form>
+    </section>
+
+    <div id="appShell" hidden>
+        <header class="topbar">
+            <div class="brand">
+                <img src="../images/ad.png" alt="شعار المؤسسة">
+                <div>
+                    <strong>الإدارة البرمجية</strong>
+                    <span>بنية الطلبات الحقيقية</span>
+                </div>
+            </div>
+            <button id="logoutButton" class="logout-button" type="button">تسجيل الخروج</button>
+        </header>
+
+        <main>
+            <section class="intro">
+                <div>
+                    <h1>ملفات الطلبات بصيغة HTML خام</h1>
+                    <p>تظهر كل معاملة كبنية كود مستقلة. معالجة أي تغيير برمجي تتطلب تحديد مستند الطلب والحقل الصحيح ومراجعة القيم قبل تنفيذها في قاعدة البيانات.</p>
+                </div>
+                <div class="file-badge">orders-code-admin.html</div>
+            </section>
+
+            <section class="steps" aria-label="مراحل العمل البرمجي">
+                <article class="step"><strong>01 — تحديد المستند</strong>الوصول إلى معرّف الطلب الصحيح داخل مجموعة orders.</article>
+                <article class="step"><strong>02 — تحديد الحقل</strong>مراجعة اسم الحقل ونوع القيمة الحالية قبل تغييرها.</article>
+                <article class="step"><strong>03 — اختبار التغيير</strong>التأكد من عدم التأثير في التتبع أو حالة الطلب أو بيانات العميل.</article>
+                <article class="step"><strong>04 — مراجعة النتيجة</strong>إعادة تحميل البيانات والتحقق من النتيجة بعد التنفيذ.</article>
+            </section>
+
+            <section class="toolbar" aria-label="البحث والترتيب">
+                <input id="searchInput" type="search" autocomplete="off" placeholder="ابحث في الأكواد برقم المعاملة أو أي قيمة...">
+                <select id="sortSelect" aria-label="ترتيب الطلبات">
+                    <option value="new">الأحدث أولًا</option>
+                    <option value="old">الأقدم أولًا</option>
+                </select>
+            </section>
+
+            <div class="results-meta">
+                <span id="resultsCount">جاري التحقق من الحساب...</span>
+                <span>collection: orders</span>
+            </div>
+
+            <section id="orders" aria-live="polite" aria-busy="false"></section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut,
+            setPersistence,
+            browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
+            authDomain: "sparepartswebsite1.firebaseapp.com",
+            projectId: "sparepartswebsite1",
+            storageBucket: "sparepartswebsite1.firebasestorage.app",
+            messagingSenderId: "1063114847735",
+            appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+        };
+
+        const ALLOWED_UID = "8Ni42RlbrGTtgepNdSso3li8nD62";
+        const ALLOWED_EMAIL = "admin@admin.com";
+        const FIELD_LABELS = {
+            transactionId: "رقم المعاملة",
+            name: "الاسم الكامل",
+            phone: "رقم الجوال",
+            email: "البريد الإلكتروني",
+            idNumber: "رقم الهوية",
+            country: "الدولة",
+            type: "نوع الطلب",
+            bankName: "اسم البنك",
+            partNumber: "رقم الحساب أو الآيبان",
+            grantAmount: "مبلغ المنحة",
+            status: "حالة الطلب",
+            approved: "الاعتماد",
+            notes: "تفاصيل الطلب",
+            createdAt: "تاريخ الإنشاء",
+            approvedAt: "تاريخ الاعتماد",
+            updatedAt: "تاريخ آخر تحديث"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const authScreen = document.getElementById("authScreen");
+        const appShell = document.getElementById("appShell");
+        const loginForm = document.getElementById("loginForm");
+        const loginButton = document.getElementById("loginButton");
+        const loginPassword = document.getElementById("loginPassword");
+        const authError = document.getElementById("authError");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const resultsCount = document.getElementById("resultsCount");
+        const ordersElement = document.getElementById("orders");
+
+        let allOrders = [];
+        let loadedForUid = "";
+
+        function isAllowed(user) {
+            return Boolean(
+                user &&
+                user.uid === ALLOWED_UID &&
+                String(user.email || "").toLowerCase() === ALLOWED_EMAIL
+            );
+        }
+
+        function normalizeDigits(value) {
+            return String(value ?? "")
+                .replace(/[٠-٩]/g, digit => "٠١٢٣٤٥٦٧٨٩".indexOf(digit))
+                .replace(/[۰-۹]/g, digit => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit));
+        }
+
+        function normalizeSearch(value) {
+            return normalizeDigits(value).trim().toLowerCase().replace(/\s+/g, " ");
+        }
+
+        function parseDate(value) {
+            if (!value) return null;
+            if (typeof value.toDate === "function") return value.toDate();
+            if (typeof value.seconds === "number") return new Date(value.seconds * 1000);
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function normalizeValue(value) {
+            if (value === null || value === undefined) return "";
+            if (typeof value?.toDate === "function") return value.toDate().toISOString();
+            if (Array.isArray(value)) return value.map(normalizeValue);
+            if (typeof value === "object") {
+                const normalized = {};
+                Object.entries(value).forEach(([key, nestedValue]) => {
+                    normalized[key] = normalizeValue(nestedValue);
+                });
+                return normalized;
+            }
+            return value;
+        }
+
+        function codeValue(value) {
+            const normalized = normalizeValue(value);
+            if (typeof normalized === "object") return JSON.stringify(normalized);
+            return String(normalized);
+        }
+
+        function escapeCode(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        function orderToHtmlCode(order) {
+            const preferredKeys = Object.keys(FIELD_LABELS);
+            const extraKeys = Object.keys(order).filter(key => key !== "id" && !preferredKeys.includes(key));
+            const keys = [...preferredKeys.filter(key => key in order), ...extraKeys];
+            const lines = [
+                `<!-- Firestore document: orders/${escapeCode(order.id)} -->`,
+                `<request data-document-id="${escapeCode(order.id)}">`
+            ];
+
+            keys.forEach(key => {
+                const label = FIELD_LABELS[key] || "حقل إضافي";
+                lines.push(`  <!-- ${label} -->`);
+                lines.push(`  <field name="${escapeCode(key)}">${escapeCode(codeValue(order[key]))}</field>`);
+            });
+
+            lines.push("</request>");
+            return lines.join("\n");
+        }
+
+        function orderSearchText(order) {
+            return normalizeSearch(JSON.stringify(normalizeValue(order)));
+        }
+
+        function visibleOrders() {
+            const query = normalizeSearch(searchInput.value);
+            const sorted = [...allOrders].sort((a, b) => {
+                const first = parseDate(a.createdAt)?.getTime() || 0;
+                const second = parseDate(b.createdAt)?.getTime() || 0;
+                return sortSelect.value === "old" ? first - second : second - first;
+            });
+            return query ? sorted.filter(order => orderSearchText(order).includes(query)) : sorted;
+        }
+
+        function createCodeCard(order) {
+            const card = document.createElement("article");
+            card.className = "code-card";
+
+            const head = document.createElement("header");
+            head.className = "code-head";
+
+            const path = document.createElement("span");
+            path.className = "document-path";
+            path.textContent = `orders/${order.id}`;
+
+            const transaction = document.createElement("span");
+            transaction.className = "transaction-number";
+            transaction.textContent = `رقم المعاملة: ${String(order.transactionId || "—")}`;
+
+            const pre = document.createElement("pre");
+            const code = document.createElement("code");
+            code.textContent = orderToHtmlCode(order);
+            pre.appendChild(code);
+            head.append(path, transaction);
+            card.append(head, pre);
+            return card;
+        }
+
+        function renderOrders() {
+            const orders = visibleOrders();
+            ordersElement.textContent = "";
+            ordersElement.setAttribute("aria-busy", "false");
+            resultsCount.textContent = `عدد ملفات الطلبات: ${orders.length.toLocaleString("ar")}`;
+
+            if (!orders.length) {
+                const empty = document.createElement("div");
+                empty.className = "empty";
+                empty.textContent = "لا توجد طلبات مطابقة للبحث.";
+                ordersElement.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            orders.forEach(order => fragment.appendChild(createCodeCard(order)));
+            ordersElement.appendChild(fragment);
+        }
+
+        async function loadOrders(user) {
+            if (loadedForUid === user.uid) return;
+            loadedForUid = user.uid;
+            ordersElement.setAttribute("aria-busy", "true");
+            ordersElement.innerHTML = '<div class="loading">جاري تحميل ملفات الطلبات...</div>';
+            resultsCount.textContent = "جاري تحميل البيانات...";
+
+            try {
+                const snapshot = await getDocs(collection(db, "orders"));
+                if (!isAllowed(auth.currentUser)) throw new Error("unauthorized-account");
+                allOrders = snapshot.docs.map(documentSnapshot => ({
+                    id: documentSnapshot.id,
+                    ...documentSnapshot.data()
+                }));
+                renderOrders();
+            } catch (error) {
+                console.error(error);
+                loadedForUid = "";
+                ordersElement.setAttribute("aria-busy", "false");
+                ordersElement.innerHTML = '<div class="error">تعذر تحميل بيانات الطلبات.</div>';
+                resultsCount.textContent = "تعذر تحميل البيانات";
+            }
+        }
+
+        function clearAndShowLogin(message = "") {
+            loadedForUid = "";
+            allOrders = [];
+            ordersElement.textContent = "";
+            resultsCount.textContent = "سجّل الدخول لتحميل البيانات";
+            appShell.hidden = true;
+            authScreen.hidden = false;
+            authError.textContent = message;
+            loginPassword.value = "";
+            setTimeout(() => loginPassword.focus(), 0);
+        }
+
+        function showPage(user) {
+            authScreen.hidden = true;
+            appShell.hidden = false;
+            loadOrders(user);
+        }
+
+        loginForm.addEventListener("submit", async event => {
+            event.preventDefault();
+            authError.textContent = "";
+            loginButton.disabled = true;
+            loginButton.textContent = "جاري التحقق...";
+
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                const credential = await signInWithEmailAndPassword(auth, ALLOWED_EMAIL, loginPassword.value);
+                if (!isAllowed(credential.user)) {
+                    await signOut(auth);
+                    throw new Error("unauthorized-account");
+                }
+                showPage(credential.user);
+            } catch (error) {
+                console.error(error);
+                const message = error?.message === "unauthorized-account"
+                    ? "هذا الحساب غير مصرح له."
+                    : "تعذر تسجيل الدخول. تحقق من كلمة المرور ثم حاول مرة أخرى.";
+                clearAndShowLogin(message);
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "دخول";
+            }
+        });
+
+        document.getElementById("logoutButton").addEventListener("click", async () => {
+            await signOut(auth);
+            clearAndShowLogin();
+        });
+
+        searchInput.addEventListener("input", renderOrders);
+        sortSelect.addEventListener("change", renderOrders);
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) {
+                clearAndShowLogin();
+                return;
+            }
+            if (!isAllowed(user)) {
+                await signOut(auth);
+                clearAndShowLogin("هذا الحساب غير مصرح له.");
+                return;
+            }
+            showPage(user);
+        });
+    </script>
+</body>
+</html>
