@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>استعراض المعاملات الكامل | قراءة فقط</title>
+    <title>صفحة الإدارة</title>
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta name="theme-color" content="#064e2a">
     <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
@@ -296,21 +296,16 @@
         <form id="loginForm" class="auth-card">
             <div class="auth-brand">
                 <img src="../images/ad.png" alt="شعار المؤسسة">
-                <div>
-                    <h1 id="loginTitle">دخول المساعد</h1>
-                    <p class="subtitle">استعراض كامل بصلاحية قراءة فقط</p>
-                </div>
+                <h1 id="loginTitle">صفحة الإدارة</h1>
             </div>
-
-            <div class="read-only-badge">🔒 هذا الحساب يستطيع المشاهدة فقط، ولا تحتوي الصفحة على تعديل أو حذف.</div>
 
             <label class="field-label" for="loginEmail">البريد الإلكتروني</label>
             <input id="loginEmail" type="email" value="admin@admin.com" readonly autocomplete="username">
 
             <label class="field-label" for="loginPassword">كلمة المرور</label>
-            <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="أدخل كلمة مرور حساب Firebase">
+            <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="أدخل كلمة المرور">
 
-            <button id="loginButton" class="login-button" type="submit">دخول آمن</button>
+            <button id="loginButton" class="login-button" type="submit">دخول</button>
             <p id="authError" class="auth-error" role="alert"></p>
         </form>
     </section>
@@ -319,23 +314,12 @@
         <header class="topbar">
             <div class="brand">
                 <img src="../images/ad.png" alt="شعار المؤسسة">
-                <div>
-                    <strong>استعراض المعاملات الكامل</strong>
-                    <span>قراءة فقط — لا تعديل ولا حذف</span>
-                </div>
+                <strong>صفحة الإدارة</strong>
             </div>
             <button id="logoutButton" class="logout-button" type="button">تسجيل الخروج</button>
         </header>
 
         <main>
-            <section class="notice">
-                <div>
-                    <strong>صلاحية مشاهدة فقط</strong>
-                    <span>تعرض هذه الصفحة معلومات المعاملات دون استيراد أي أدوات كتابة أو تعديل أو حذف من Firebase.</span>
-                </div>
-                <div id="viewerEmail" class="viewer-email"></div>
-            </section>
-
             <section class="summary" aria-label="ملخص المعاملات">
                 <article class="summary-card"><span>إجمالي المعاملات</span><strong id="totalCount">—</strong></article>
                 <article class="summary-card"><span>قيد المراجعة</span><strong id="reviewCount">—</strong></article>
@@ -353,7 +337,6 @@
 
             <div class="results-meta">
                 <span id="resultsCount">سجّل الدخول لتحميل المعاملات</span>
-                <span>وضع القراءة فقط</span>
             </div>
 
             <section id="orders" aria-live="polite" aria-busy="false"></section>
@@ -589,7 +572,7 @@
                 console.error(error);
                 loadedForUid = "";
                 ordersElement.setAttribute("aria-busy", "false");
-                ordersElement.innerHTML = '<div class="error">تعذر تحميل المعاملات. تحقق من صلاحيات حساب المشاهدة وقواعد Firestore.</div>';
+                ordersElement.innerHTML = '<div class="error">تعذر تحميل المعاملات. تحقق من صلاحيات الحساب.</div>';
                 resultsCount.textContent = "تعذر تحميل النتائج";
             }
         }
@@ -614,7 +597,6 @@
         function showViewer(user) {
             authScreen.hidden = true;
             appShell.hidden = false;
-            document.getElementById("viewerEmail").textContent = user.email || "";
             loadOrders(user);
         }
 
@@ -639,7 +621,7 @@
             } catch (error) {
                 console.error(error);
                 const message = error?.message === "unauthorized-viewer"
-                    ? "هذا الحساب غير مصرح له بصفحة المشاهدة."
+                    ? "هذا الحساب غير مصرح له."
                     : "تعذر تسجيل الدخول. تحقق من كلمة المرور ثم حاول مرة أخرى.";
                 showLogin(message);
             } finally {
@@ -669,7 +651,7 @@
 
             if (!isAllowedViewer(user)) {
                 await signOut(auth);
-                showLogin("هذا الحساب غير مصرح له بصفحة المشاهدة.");
+                showLogin("هذا الحساب غير مصرح له.");
                 return;
             }
 
