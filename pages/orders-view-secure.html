@@ -351,7 +351,7 @@
             onAuthStateChanged,
             signOut,
             setPersistence,
-            browserSessionPersistence
+            browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -607,7 +607,7 @@
             loginButton.textContent = "جاري التحقق...";
 
             try {
-                await setPersistence(auth, browserSessionPersistence);
+                await setPersistence(auth, browserLocalPersistence);
                 const credential = await signInWithEmailAndPassword(
                     auth,
                     ALLOWED_VIEWER_EMAIL,
