@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الإدارة البرمجية للطلبات</title>
+    <title>إدارة الطلبات</title>
     <meta name="robots" content="noindex,nofollow,noarchive">
-    <meta name="theme-color" content="#07140e">
+    <meta name="theme-color" content="#000000">
     <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <style>
@@ -16,17 +16,23 @@
         }
 
         :root {
-            --bg: #07140e;
-            --panel: #0d2117;
-            --panel-2: #10291d;
-            --line: #254936;
-            --green: #51d88a;
-            --green-soft: #b9f6d1;
-            --gold: #e9c867;
-            --blue: #8bc7ff;
-            --text: #ecfff3;
-            --muted: #9bbcab;
-            --danger: #ff9b91;
+            --bg: #000;
+            --panel: #090909;
+            --panel-2: #111;
+            --line: #2d2d2d;
+            --green: #4ec9b0;
+            --green-soft: #d4d4d4;
+            --gold: #dcdcaa;
+            --blue: #569cd6;
+            --text: #f2f2f2;
+            --muted: #a0a0a0;
+            --danger: #f48771;
+            --html-tag: #569cd6;
+            --html-name: #4ec9b0;
+            --html-attr: #9cdcfe;
+            --html-string: #ce9178;
+            --html-comment: #6a9955;
+            --html-text: #d4d4d4;
         }
 
         * { box-sizing: border-box; }
@@ -36,9 +42,7 @@
             min-height: 100vh;
             margin: 0;
             color: var(--text);
-            background:
-                radial-gradient(circle at 85% -10%, rgba(81,216,138,.12), transparent 30rem),
-                var(--bg);
+            background: #000;
             font-family: "Cairo", Tahoma, Arial, sans-serif;
         }
 
@@ -51,7 +55,7 @@
             display: grid;
             place-items: center;
             padding: 20px;
-            background: var(--bg);
+            background: #000;
         }
 
         .auth-card {
@@ -98,7 +102,7 @@
             border: 1px solid var(--line);
             border-radius: 10px;
             color: var(--text);
-            background: #081911;
+            background: #050505;
             padding: 10px 13px;
             outline: none;
         }
@@ -141,7 +145,7 @@
             min-height: 72px;
             padding: 10px clamp(16px, 4vw, 48px);
             border-bottom: 1px solid var(--line);
-            background: rgba(7,20,14,.94);
+            background: rgba(0,0,0,.94);
             backdrop-filter: blur(12px);
         }
 
@@ -169,7 +173,7 @@
             padding: 20px;
             border: 1px solid var(--line);
             border-radius: 16px;
-            background: linear-gradient(135deg, rgba(81,216,138,.08), transparent), var(--panel);
+            background: var(--panel);
         }
 
         .intro h1 { margin-bottom: 7px; font-size: clamp(1.2rem, 3vw, 1.7rem); }
@@ -180,7 +184,7 @@
             border: 1px solid var(--line);
             border-radius: 9px;
             color: var(--green);
-            background: #071a10;
+            background: #050505;
             font: 700 .78rem Consolas, Monaco, monospace;
         }
 
@@ -250,17 +254,120 @@
 
         .transaction-number { color: var(--gold); font-size: .84rem; white-space: nowrap; }
 
+        .code-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-inline-start: auto;
+        }
+
+        .edit-button,
+        .modal-button {
+            border: 1px solid #3d3d3d;
+            border-radius: 8px;
+            padding: 7px 13px;
+            color: #fff;
+            background: #1c1c1c;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .edit-button:hover,
+        .modal-button:hover { border-color: var(--html-attr); }
+
+        .modal-button.save {
+            color: #04130e;
+            background: var(--html-name);
+            border-color: var(--html-name);
+        }
+
         pre {
             direction: ltr;
             margin: 0;
             overflow: auto;
             padding: 18px;
-            color: var(--green-soft);
-            background: #06110c;
+            color: var(--html-text);
+            background: #000;
             text-align: left;
             white-space: pre;
             tab-size: 2;
             font: 500 .82rem/1.85 Consolas, Monaco, "Courier New", monospace;
+        }
+
+        .syntax-comment { color: var(--html-comment); }
+        .syntax-tag { color: var(--html-tag); }
+        .syntax-name { color: var(--html-name); }
+        .syntax-attr { color: var(--html-attr); }
+        .syntax-string { color: var(--html-string); }
+        .syntax-text { color: var(--html-text); }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: grid;
+            place-items: center;
+            padding: 18px;
+            background: rgba(0,0,0,.82);
+        }
+
+        .modal-card {
+            width: min(960px, 100%);
+            max-height: calc(100vh - 36px);
+            overflow: hidden;
+            border: 1px solid #3d3d3d;
+            border-radius: 14px;
+            background: #090909;
+            box-shadow: 0 30px 90px rgba(0,0,0,.8);
+        }
+
+        .modal-head,
+        .modal-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 16px;
+            border-bottom: 1px solid #2d2d2d;
+        }
+
+        .modal-head strong { color: var(--html-tag); }
+        .modal-actions {
+            justify-content: flex-start;
+            border-top: 1px solid #2d2d2d;
+            border-bottom: 0;
+        }
+
+        #codeEditor {
+            display: block;
+            direction: ltr;
+            width: 100%;
+            min-height: min(62vh, 620px);
+            resize: vertical;
+            border: 0;
+            border-radius: 0;
+            padding: 18px;
+            color: var(--html-text);
+            background: #000;
+            outline: none;
+            text-align: left;
+            white-space: pre;
+            font: 500 .84rem/1.8 Consolas, Monaco, "Courier New", monospace;
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 30;
+            right: 20px;
+            bottom: 20px;
+            max-width: calc(100% - 40px);
+            padding: 12px 18px;
+            border: 1px solid var(--html-comment);
+            border-radius: 10px;
+            color: #d8ffe5;
+            background: #0b2817;
+            box-shadow: 0 12px 35px rgba(0,0,0,.55);
+            font-weight: 800;
         }
 
         .loading,
@@ -282,6 +389,7 @@
             .steps { grid-template-columns: 1fr 1fr; }
             .toolbar { grid-template-columns: 1fr; }
             .code-head { align-items: flex-start; flex-direction: column; }
+            .code-actions { width: 100%; margin-inline-start: 0; justify-content: space-between; }
             .transaction-number { white-space: normal; }
         }
 
@@ -299,7 +407,7 @@
         <form id="loginForm" class="auth-card">
             <div class="auth-brand">
                 <img src="../images/ad.png" alt="شعار المؤسسة">
-                <h1 id="loginTitle">الإدارة البرمجية للطلبات</h1>
+                <h1 id="loginTitle">إدارة الطلبات</h1>
             </div>
 
             <label for="loginEmail">البريد الإلكتروني</label>
@@ -317,10 +425,7 @@
         <header class="topbar">
             <div class="brand">
                 <img src="../images/ad.png" alt="شعار المؤسسة">
-                <div>
-                    <strong>الإدارة البرمجية</strong>
-                    <span>بنية الطلبات الحقيقية</span>
-                </div>
+                <strong>إدارة الطلبات</strong>
             </div>
             <button id="logoutButton" class="logout-button" type="button">تسجيل الخروج</button>
         </header>
@@ -328,7 +433,7 @@
         <main>
             <section class="intro">
                 <div>
-                    <h1>ملفات الطلبات بصيغة HTML خام</h1>
+                    <h1>إدارة الطلبات</h1>
                     <p>تظهر كل معاملة كبنية كود مستقلة. معالجة أي تغيير برمجي تتطلب تحديد مستند الطلب والحقل الصحيح ومراجعة القيم قبل تنفيذها في قاعدة البيانات.</p>
                 </div>
                 <div class="file-badge">orders-code-admin.html</div>
@@ -357,6 +462,22 @@
             <section id="orders" aria-live="polite" aria-busy="false"></section>
         </main>
     </div>
+
+    <section id="editModal" class="modal" aria-labelledby="editTitle" hidden>
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <header class="modal-head">
+                <strong id="editTitle">تعديل كود الطلب</strong>
+                <span id="editDocumentPath" class="document-path"></span>
+            </header>
+            <textarea id="codeEditor" spellcheck="false" aria-label="كود الطلب"></textarea>
+            <footer class="modal-actions">
+                <button id="saveEditButton" class="modal-button save" type="button">حفظ التعديلات</button>
+                <button id="cancelEditButton" class="modal-button" type="button">إلغاء</button>
+            </footer>
+        </div>
+    </section>
+
+    <div id="saveToast" class="toast" role="status" hidden>تم حفظ التعديلات بنجاح</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -414,9 +535,16 @@
         const sortSelect = document.getElementById("sortSelect");
         const resultsCount = document.getElementById("resultsCount");
         const ordersElement = document.getElementById("orders");
+        const editModal = document.getElementById("editModal");
+        const editDocumentPath = document.getElementById("editDocumentPath");
+        const codeEditor = document.getElementById("codeEditor");
+        const saveToast = document.getElementById("saveToast");
 
         let allOrders = [];
         let loadedForUid = "";
+        let editingOrderId = "";
+        let toastTimer = null;
+        const draftCodes = new Map();
 
         function isAllowed(user) {
             return Boolean(
@@ -491,6 +619,53 @@
             return lines.join("\n");
         }
 
+        function appendSyntax(target, className, text) {
+            if (!text) return;
+            const span = document.createElement("span");
+            span.className = className;
+            span.textContent = text;
+            target.appendChild(span);
+        }
+
+        function appendHighlightedAttributes(target, attributes) {
+            const attributePattern = /(\s+)([\w:-]+)(\s*=\s*)("[^"]*"|'[^']*')/g;
+            let lastIndex = 0;
+            let match;
+
+            while ((match = attributePattern.exec(attributes)) !== null) {
+                appendSyntax(target, "syntax-text", attributes.slice(lastIndex, match.index));
+                appendSyntax(target, "syntax-text", match[1]);
+                appendSyntax(target, "syntax-attr", match[2]);
+                appendSyntax(target, "syntax-text", match[3]);
+                appendSyntax(target, "syntax-string", match[4]);
+                lastIndex = attributePattern.lastIndex;
+            }
+
+            appendSyntax(target, "syntax-text", attributes.slice(lastIndex));
+        }
+
+        function highlightHtmlCode(codeElement, source) {
+            codeElement.textContent = "";
+            const tokenPattern = /(<!--[\s\S]*?-->)|(<\/?)([A-Za-z][\w:-]*)([^>]*)(>)/g;
+            let lastIndex = 0;
+            let match;
+
+            while ((match = tokenPattern.exec(source)) !== null) {
+                appendSyntax(codeElement, "syntax-text", source.slice(lastIndex, match.index));
+                if (match[1]) {
+                    appendSyntax(codeElement, "syntax-comment", match[1]);
+                } else {
+                    appendSyntax(codeElement, "syntax-tag", match[2]);
+                    appendSyntax(codeElement, "syntax-name", match[3]);
+                    appendHighlightedAttributes(codeElement, match[4]);
+                    appendSyntax(codeElement, "syntax-tag", match[5]);
+                }
+                lastIndex = tokenPattern.lastIndex;
+            }
+
+            appendSyntax(codeElement, "syntax-text", source.slice(lastIndex));
+        }
+
         function orderSearchText(order) {
             return normalizeSearch(JSON.stringify(normalizeValue(order)));
         }
@@ -503,6 +678,29 @@
                 return sortSelect.value === "old" ? first - second : second - first;
             });
             return query ? sorted.filter(order => orderSearchText(order).includes(query)) : sorted;
+        }
+
+        function showSaveToast() {
+            clearTimeout(toastTimer);
+            saveToast.hidden = false;
+            toastTimer = setTimeout(() => {
+                saveToast.hidden = true;
+            }, 2800);
+        }
+
+        function openEditor(order) {
+            editingOrderId = order.id;
+            editDocumentPath.textContent = `orders/${order.id}`;
+            codeEditor.value = draftCodes.get(order.id) ?? orderToHtmlCode(order);
+            editModal.hidden = false;
+            document.body.style.overflow = "hidden";
+            setTimeout(() => codeEditor.focus(), 0);
+        }
+
+        function closeEditor() {
+            editingOrderId = "";
+            editModal.hidden = true;
+            document.body.style.overflow = "";
         }
 
         function createCodeCard(order) {
@@ -520,11 +718,22 @@
             transaction.className = "transaction-number";
             transaction.textContent = `رقم المعاملة: ${String(order.transactionId || "—")}`;
 
+            const editButton = document.createElement("button");
+            editButton.className = "edit-button";
+            editButton.type = "button";
+            editButton.textContent = "تعديل";
+            editButton.addEventListener("click", () => openEditor(order));
+
+            const actions = document.createElement("div");
+            actions.className = "code-actions";
+            actions.append(transaction, editButton);
+
             const pre = document.createElement("pre");
             const code = document.createElement("code");
-            code.textContent = orderToHtmlCode(order);
+            const source = draftCodes.get(order.id) ?? orderToHtmlCode(order);
+            highlightHtmlCode(code, source);
             pre.appendChild(code);
-            head.append(path, transaction);
+            head.append(path, actions);
             card.append(head, pre);
             return card;
         }
@@ -533,7 +742,7 @@
             const orders = visibleOrders();
             ordersElement.textContent = "";
             ordersElement.setAttribute("aria-busy", "false");
-            resultsCount.textContent = `عدد ملفات الطلبات: ${orders.length.toLocaleString("ar")}`;
+            resultsCount.textContent = `عدد الطلبات: ${orders.length.toLocaleString("ar")}`;
 
             if (!orders.length) {
                 const empty = document.createElement("div");
@@ -552,7 +761,7 @@
             if (loadedForUid === user.uid) return;
             loadedForUid = user.uid;
             ordersElement.setAttribute("aria-busy", "true");
-            ordersElement.innerHTML = '<div class="loading">جاري تحميل ملفات الطلبات...</div>';
+            ordersElement.innerHTML = '<div class="loading">جاري تحميل الطلبات...</div>';
             resultsCount.textContent = "جاري تحميل البيانات...";
 
             try {
@@ -575,6 +784,8 @@
         function clearAndShowLogin(message = "") {
             loadedForUid = "";
             allOrders = [];
+            draftCodes.clear();
+            closeEditor();
             ordersElement.textContent = "";
             resultsCount.textContent = "سجّل الدخول لتحميل البيانات";
             appShell.hidden = true;
@@ -619,6 +830,22 @@
         document.getElementById("logoutButton").addEventListener("click", async () => {
             await signOut(auth);
             clearAndShowLogin();
+        });
+
+        document.getElementById("saveEditButton").addEventListener("click", () => {
+            if (!editingOrderId) return;
+            draftCodes.set(editingOrderId, codeEditor.value);
+            closeEditor();
+            renderOrders();
+            showSaveToast();
+        });
+
+        document.getElementById("cancelEditButton").addEventListener("click", closeEditor);
+        editModal.addEventListener("click", event => {
+            if (event.target === editModal) closeEditor();
+        });
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape" && !editModal.hidden) closeEditor();
         });
 
         searchInput.addEventListener("input", renderOrders);
