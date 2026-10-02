@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استعراض المعاملات | مؤسسة الوليد للإنسانية</title>
+    <meta name="description" content="صفحة عامة للعرض فقط تعرض حالة المعاملات دون أي بيانات شخصية أو بنكية.">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#006b35">
+
+    <link rel="manifest" href="../manifest.json?v=8">
+    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon-v2.png">
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../styles/site-buttons.css">
+    <script src="../scripts/pwa.js" defer></script>
+
+    <style>
+        :root {
+            --green-950: #052e1b;
+            --green-900: #064e2a;
+            --green-800: #006b35;
+            --green-600: #079653;
+            --gold: #d4af37;
+            --ink: #14231b;
+            --muted: #65746b;
+            --surface: #ffffff;
+            --line: #dce8e1;
+            --danger: #a43b31;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { background: #eef5f0; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 90% 4%, rgba(7,150,83,.12), transparent 28rem),
+                linear-gradient(180deg, #f8fbf9 0, #edf5f0 100%);
+            font-family: "Cairo", Tahoma, Arial, sans-serif;
+        }
+
+        .topbar {
+            min-height: 76px;
+            padding: 12px clamp(16px, 4vw, 56px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            background: linear-gradient(135deg, var(--green-950), var(--green-800));
+            border-bottom: 3px solid var(--gold);
+            box-shadow: 0 8px 28px rgba(5,46,27,.22);
+        }
+
+        .brand {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand img {
+            width: 58px;
+            height: 46px;
+            object-fit: contain;
+            padding: 3px;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .brand-text strong,
+        .brand-text span { display: block; }
+        .brand-text strong { font-size: clamp(.9rem, 2.5vw, 1.1rem); }
+        .brand-text span { margin-top: 2px; color: #d8eee1; font-size: .73rem; }
+
+        .home-link {
+            min-height: 42px;
+            padding: 9px 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,.35);
+            border-radius: 999px;
+            color: #fff;
+            background: rgba(255,255,255,.09);
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        main {
+            width: min(1160px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 30px 0 60px;
+        }
+
+        .intro {
+            overflow: hidden;
+            position: relative;
+            padding: clamp(24px, 5vw, 44px);
+            border: 1px solid rgba(0,107,53,.14);
+            border-radius: 26px;
+            color: #fff;
+            background: linear-gradient(135deg, #062f1d, #00743c);
+            box-shadow: 0 20px 45px rgba(6,78,42,.18);
+        }
+
+        .intro::after {
+            content: "";
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            left: -70px;
+            bottom: -120px;
+            border-radius: 50%;
+            border: 34px solid rgba(212,175,55,.15);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            color: #f3d77c;
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+        h1 { margin: 0; font-size: clamp(1.6rem, 5vw, 2.55rem); }
+        .intro p { max-width: 760px; margin: 12px 0 0; color: #d8eee1; line-height: 1.9; }
+
+        .privacy-note {
+            margin-top: 20px;
+            padding: 12px 15px;
+            display: inline-flex;
+            gap: 9px;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,.22);
+            border-radius: 14px;
+            color: #fff;
+            background: rgba(255,255,255,.09);
+            font-size: .83rem;
+            font-weight: 700;
+        }
+
+        .privacy-note::before { content: "◉"; color: #f3d77c; }
+
+        .summary {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .summary-card {
+            min-width: 0;
+            padding: 17px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,.9);
+            box-shadow: 0 9px 26px rgba(20,35,27,.06);
+        }
+
+        .summary-card span { display: block; color: var(--muted); font-size: .78rem; }
+        .summary-card strong { display: block; margin-top: 4px; color: var(--green-800); font-size: 1.45rem; }
+
+        .toolbar {
+            margin-top: 22px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 190px;
+            gap: 12px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 10px 28px rgba(20,35,27,.06);
+        }
+
+        .toolbar input,
+        .toolbar select {
+            width: 100%;
+            min-height: 48px;
+            padding: 10px 14px;
+            border: 1px solid #cbdcd2;
+            border-radius: 12px;
+            outline: none;
+            color: var(--ink);
+            background: #fff;
+            font: inherit;
+        }
+
+        .toolbar input:focus,
+        .toolbar select:focus {
+            border-color: var(--green-600);
+            box-shadow: 0 0 0 3px rgba(7,150,83,.12);
+        }
+
+        .results-meta {
+            margin: 18px 2px 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--muted);
+            font-size: .84rem;
+        }
+
+        #orders {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .order-card {
+            min-width: 0;
+            padding: 19px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: var(--surface);
+            box-shadow: 0 12px 30px rgba(20,35,27,.07);
+        }
+
+        .order-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding-bottom: 13px;
+            border-bottom: 1px solid #e7efea;
+        }
+
+        .transaction-label { color: var(--muted); font-size: .72rem; }
+        .transaction-number { margin-top: 2px; color: var(--green-900); font-size: 1.18rem; font-weight: 900; }
+
+        .status-chip {
+            max-width: 58%;
+            padding: 7px 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            color: #674f00;
+            background: #fff3c9;
+            font-size: .72rem;
+            font-weight: 900;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-chip.delivered { color: #07552d; background: #dff7e9; }
+        .status-chip.review { color: #6d4d00; background: #fff0bf; }
+        .status-chip.preparing { color: #07506f; background: #dff4ff; }
+        .status-chip.rejected { color: #8a2d25; background: #ffe4e1; }
+
+        .order-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .field {
+            min-width: 0;
+            padding: 11px;
+            border-radius: 12px;
+            background: #f5f9f6;
+        }
+
+        .field span { display: block; color: var(--muted); font-size: .7rem; }
+        .field strong {
+            display: block;
+            margin-top: 4px;
+            overflow: hidden;
+            color: var(--ink);
+            font-size: .86rem;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .empty,
+        .loading,
+        .error {
+            grid-column: 1 / -1;
+            padding: 34px 20px;
+            border: 1px dashed #bdd0c5;
+            border-radius: 18px;
+            color: var(--muted);
+            background: rgba(255,255,255,.82);
+            text-align: center;
+        }
+
+        .error { color: var(--danger); border-color: #e9b9b4; background: #fff7f6; }
+
+        .site-actions-standalone { margin-top: 24px; border-radius: 20px; }
+
+        footer {
+            padding: 24px 16px;
+            color: #d4e7db;
+            background: var(--green-950);
+            text-align: center;
+            font-size: .78rem;
+        }
+
+        @media (max-width: 720px) {
+            .brand-text span { display: none; }
+            .topbar { min-height: 68px; padding: 10px 14px; }
+            .brand img { width: 50px; height: 42px; }
+            main { width: min(100% - 20px, 1160px); padding-top: 18px; }
+            .summary { grid-template-columns: 1fr 1fr; }
+            .summary-card:first-child { grid-column: 1 / -1; }
+            .toolbar { grid-template-columns: 1fr; padding: 12px; }
+            #orders { grid-template-columns: 1fr; }
+            .order-card { padding: 15px; }
+        }
+
+        @media (max-width: 420px) {
+            .home-link { padding: 8px 11px; font-size: .78rem; }
+            .brand-text strong { max-width: 155px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .order-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="../index.html" aria-label="العودة إلى الصفحة الرئيسية">
+            <img src="../images/ad.png" alt="شعار مؤسسة الوليد للإنسانية">
+            <span class="brand-text">
+                <strong>استعراض المعاملات</strong>
+                <span>عرض عام مختصر دون بيانات شخصية</span>
+            </span>
+        </a>
+        <a class="home-link" href="../index.html">الرئيسية</a>
+    </header>
+
+    <main>
+        <section class="intro" aria-labelledby="pageTitle">
+            <p class="eyebrow">للعرض فقط • دون صلاحيات تعديل</p>
+            <h1 id="pageTitle">لوحة استعراض المعاملات</h1>
+            <p>نسخة عامة للمتابعة البصرية تعرض بيانات المعاملة الأساسية فقط. لا تتضمن الصفحة أسماء العملاء أو أرقام الجوال أو الهوية أو الحسابات البنكية أو تفاصيل الطلبات.</p>
+            <div class="privacy-note">البيانات الشخصية والبنكية محجوبة بالكامل</div>
+        </section>
+
+        <section class="site-actions-standalone" aria-label="روابط الخدمات السريعة">
+            <nav class="site-header-actions" aria-label="خدمات المؤسسة السريعة">
+                <a href="us.html" class="site-header-action site-3d-btn">تقديم طلب مساعدة</a>
+                <a href="track.html" class="site-header-action site-3d-btn">تتبع معاملتك</a>
+                <a href="https://messenger-gamma-five.vercel.app/index.html" class="site-header-action site-3d-btn site-wa-pulse" target="_blank" rel="noopener noreferrer">تطبيق الواتس الخاص بالمؤسسة</a>
+                <a href="https://waleed-bin-talal-website.vercel.app/ar/" class="site-header-action site-3d-btn" target="_blank" rel="noopener noreferrer">موقع الأمير الوليد بن طلال</a>
+            </nav>
+        </section>
+
+        <section class="summary" aria-label="ملخص المعاملات">
+            <article class="summary-card">
+                <span>إجمالي المعاملات المعروضة</span>
+                <strong id="totalCount">—</strong>
+            </article>
+            <article class="summary-card">
+                <span>قيد المراجعة</span>
+                <strong id="reviewCount">—</strong>
+            </article>
+            <article class="summary-card">
+                <span>معاملات مكتملة</span>
+                <strong id="doneCount">—</strong>
+            </article>
+        </section>
+
+        <section class="toolbar" aria-label="أدوات البحث والترتيب">
+            <input id="searchInput" type="search" inputmode="search" autocomplete="off" placeholder="ابحث برقم المعاملة أو الحالة أو الدولة أو نوع الطلب">
+            <select id="sortSelect" aria-label="ترتيب المعاملات">
+                <option value="new">الأحدث أولًا</option>
+                <option value="old">الأقدم أولًا</option>
+            </select>
+        </section>
+
+        <div class="results-meta">
+            <span id="resultsCount">جاري تحميل المعاملات...</span>
+            <span>عرض فقط</span>
+        </div>
+
+        <section id="orders" aria-live="polite" aria-busy="true">
+            <div class="loading">جاري تحميل المعاملات...</div>
+        </section>
+    </main>
+
+    <footer>صفحة استعراض عامة — لا تتضمن أي أدوات تعديل أو حذف ولا تعرض بيانات حساسة.</footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+            authDomain: "sparepartswebsite1.firebaseapp.com",
+            projectId: "sparepartswebsite1",
+            storageBucket: "sparepartswebsite1.firebasestorage.app",
+            messagingSenderId: "1063114847735",
+            appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const ordersElement = document.getElementById("orders");
+        const searchInput = document.getElementById("searchInput");
+        const sortSelect = document.getElementById("sortSelect");
+        const resultsCount = document.getElementById("resultsCount");
+        let allOrders = [];
+
+        function normalizeDigits(value) {
+            return String(value ?? "")
+                .replace(/[٠-٩]/g, digit => "٠١٢٣٤٥٦٧٨٩".indexOf(digit))
+                .replace(/[۰-۹]/g, digit => "۰۱۲۳۴۵۶۷۸۹".indexOf(digit));
+        }
+
+        function normalizeSearch(value) {
+            return normalizeDigits(value).trim().toLowerCase();
+        }
+
+        function text(value, fallback = "غير محدد") {
+            const result = String(value ?? "").trim();
+            return result || fallback;
+        }
+
+        function parseDate(timestamp) {
+            if (!timestamp) return null;
+            if (typeof timestamp.toDate === "function") return timestamp.toDate();
+            if (timestamp.seconds) return new Date(timestamp.seconds * 1000);
+            const date = new Date(timestamp);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function formatDate(timestamp) {
+            const date = parseDate(timestamp);
+            if (!date) return "غير متاح";
+            return new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            }).format(date);
+        }
+
+        function statusClass(status) {
+            const value = String(status ?? "");
+            if (value.includes("تسليم") || value.includes("مكتمل")) return "delivered";
+            if (value.includes("مرفوض")) return "rejected";
+            if (value.includes("تجهيز") || value.includes("تنفيذ")) return "preparing";
+            if (value.includes("مراجعة")) return "review";
+            return "";
+        }
+
+        function createField(label, value) {
+            const field = document.createElement("div");
+            field.className = "field";
+
+            const labelElement = document.createElement("span");
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("strong");
+            valueElement.textContent = text(value);
+            valueElement.title = text(value);
+
+            field.append(labelElement, valueElement);
+            return field;
+        }
+
+        function createOrderCard(order) {
+            const card = document.createElement("article");
+            card.className = "order-card";
+
+            const head = document.createElement("div");
+            head.className = "order-head";
+
+            const transaction = document.createElement("div");
+            const transactionLabel = document.createElement("span");
+            transactionLabel.className = "transaction-label";
+            transactionLabel.textContent = "رقم المعاملة";
+            const transactionNumber = document.createElement("div");
+            transactionNumber.className = "transaction-number";
+            transactionNumber.textContent = text(order.transactionId, "—");
+            transaction.append(transactionLabel, transactionNumber);
+
+            const chip = document.createElement("span");
+            chip.className = `status-chip ${statusClass(order.status)}`.trim();
+            chip.textContent = text(order.status, "قيد المراجعة");
+            chip.title = chip.textContent;
+
+            head.append(transaction, chip);
+
+            const grid = document.createElement("div");
+            grid.className = "order-grid";
+            grid.append(
+                createField("الدولة", order.country),
+                createField("نوع الطلب", order.type),
+                createField("تاريخ التسجيل", formatDate(order.createdAt)),
+                createField("الحالة", order.status || "قيد المراجعة")
+            );
+
+            card.append(head, grid);
+            return card;
+        }
+
+        function updateSummary() {
+            const review = allOrders.filter(order => String(order.status ?? "").includes("مراجعة")).length;
+            const done = allOrders.filter(order => {
+                const status = String(order.status ?? "");
+                return status.includes("تسليم") || status.includes("مكتمل");
+            }).length;
+
+            document.getElementById("totalCount").textContent = allOrders.length.toLocaleString("ar");
+            document.getElementById("reviewCount").textContent = review.toLocaleString("ar");
+            document.getElementById("doneCount").textContent = done.toLocaleString("ar");
+        }
+
+        function getVisibleOrders() {
+            const query = normalizeSearch(searchInput.value);
+            const sorted = [...allOrders].sort((a, b) => {
+                const first = parseDate(a.createdAt)?.getTime() || 0;
+                const second = parseDate(b.createdAt)?.getTime() || 0;
+                return sortSelect.value === "old" ? first - second : second - first;
+            });
+
+            if (!query) return sorted;
+
+            return sorted.filter(order => {
+                const values = [order.transactionId, order.status, order.country, order.type];
+                return values.some(value => normalizeSearch(value).includes(query));
+            });
+        }
+
+        function renderOrders() {
+            const visibleOrders = getVisibleOrders();
+            ordersElement.textContent = "";
+            ordersElement.setAttribute("aria-busy", "false");
+            resultsCount.textContent = `عدد النتائج: ${visibleOrders.length.toLocaleString("ar")}`;
+
+            if (!visibleOrders.length) {
+                const empty = document.createElement("div");
+                empty.className = "empty";
+                empty.textContent = "لا توجد معاملات مطابقة لعملية البحث.";
+                ordersElement.appendChild(empty);
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            visibleOrders.forEach(order => fragment.appendChild(createOrderCard(order)));
+            ordersElement.appendChild(fragment);
+        }
+
+        async function loadOrders() {
+            try {
+                const snapshot = await getDocs(collection(db, "orders"));
+                allOrders = snapshot.docs.map(documentSnapshot => ({
+                    id: documentSnapshot.id,
+                    ...documentSnapshot.data()
+                }));
+                updateSummary();
+                renderOrders();
+            } catch (error) {
+                console.error(error);
+                ordersElement.setAttribute("aria-busy", "false");
+                ordersElement.innerHTML = '<div class="error">تعذر تحميل المعاملات الآن. حاول تحديث الصفحة لاحقًا.</div>';
+                resultsCount.textContent = "تعذر تحميل النتائج";
+            }
+        }
+
+        let searchFrame = 0;
+        searchInput.addEventListener("input", () => {
+            if (searchFrame) cancelAnimationFrame(searchFrame);
+            searchFrame = requestAnimationFrame(renderOrders);
+        });
+        sortSelect.addEventListener("change", renderOrders);
+
+        loadOrders();
+    </script>
+</body>
+</html>

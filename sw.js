@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v16";
+const CACHE_NAME = "waleedtalal-pwa-v17";
 
 const APP_SHELL = [
   "./",
@@ -28,7 +28,8 @@ const APP_SHELL = [
   "./pages/status.html",
   "./pages/terms.html",
   "./pages/privacy-policy.html",
-  "./pages/success.html"
+  "./pages/success.html",
+  "./pages/orders-view.html"
 ];
 
 self.addEventListener("install", event => {
