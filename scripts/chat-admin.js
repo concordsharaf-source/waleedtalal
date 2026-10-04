@@ -889,6 +889,12 @@ voiceRecorder = createVoiceRecorder({
     pauseButton: pauseVoiceRecording,
     cancelButton: cancelVoiceRecording,
     sendButton: sendVoiceRecording,
+    triggerButton: sendButton,
+    isVoiceMode: () => !messageInput.value.trim(),
+    onStart: () => {
+        emojiPanel.hidden = true;
+        attachmentSheet.hidden = true;
+    },
     onSend: sendRecordedVoice,
     onNotify: showToast
 });

@@ -90,14 +90,18 @@
             <div id="emojiPanel" class="emoji-panel" hidden></div>
 
             <div id="voiceRecorder" class="voice-recorder" aria-live="polite" hidden>
+                <div class="voice-lock-guide" aria-hidden="true">
+                    <span class="voice-lock-icon"></span>
+                    <span class="voice-lock-arrow">⌃</span>
+                </div>
                 <button id="cancelVoiceRecording" class="voice-control voice-cancel" type="button" aria-label="إلغاء التسجيل" title="إلغاء التسجيل">🗑</button>
                 <div class="voice-recording-status">
                     <span class="voice-recording-dot" aria-hidden="true"></span>
                     <time id="voiceRecordingTimer" datetime="PT0S">00:00</time>
                 </div>
-                <div class="voice-live-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                <span class="voice-slide-hint">تسجيل صوتي</span>
-                <button id="pauseVoiceRecording" class="voice-control" type="button" aria-label="إيقاف التسجيل مؤقتًا" title="إيقاف مؤقت">⏸</button>
+                <div class="voice-live-wave" aria-label="موجات الصوت في الوقت الفعلي"></div>
+                <span class="voice-slide-hint">اسحب للإلغاء</span>
+                <button id="pauseVoiceRecording" class="voice-control voice-pause" type="button" aria-label="إيقاف التسجيل مؤقتًا" title="إيقاف مؤقت">⏸</button>
                 <button id="sendVoiceRecording" class="send-button voice-record-send" type="button" aria-label="إرسال التسجيل">➤</button>
             </div>
 

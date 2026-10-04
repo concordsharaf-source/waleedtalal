@@ -42,10 +42,17 @@ export function createVoiceRecorder({
     pauseButton,
     cancelButton,
     sendButton,
+    triggerButton = null,
+    isVoiceMode = () => true,
+    onStart = () => {},
     onSend,
     onNotify,
     maxSeconds = 180
 }) {
+    const LOCK_DISTANCE = 72;
+    const CANCEL_DISTANCE = 110;
+    const waveElement = panel.querySelector(".voice-live-wave");
+    const waveBars = [];
     let stream = null;
     let recorder = null;
     let chunks = [];
@@ -55,6 +62,90 @@ export function createVoiceRecorder({
     let totalPaused = 0;
     let sendWhenStopped = false;
     let busy = false;
+    let startingPromise = null;
+    let startSequence = 0;
+    let audioContext = null;
+    let audioSource = null;
+    let analyser = null;
+    let analyserData = null;
+    let waveformFrame = 0;
+    let gesture = null;
+    let suppressClickUntil = 0;
+
+    const ensureWaveform = () => {
+        if (!waveElement || waveBars.length) return;
+        waveElement.textContent = "";
+        for (let index = 0; index < 18; index += 1) {
+            const bar = document.createElement("i");
+            const restingHeight = 5 + ((index * 7) % 8);
+            bar.style.height = `${restingHeight}px`;
+            bar.dataset.height = String(restingHeight);
+            waveElement.appendChild(bar);
+            waveBars.push(bar);
+        }
+    };
+
+    const resetWaveform = () => {
+        waveBars.forEach((bar, index) => {
+            const height = 5 + ((index * 7) % 8);
+            bar.style.height = `${height}px`;
+            bar.dataset.height = String(height);
+        });
+    };
+
+    const stopVisualizer = () => {
+        cancelAnimationFrame(waveformFrame);
+        waveformFrame = 0;
+        try { audioSource?.disconnect(); } catch { /* انتهى المصدر */ }
+        audioSource = null;
+        analyser = null;
+        analyserData = null;
+        if (audioContext) audioContext.close().catch(() => {});
+        audioContext = null;
+    };
+
+    const drawWaveform = () => {
+        if (!analyser || !analyserData) return;
+        if (recorder?.state === "recording") {
+            analyser.getByteTimeDomainData(analyserData);
+            const segmentSize = Math.max(1, Math.floor(analyserData.length / waveBars.length));
+            waveBars.forEach((bar, index) => {
+                const segmentStart = index * segmentSize;
+                const segmentEnd = Math.min(analyserData.length, segmentStart + segmentSize);
+                let peak = 0;
+                for (let sample = segmentStart; sample < segmentEnd; sample += 1) {
+                    peak = Math.max(peak, Math.abs(analyserData[sample] - 128) / 128);
+                }
+                const target = 5 + Math.min(1, peak * 5.5) * 25;
+                const previous = Number(bar.dataset.height) || 5;
+                const height = previous * .52 + target * .48;
+                bar.dataset.height = height.toFixed(2);
+                bar.style.height = `${height.toFixed(1)}px`;
+            });
+        }
+        waveformFrame = requestAnimationFrame(drawWaveform);
+    };
+
+    const startVisualizer = mediaStream => {
+        ensureWaveform();
+        stopVisualizer();
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        try {
+            audioContext = new AudioContextClass();
+            if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+            audioSource = audioContext.createMediaStreamSource(mediaStream);
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            analyser.smoothingTimeConstant = .72;
+            analyserData = new Uint8Array(analyser.fftSize);
+            audioSource.connect(analyser);
+            drawWaveform();
+        } catch (error) {
+            console.warn("Live voice waveform unavailable", error);
+            stopVisualizer();
+        }
+    };
 
     const elapsedMilliseconds = () => {
         if (!startedAt) return 0;
@@ -65,6 +156,7 @@ export function createVoiceRecorder({
     const updateTimer = () => {
         const elapsed = elapsedMilliseconds();
         timer.textContent = formatVoiceDuration(elapsed / 1000);
+        timer.dateTime = `PT${Math.max(0, Math.floor(elapsed / 1000))}S`;
         if (elapsed >= maxSeconds * 1000 && recorder && recorder.state !== "inactive") {
             onNotify(`الحد الأقصى للتسجيل ${Math.floor(maxSeconds / 60)} دقائق`);
             stopAndSend();
@@ -76,9 +168,25 @@ export function createVoiceRecorder({
         stream = null;
     };
 
+    const setRecordingMode = locked => {
+        panel.classList.toggle("is-locked", locked);
+        panel.classList.toggle("is-holding", !locked);
+        panel.classList.remove("is-lock-ready");
+        panel.style.removeProperty("--voice-lock-shift");
+    };
+
+    const clearGesture = () => {
+        triggerButton?.classList.remove("is-recording-press");
+        panel.classList.remove("is-lock-ready");
+        panel.style.removeProperty("--voice-lock-shift");
+        gesture = null;
+    };
+
     const reset = () => {
+        startSequence += 1;
         clearInterval(timerId);
         timerId = null;
+        stopVisualizer();
         stopTracks();
         recorder = null;
         chunks = [];
@@ -88,19 +196,24 @@ export function createVoiceRecorder({
         sendWhenStopped = false;
         busy = false;
         timer.textContent = "00:00";
+        timer.dateTime = "PT0S";
         pauseButton.textContent = "⏸";
         pauseButton.setAttribute("aria-label", "إيقاف التسجيل مؤقتًا");
-        panel.classList.remove("is-paused", "is-uploading");
+        panel.classList.remove("is-paused", "is-uploading", "is-holding", "is-locked", "is-lock-ready");
+        panel.style.removeProperty("--voice-lock-shift");
         panel.hidden = true;
         composer.hidden = false;
         cancelButton.disabled = false;
         pauseButton.disabled = false;
         sendButton.disabled = false;
+        clearGesture();
+        resetWaveform();
     };
 
     const finish = async mimeType => {
         clearInterval(timerId);
         timerId = null;
+        stopVisualizer();
         const duration = Math.max(1, Math.round(elapsedMilliseconds() / 1000));
         const shouldSend = sendWhenStopped;
         const audioChunks = chunks;
@@ -112,7 +225,8 @@ export function createVoiceRecorder({
         }
 
         const blob = new Blob(audioChunks, { type: mimeType || audioChunks[0]?.type || "audio/webm" });
-        panel.classList.add("is-uploading");
+        panel.classList.remove("is-holding");
+        panel.classList.add("is-locked", "is-uploading");
         timer.textContent = "جارٍ الإرسال...";
         cancelButton.disabled = true;
         pauseButton.disabled = true;
@@ -123,63 +237,97 @@ export function createVoiceRecorder({
         } catch (error) {
             console.error("Voice message send failed", error);
             onNotify(error?.message === "audio-storage-not-configured"
-                ? "يجب تفعيل Vercel Blob أولاً"
+                ? "يجب تفعيل تخزين الصوت أولاً"
                 : "تعذر إرسال الرسالة الصوتية");
         } finally {
             reset();
         }
     };
 
-    async function start() {
-        if (recorder || busy) return false;
+    async function start({ locked = true } = {}) {
+        if (recorder || busy || startingPromise) return false;
         if (!navigator.mediaDevices?.getUserMedia || !("MediaRecorder" in window)) {
             onNotify("التسجيل الصوتي غير مدعوم في هذا المتصفح");
             return false;
         }
 
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true
+        const sequence = ++startSequence;
+        const task = (async () => {
+            try {
+                const acquiredStream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                if (sequence !== startSequence) {
+                    acquiredStream.getTracks().forEach(track => track.stop());
+                    return false;
                 }
-            });
-            const mimeType = supportedRecordingType();
-            recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-            chunks = [];
-            sendWhenStopped = false;
-            recorder.addEventListener("dataavailable", event => {
-                if (event.data?.size) chunks.push(event.data);
-            });
-            recorder.addEventListener("stop", () => finish(recorder?.mimeType || mimeType), { once: true });
-            recorder.addEventListener("error", () => {
-                onNotify("حدث خطأ أثناء التسجيل");
+
+                stream = acquiredStream;
+                const mimeType = supportedRecordingType();
+                recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+                chunks = [];
                 sendWhenStopped = false;
-            });
-            recorder.start(250);
-            startedAt = performance.now();
-            pausedAt = 0;
-            totalPaused = 0;
-            composer.hidden = true;
-            panel.hidden = false;
-            timer.textContent = "00:00";
-            timerId = setInterval(updateTimer, 200);
-            updateTimer();
-            return true;
-        } catch (error) {
-            console.error("Microphone permission failed", error);
-            stopTracks();
-            recorder = null;
-            onNotify(error?.name === "NotAllowedError"
-                ? "اسمح للموقع باستخدام الميكروفون من إعدادات المتصفح"
-                : "تعذر تشغيل الميكروفون");
-            return false;
+                recorder.addEventListener("dataavailable", event => {
+                    if (event.data?.size) chunks.push(event.data);
+                });
+                recorder.addEventListener("stop", () => finish(recorder?.mimeType || mimeType), { once: true });
+                recorder.addEventListener("error", () => {
+                    onNotify("حدث خطأ أثناء التسجيل");
+                    sendWhenStopped = false;
+                    if (recorder?.state !== "inactive") recorder.stop();
+                    else reset();
+                }, { once: true });
+                recorder.start(200);
+                startedAt = performance.now();
+                pausedAt = 0;
+                totalPaused = 0;
+                onStart();
+                composer.hidden = true;
+                panel.hidden = false;
+                setRecordingMode(locked);
+                timer.textContent = "00:00";
+                timer.dateTime = "PT0S";
+                startVisualizer(stream);
+                timerId = setInterval(updateTimer, 160);
+                updateTimer();
+                return true;
+            } catch (error) {
+                console.error("Microphone permission failed", error);
+                stopVisualizer();
+                stopTracks();
+                recorder = null;
+                if (sequence === startSequence) {
+                    onNotify(error?.name === "NotAllowedError"
+                        ? "اسمح للموقع باستخدام الميكروفون من إعدادات المتصفح"
+                        : "تعذر تشغيل الميكروفون");
+                }
+                return false;
+            }
+        })();
+
+        startingPromise = task;
+        try {
+            return await task;
+        } finally {
+            if (startingPromise === task) startingPromise = null;
         }
     }
 
     function cancel() {
-        if (!recorder || busy) return;
+        if (busy) return;
+        if (!recorder) {
+            if (startingPromise) {
+                startSequence += 1;
+                clearGesture();
+                composer.hidden = false;
+                panel.hidden = true;
+            }
+            return;
+        }
         sendWhenStopped = false;
         if (recorder.state !== "inactive") recorder.stop();
         else reset();
@@ -188,6 +336,9 @@ export function createVoiceRecorder({
     function stopAndSend() {
         if (!recorder || busy) return;
         sendWhenStopped = true;
+        clearGesture();
+        panel.classList.remove("is-holding");
+        panel.classList.add("is-locked");
         if (recorder.state === "paused") recorder.resume();
         if (recorder.state !== "inactive") recorder.stop();
     }
@@ -211,16 +362,127 @@ export function createVoiceRecorder({
         updateTimer();
     }
 
+    const lockGesture = currentGesture => {
+        if (!currentGesture || currentGesture.locked) return;
+        currentGesture.locked = true;
+        setRecordingMode(true);
+        if (navigator.vibrate) navigator.vibrate(35);
+    };
+
+    const handleGestureMove = event => {
+        const currentGesture = gesture;
+        if (!currentGesture || event.pointerId !== currentGesture.pointerId || currentGesture.released) return;
+        if (event.cancelable) event.preventDefault();
+        const upwardDistance = Math.max(0, currentGesture.startY - event.clientY);
+        const inwardDistance = Math.max(0, event.clientX - currentGesture.startX);
+        const lockProgress = Math.min(1, upwardDistance / LOCK_DISTANCE);
+        panel.style.setProperty("--voice-lock-shift", `${Math.round(-lockProgress * 15)}px`);
+        panel.classList.toggle("is-lock-ready", lockProgress >= .72);
+
+        if (upwardDistance >= LOCK_DISTANCE) {
+            lockGesture(currentGesture);
+            return;
+        }
+        if (inwardDistance >= CANCEL_DISTANCE) {
+            currentGesture.cancelled = true;
+            suppressClickUntil = performance.now() + 500;
+            cancel();
+            clearGesture();
+            onNotify("تم إلغاء التسجيل");
+        }
+    };
+
+    const handleGestureEnd = event => {
+        const currentGesture = gesture;
+        if (!currentGesture || event.pointerId !== currentGesture.pointerId) return;
+        if (event.cancelable) event.preventDefault();
+        suppressClickUntil = performance.now() + 500;
+        currentGesture.released = true;
+        if (currentGesture.locked) {
+            clearGesture();
+            return;
+        }
+        if (!currentGesture.started) {
+            currentGesture.cancelled = true;
+            return;
+        }
+        stopAndSend();
+    };
+
+    const handleGestureCancel = event => {
+        const currentGesture = gesture;
+        if (!currentGesture || event.pointerId !== currentGesture.pointerId) return;
+        currentGesture.cancelled = true;
+        suppressClickUntil = performance.now() + 500;
+        cancel();
+        clearGesture();
+    };
+
+    const beginGesture = async event => {
+        if (!triggerButton || !isVoiceMode() || event.button > 0 || !event.isPrimary) return;
+        event.preventDefault();
+        suppressClickUntil = performance.now() + 500;
+        const currentGesture = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            started: false,
+            released: false,
+            cancelled: false,
+            locked: false
+        };
+        gesture = currentGesture;
+        triggerButton.classList.add("is-recording-press");
+        const started = await start({ locked: false });
+        if (gesture !== currentGesture) {
+            if (started && currentGesture.locked) setRecordingMode(true);
+            else if (started) cancel();
+            return;
+        }
+        currentGesture.started = started;
+        if (!started) {
+            clearGesture();
+            return;
+        }
+        if (currentGesture.locked) setRecordingMode(true);
+        if (currentGesture.cancelled) {
+            cancel();
+            clearGesture();
+        } else if (currentGesture.released && !currentGesture.locked) {
+            cancel();
+            clearGesture();
+        }
+    };
+
+    ensureWaveform();
     cancelButton.addEventListener("click", cancel);
     sendButton.addEventListener("click", stopAndSend);
     pauseButton.addEventListener("click", togglePause);
+
+    if (triggerButton) {
+        triggerButton.style.touchAction = "none";
+        triggerButton.addEventListener("pointerdown", beginGesture);
+        window.addEventListener("pointermove", handleGestureMove, { passive: false });
+        window.addEventListener("pointerup", handleGestureEnd, { passive: false });
+        window.addEventListener("pointercancel", handleGestureCancel);
+        triggerButton.addEventListener("click", event => {
+            if (!isVoiceMode()) return;
+            event.preventDefault();
+            if (performance.now() <= suppressClickUntil) return;
+            start({ locked: true });
+        });
+        triggerButton.addEventListener("contextmenu", event => {
+            if (isVoiceMode()) event.preventDefault();
+        });
+    }
+
     window.addEventListener("pagehide", cancel);
 
     return {
         start,
         cancel,
         stopAndSend,
-        get active() { return Boolean(recorder) || busy; }
+        get active() { return Boolean(recorder) || Boolean(startingPromise) || busy; }
     };
 }
 
