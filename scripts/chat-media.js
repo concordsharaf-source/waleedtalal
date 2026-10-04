@@ -1,3 +1,6 @@
+const mediaUrlCache = new Map();
+const mediaUrlPending = new Map();
+
 export function formatMediaSize(bytes) {
     const value = Math.max(0, Number(bytes) || 0);
     if (value < 1024) return `${value} B`;
@@ -6,14 +9,29 @@ export function formatMediaSize(bytes) {
 }
 
 export async function resolveMessageMediaUrl(orderId, messageId) {
-    const response = await fetch("/api/chat-media-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ orderId, messageId })
-    });
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok || !result.url) throw new Error(result.error || "media-url-failed");
-    return result.url;
+    const key = `${orderId}:${messageId}`;
+    const cached = mediaUrlCache.get(key);
+    if (cached && cached.expiresAt > Date.now() + 60_000) return cached.url;
+    if (mediaUrlPending.has(key)) return mediaUrlPending.get(key);
+
+    const request = (async () => {
+        const response = await fetch("/api/chat-media-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ orderId, messageId })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.url) throw new Error(result.error || "media-url-failed");
+        const lifetime = Number(result.expiresIn) > 0 ? Number(result.expiresIn) * 1000 : 24 * 60 * 60 * 1000;
+        mediaUrlCache.set(key, { url: result.url, expiresAt: Date.now() + lifetime });
+        return result.url;
+    })();
+    mediaUrlPending.set(key, request);
+    try {
+        return await request;
+    } finally {
+        mediaUrlPending.delete(key);
+    }
 }
 
 export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
@@ -74,19 +92,30 @@ function pendingView(message) {
 }
 
 export function createMediaMessageContent(message, orderId) {
-    if (message.uploadStatus !== "ready" || !message.mediaPath) return pendingView(message);
+    const legacyMedia = message.media && typeof message.media === "object" ? message.media : {};
+    const legacyUrl = typeof legacyMedia.url === "string" && legacyMedia.url.startsWith("https://")
+        ? legacyMedia.url
+        : "";
+    const legacyPath = typeof legacyMedia.path === "string" ? legacyMedia.path : "";
+    const isReady = (message.uploadStatus === "ready" && Boolean(message.mediaPath)) || Boolean(legacyUrl || legacyPath);
+    if (!isReady) return pendingView(message);
 
+    const mediaUrl = () => legacyPath || message.mediaPath
+        ? resolveMessageMediaUrl(orderId, message.id)
+        : Promise.resolve(legacyUrl);
+    const mediaName = message.mediaName || legacyMedia.name || "مرفق";
+    const mediaBytes = message.mediaBytes || legacyMedia.size || 0;
     const wrapper = document.createElement("div");
     wrapper.className = `media-message-content ${message.messageType}`;
 
     if (message.messageType === "image") {
         const image = document.createElement("img");
-        image.alt = message.mediaName || "صورة مرفقة";
+        image.alt = mediaName || "صورة مرفقة";
         image.loading = "lazy";
         image.decoding = "async";
         const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "image" });
         wrapper.append(loading, image);
-        resolveMessageMediaUrl(orderId, message.id).then(url => {
+        mediaUrl().then(url => {
             image.src = url;
             loading.remove();
         }).catch(() => {
@@ -95,7 +124,7 @@ export function createMediaMessageContent(message, orderId) {
         });
         image.addEventListener("click", async event => {
             event.stopPropagation();
-            try { window.open(await resolveMessageMediaUrl(orderId, message.id), "_blank", "noopener"); } catch { /* لا شيء */ }
+            try { window.open(await mediaUrl(), "_blank", "noopener"); } catch { /* لا شيء */ }
         });
         return wrapper;
     }
@@ -107,7 +136,7 @@ export function createMediaMessageContent(message, orderId) {
         video.playsInline = true;
         const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "video" });
         wrapper.append(loading, video);
-        resolveMessageMediaUrl(orderId, message.id).then(url => {
+        mediaUrl().then(url => {
             video.src = url;
             loading.remove();
         }).catch(() => {
@@ -127,16 +156,16 @@ export function createMediaMessageContent(message, orderId) {
     const details = document.createElement("span");
     details.className = "media-file-details";
     const name = document.createElement("strong");
-    name.textContent = message.mediaName || "ملف مرفق";
+    name.textContent = mediaName || "ملف مرفق";
     const size = document.createElement("small");
-    size.textContent = formatMediaSize(message.mediaBytes);
+    size.textContent = formatMediaSize(mediaBytes);
     details.append(name, size);
     fileButton.append(icon, details);
     fileButton.addEventListener("click", async event => {
         event.stopPropagation();
         fileButton.disabled = true;
         try {
-            const url = await resolveMessageMediaUrl(orderId, message.id);
+            const url = await mediaUrl();
             window.open(url, "_blank", "noopener");
         } finally {
             fileButton.disabled = false;

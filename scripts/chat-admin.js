@@ -103,6 +103,7 @@ let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
 let voiceRecorder = null;
+let renderedMessagesSignature = "";
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -297,6 +298,7 @@ async function selectConversation(orderId) {
         await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
     }
     currentOrder = order;
+    renderedMessagesSignature = "";
     replyTarget = null;
     replyPreview.hidden = true;
     messageSearchQuery = "";
@@ -316,6 +318,29 @@ async function selectConversation(orderId) {
     if (adminPushToken) await registerChatPushToken(order.id, ADMIN_ACTOR, adminPushToken);
     await markMessagesRead(order.id, ADMIN_ACTOR);
     messageInput.focus();
+}
+
+function messageRenderSignature(messages) {
+    return JSON.stringify([
+        currentOrder?.id,
+        messageSearchQuery,
+        starredOnly,
+        messages.map(message => [
+            message.id,
+            message.text,
+            message.messageType,
+            message.uploadStatus,
+            message.mediaPath,
+            message.audioUrl,
+            message.media?.url,
+            message.media?.path,
+            message.deletedForAll,
+            message.replyTo?.id,
+            message.readBy,
+            message.starredBy,
+            message.deletedFor
+        ])
+    ]);
 }
 
 function renderCurrentConversation() {
@@ -346,7 +371,11 @@ function renderCurrentConversation() {
         return matchesSearch && matchesStar;
     });
     adminMessageSearchCount.textContent = query || starredOnly ? `${visibleMessages.length} نتيجة` : "";
-    renderMessages(visibleMessages);
+    const nextSignature = messageRenderSignature(visibleMessages);
+    if (nextSignature !== renderedMessagesSignature) {
+        renderMessages(visibleMessages);
+        renderedMessagesSignature = nextSignature;
+    }
 
     clearTimeout(markReadTimer);
     markReadTimer = setTimeout(() => markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error), 250);

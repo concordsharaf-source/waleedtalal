@@ -55,7 +55,7 @@ module.exports = async function handler(request, response) {
             return response.status(200).json({ url, expiresIn: 0 });
         }
 
-        const path = String(message.mediaPath || message.audioPathname || '');
+        const path = String(message.mediaPath || message.audioPathname || message.media?.path || '');
         if (!path) return response.status(404).json({ error: 'media-not-found' });
         const storage = await resolveSupabaseStorage();
         const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUrl(path, 60 * 60);

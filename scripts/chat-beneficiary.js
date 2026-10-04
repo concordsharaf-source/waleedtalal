@@ -95,6 +95,7 @@ let starredOnly = false;
 let deferredInstallPrompt = null;
 let clientPushToken = "";
 let voiceRecorder = null;
+let renderedMessagesSignature = "";
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -184,6 +185,7 @@ async function startChat(session) {
     requestAnimationFrame(updateFloatingActionsOffset);
     initializedMessages = false;
     knownMessageIds = new Set();
+    renderedMessagesSignature = "";
 
     const draftKey = `waleed_chat_draft_${session.orderId}`;
     messageInput.value = localStorage.getItem(draftKey) || "";
@@ -203,6 +205,28 @@ async function startChat(session) {
     });
 }
 
+function messageRenderSignature(messages) {
+    return JSON.stringify([
+        messageSearchQuery,
+        starredOnly,
+        messages.map(message => [
+            message.id,
+            message.text,
+            message.messageType,
+            message.uploadStatus,
+            message.mediaPath,
+            message.audioUrl,
+            message.media?.url,
+            message.media?.path,
+            message.deletedForAll,
+            message.replyTo?.id,
+            message.readBy,
+            message.starredBy,
+            message.deletedFor
+        ])
+    ]);
+}
+
 function renderOrder(order) {
     const allMessages = sortMessages(order.chatMessages)
         .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(CLIENT_ACTOR)));
@@ -220,7 +244,11 @@ function renderOrder(order) {
     messageSearchCount.textContent = query || starredOnly ? `${messages.length} نتيجة` : "";
     chatOrderBadge.textContent = `#${order.transactionId || currentOrder?.transactionId || "----"}`;
 
-    renderMessages(messages);
+    const nextSignature = messageRenderSignature(messages);
+    if (nextSignature !== renderedMessagesSignature) {
+        renderMessages(messages);
+        renderedMessagesSignature = nextSignature;
+    }
     updateAdminStatus(order);
     typingBar.hidden = order.chatTyping?.admin !== true;
 
