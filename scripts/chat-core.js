@@ -75,6 +75,23 @@ export function sortMessages(messages) {
         .sort((a, b) => new Date(a.clientTime || 0) - new Date(b.clientTime || 0));
 }
 
+function formatOrderTimestamp(value) {
+    if (!value) return "غير متاح";
+    const date = typeof value.toDate === "function"
+        ? value.toDate()
+        : value.seconds
+            ? new Date(value.seconds * 1000)
+            : new Date(value);
+    if (Number.isNaN(date.getTime())) return "غير متاح";
+    return date.toLocaleString("ar-SA-u-ca-gregory", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
 export function buildWelcomeMessage(order) {
     const transactionId = String(order.transactionId || "—");
     const details = [
@@ -88,6 +105,10 @@ export function buildWelcomeMessage(order) {
         `💳 رقم الحساب/الآيبان: ${order.partNumber || "غير محدد"}`,
         `📂 نوع الطلب: ${order.type || "غير محدد"}`,
         `📝 شرح الاحتياج: ${order.notes || "غير محدد"}`,
+        `📍 حالة الطلب: ${order.status || "قيد المراجعة"}`,
+        `✅ حالة الاعتماد: ${order.approved === true ? "معتمد" : "غير معتمد"}`,
+        `💰 مبلغ المنحة: ${order.grantAmount || "غير محدد"}`,
+        `🗓️ تاريخ تقديم الطلب: ${formatOrderTimestamp(order.createdAt)}`,
         "",
         "مرحباً بك عزيزي المستفيد، تم استلام طلبك بنجاح. يمكنك التواصل المباشر مع إدارة المؤسسة هنا لمتابعة تفاصيل وإجراءات طلبك."
     ];

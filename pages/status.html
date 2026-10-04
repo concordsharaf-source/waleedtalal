@@ -496,6 +496,8 @@ font-weight:bold;
 
 display:flex;
 
+flex-wrap:wrap;
+
 gap:10px;
 
 margin-top:25px;
@@ -505,6 +507,8 @@ margin-top:25px;
 .btn{
 
 flex:1;
+
+min-width:min(100%,180px);
 
 padding:14px;
 
@@ -526,6 +530,11 @@ transition: 0.3s;
 
 .btn:hover {
     opacity: 0.9;
+}
+
+.internal-chat-btn{
+    background:linear-gradient(135deg,#087973,#045652);
+    color:white;
 }
 
 /* --- الفوتر --- */
@@ -958,9 +967,9 @@ transition: 0.3s;
 
     <div class="buttons-container">
 
-    <button class="btn" onclick="location.href='chat.html'">
+    <button id="directChatButton" class="btn internal-chat-btn" style="display:none;" onclick="location.href='chat.html'">
 
-    💬 المحادثة المباشرة مع الإدارة
+    💬 التواصل المباشر عبر واتساب المؤسسة
 
     </button>
 
@@ -1059,7 +1068,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -1206,16 +1215,18 @@ where("transactionId","==",transactionId)
 const snapshot=await getDocs(q);
 
 let order=null;
+let orderDocumentId="";
 
-snapshot.forEach(doc=>{
+snapshot.forEach(orderDocument=>{
 
-let data=doc.data();
+let data=orderDocument.data();
 
 if(
 normalizePhone(data.phone)===phone
 ){
 
 order=data;
+orderDocumentId=orderDocument.id;
 
 }
 
@@ -1234,6 +1245,15 @@ document.getElementById("statusText").innerHTML=
 return;
 
 }
+
+/* تم التحقق من المعاملة: حفظ جلسة المحادثة وإظهار زر التواصل المباشر. */
+localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
+orderId:orderDocumentId,
+transactionId:String(order.transactionId || transactionId),
+phone:phone,
+name:order.name || "المستفيد"
+}));
+document.getElementById("directChatButton").style.display="";
 
 setDetailValue("transaction",shortValue(order.transactionId));
 
