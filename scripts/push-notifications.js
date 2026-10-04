@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebase
 import {
     getMessaging,
     getToken,
+    onMessage,
     isSupported
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
@@ -16,6 +17,30 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 let cachedVapidKey = "";
+let foregroundListenerStarted = false;
+
+function ensureForegroundListener(messaging) {
+    if (foregroundListenerStarted) return;
+    foregroundListenerStarted = true;
+    onMessage(messaging, payload => {
+        const data = payload.data || {};
+        window.dispatchEvent(new CustomEvent("waleed-chat-push", { detail: data }));
+        if (Notification.permission !== "granted" || document.visibilityState === "visible") return;
+        navigator.serviceWorker.ready.then(registration => registration.showNotification(
+            payload.notification?.title || data.title || "رسالة جديدة من مؤسسة الوليد",
+            {
+                body: payload.notification?.body || data.body || "لديك رسالة جديدة في المحادثة.",
+                icon: "/icons/chat-app-192.png",
+                badge: "/icons/chat-app-192.png",
+                dir: "rtl",
+                lang: "ar",
+                tag: data.orderId ? `chat-${data.orderId}` : "waleed-chat",
+                renotify: true,
+                data: { url: data.url || "/pages/chat.html" }
+            }
+        )).catch(error => console.warn("Foreground notification failed", error));
+    });
+}
 
 async function loadVapidKey() {
     if (cachedVapidKey) return cachedVapidKey;
@@ -46,10 +71,12 @@ export async function getBrowserPushToken({ requestPermission = false } = {}) {
         navigator.serviceWorker.ready
     ]);
     const messaging = getMessaging(app);
-    return getToken(messaging, {
+    const token = await getToken(messaging, {
         vapidKey,
         serviceWorkerRegistration: registration
     });
+    ensureForegroundListener(messaging);
+    return token;
 }
 
 export async function sendPushForMessage({ orderId, senderId, messageId }) {

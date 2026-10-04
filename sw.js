@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v35";
+const CACHE_NAME = "waleedtalal-pwa-v36";
 
 /* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
 let firebaseMessaging = null;
@@ -15,6 +15,9 @@ try {
   });
   firebaseMessaging = firebase.messaging();
   firebaseMessaging.onBackgroundMessage(payload => {
+    // رسائل notification يعرضها FCM تلقائياً حتى عند إغلاق التطبيق.
+    // نعرض يدوياً فقط رسائل data القديمة لمنع ظهور إشعارين متطابقين.
+    if (payload.notification?.title || payload.notification?.body) return undefined;
     const data = payload.data || {};
     const title = data.title || "رسالة جديدة من مؤسسة الوليد";
     return self.registration.showNotification(title, {

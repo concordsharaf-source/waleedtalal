@@ -108,6 +108,10 @@ module.exports = async function handler(request, response) {
 
         const result = await getMessaging().sendEachForMulticast({
             tokens,
+            notification: {
+                title,
+                body: bodyText
+            },
             data: {
                 type: 'chat-message',
                 title,
@@ -121,6 +125,18 @@ module.exports = async function handler(request, response) {
                 headers: {
                     Urgency: 'high',
                     TTL: '86400'
+                },
+                notification: {
+                    title,
+                    body: bodyText,
+                    icon: 'https://waleedtalal.vercel.app/icons/chat-app-192.png',
+                    badge: 'https://waleedtalal.vercel.app/icons/chat-app-192.png',
+                    dir: 'rtl',
+                    lang: 'ar',
+                    tag: `chat-${orderId}`,
+                    renotify: true,
+                    data: { url, orderId, messageId },
+                    actions: [{ action: 'open-chat', title: 'فتح المحادثة' }]
                 },
                 fcmOptions: { link: url }
             }

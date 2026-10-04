@@ -246,7 +246,7 @@ export function createMediaMessageContent(message, orderId) {
         originalLink.setAttribute("aria-label", "فتح الصورة الأصلية");
         const image = document.createElement("img");
         image.alt = mediaName || "صورة مرفقة";
-        image.loading = localPreview ? "eager" : "lazy";
+        image.loading = "eager";
         image.decoding = "async";
         const badge = document.createElement("span");
         badge.className = "media-open-badge";
@@ -276,9 +276,13 @@ export function createMediaMessageContent(message, orderId) {
             return wrapper;
         }
 
-        originalLink.hidden = true;
+        // لا نخفي الصورة أثناء التحميل؛ الصور ذات loading=lazy داخل عنصر مخفي
+        // لا يبدأ المتصفح بتنزيلها، فتظل الرسالة عالقة على «جارٍ الإرسال».
+        originalLink.hidden = false;
         const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "image" });
-        wrapper.append(loading, originalLink);
+        const loadingLabel = loading.querySelector("span:last-child");
+        if (loadingLabel) loadingLabel.textContent = "جارٍ تحميل الصورة المصغرة...";
+        wrapper.append(originalLink, loading);
         image.addEventListener("load", () => {
             originalLink.hidden = false;
             loading.remove();
