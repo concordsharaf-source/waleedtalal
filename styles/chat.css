@@ -583,7 +583,11 @@ button { cursor: pointer; }
 .attachment-choice-icon.camera { background: #e95454; }
 
 .voice-recorder {
-    position: relative;
+    position: absolute;
+    z-index: 6;
+    left: 0;
+    right: 0;
+    bottom: env(safe-area-inset-bottom);
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -602,6 +606,7 @@ button { cursor: pointer; }
 
 .voice-recorder.is-holding {
     grid-template-columns: auto minmax(44px, 1fr) minmax(74px, auto) auto;
+    pointer-events: none;
 }
 
 .voice-control {

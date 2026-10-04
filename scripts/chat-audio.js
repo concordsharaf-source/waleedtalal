@@ -286,7 +286,9 @@ export function createVoiceRecorder({
                 pausedAt = 0;
                 totalPaused = 0;
                 onStart();
-                composer.hidden = true;
+                // نبقي زر الميكروفون الأصلي داخل الصفحة أثناء الضغط حتى لا يرسل
+                // المتصفح pointercancel عند استبدال العنصر الذي يلمسه المستخدم.
+                composer.hidden = false;
                 panel.hidden = false;
                 setRecordingMode(locked);
                 timer.textContent = "00:00";
@@ -412,8 +414,20 @@ export function createVoiceRecorder({
     const handleGestureCancel = event => {
         const currentGesture = gesture;
         if (!currentGesture || event.pointerId !== currentGesture.pointerId) return;
-        currentGesture.cancelled = true;
         suppressClickUntil = performance.now() + 500;
+        if (currentGesture.locked) {
+            clearGesture();
+            return;
+        }
+        // شاشة إذن الميكروفون قد تلغي اللمسة نفسها. بعد منح الإذن نستمر
+        // بوضع التثبيت بدل إلغاء التسجيل مباشرة.
+        if (!currentGesture.started && startingPromise) {
+            currentGesture.locked = true;
+            currentGesture.released = true;
+            clearGesture();
+            return;
+        }
+        currentGesture.cancelled = true;
         cancel();
         clearGesture();
     };
