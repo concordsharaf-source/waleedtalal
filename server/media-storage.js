@@ -6,7 +6,14 @@ function mediaStorageCredentials() {
     return {
         url: String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, ''),
         serviceKey: String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim(),
-        anonKey: String(process.env.SUPABASE_ANON_KEY || '').trim(),
+        anonKey: String(
+            process.env.SUPABASE_ANON_KEY ||
+            process.env.SUPABASE_PUBLISHABLE_KEY ||
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+            process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+            process.env.SUPABASE_KEY ||
+            ''
+        ).trim(),
         requestedBucket: String(process.env.SUPABASE_CHAT_BUCKET || '').trim()
     };
 }
