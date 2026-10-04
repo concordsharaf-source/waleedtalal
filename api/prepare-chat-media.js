@@ -111,7 +111,7 @@ module.exports = async function handler(request, response) {
 
         const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 24);
         const objectPath = `chat-media/${orderHash}/${messageId}/${safeFileName(fileName, mimeType)}`;
-        const previewPath = previewRequest
+        let previewPath = previewRequest
             ? `chat-media/${orderHash}/${messageId}/_preview/thumbnail.${previewMime === 'image/jpeg' ? 'jpg' : 'webp'}`
             : '';
         const storage = await resolveSupabaseStorage();
@@ -126,8 +126,12 @@ module.exports = async function handler(request, response) {
             const { data, error } = await storage.client.storage
                 .from(storage.bucket)
                 .createSignedUploadUrl(previewPath, { upsert: false });
-            if (error || !data?.token) throw new Error(error?.message || 'preview-signed-upload-failed');
-            previewUpload = data;
+            if (error || !data?.token) {
+                console.warn('Preview signed upload unavailable; continuing with original', error?.message || 'preview-signed-upload-failed');
+                previewPath = '';
+            } else {
+                previewUpload = data;
+            }
         }
 
         await database.runTransaction(async transaction => {

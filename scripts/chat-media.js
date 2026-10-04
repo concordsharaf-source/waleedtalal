@@ -122,18 +122,25 @@ export async function resolveMessageMediaUrl(orderId, messageId, variant = "orig
     }
 }
 
-async function uploadToSignedTarget(target, data, fileName = "") {
+async function uploadToSignedTarget(target, data, fileName = "", timeoutMs = 0) {
     if (!target?.signedUrl || !data) return;
     const formData = new FormData();
     formData.append("cacheControl", "3600");
     if (fileName) formData.append("", data, fileName);
     else formData.append("", data);
-    const response = await fetch(target.signedUrl, {
-        method: "PUT",
-        headers: { "X-Upsert": "false" },
-        body: formData
-    });
-    if (!response.ok) throw new Error("media-upload-failed");
+    const controller = timeoutMs > 0 ? new AbortController() : null;
+    const timeout = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+    try {
+        const response = await fetch(target.signedUrl, {
+            method: "PUT",
+            headers: { "X-Upsert": "false" },
+            body: formData,
+            signal: controller?.signal
+        });
+        if (!response.ok) throw new Error("media-upload-failed");
+    } finally {
+        if (timeout) clearTimeout(timeout);
+    }
 }
 
 export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
@@ -168,17 +175,21 @@ export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
         throw new Error(prepared.error || "media-prepare-failed");
     }
 
-    await Promise.all([
-        uploadToSignedTarget(prepared.upload, file),
-        prepared.upload.preview && previewBlob
-            ? uploadToSignedTarget(prepared.upload.preview, previewBlob, preview.fileName)
-            : Promise.resolve()
-    ]);
+    const previewUpload = prepared.upload.preview && previewBlob
+        ? uploadToSignedTarget(prepared.upload.preview, previewBlob, preview.fileName, 12_000)
+            .then(() => true)
+            .catch(error => {
+                console.warn("Thumbnail upload failed; sending original image", error);
+                return false;
+            })
+        : Promise.resolve(false);
+    await uploadToSignedTarget(prepared.upload, file);
+    const previewUploaded = await previewUpload;
 
     const finalizeResponse = await fetch("/api/finalize-chat-media", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ orderId, senderId, messageId })
+        body: JSON.stringify({ orderId, senderId, messageId, previewUploaded })
     });
     const finalized = await finalizeResponse.json().catch(() => ({}));
     if (!finalizeResponse.ok) throw new Error(finalized.error || "media-finalize-failed");

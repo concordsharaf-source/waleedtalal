@@ -71,6 +71,7 @@ module.exports = async function handler(request, response) {
         if (listError || !files?.some(file => file.name === fileName)) {
             return response.status(409).json({ error: 'uploaded-media-not-found' });
         }
+        let previewAvailable = false;
         if (pending.mediaPreviewPath) {
             const previewFolder = path.posix.dirname(pending.mediaPreviewPath);
             const previewName = path.posix.basename(pending.mediaPreviewPath);
@@ -78,9 +79,7 @@ module.exports = async function handler(request, response) {
                 limit: 10,
                 search: previewName
             });
-            if (previewError || !previews?.some(file => file.name === previewName)) {
-                return response.status(409).json({ error: 'uploaded-preview-not-found' });
-            }
+            previewAvailable = !previewError && previews?.some(file => file.name === previewName) === true;
         }
 
         let finalLabel = '📎 ملف';
@@ -93,7 +92,13 @@ module.exports = async function handler(request, response) {
                     if (message?.id !== messageId || message.senderId !== senderId || message.uploadStatus !== 'pending') return message;
                     changed = true;
                     finalLabel = messageLabel(message);
-                    return { ...message, text: finalLabel, uploadStatus: 'ready' };
+                    const finalized = { ...message, text: finalLabel, uploadStatus: 'ready' };
+                    if (!previewAvailable) {
+                        delete finalized.mediaPreviewPath;
+                        delete finalized.mediaPreviewMime;
+                        delete finalized.mediaPreviewBytes;
+                    }
+                    return finalized;
                 });
             if (!changed) throw new Error('media-message-not-pending');
             transaction.update(orderRef, {
@@ -104,7 +109,7 @@ module.exports = async function handler(request, response) {
             });
         });
 
-        return response.status(200).json({ uploaded: true, messageId });
+        return response.status(200).json({ uploaded: true, messageId, previewAvailable });
     } catch (error) {
         console.error('Finalize chat media error', error?.message || error);
         return response.status(500).json({ error: 'media-finalize-failed' });

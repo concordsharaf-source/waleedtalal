@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v33";
+const CACHE_NAME = "waleedtalal-pwa-v34";
 
 /* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
 let firebaseMessaging = null;
@@ -68,6 +68,7 @@ const APP_SHELL = [
   "./icons/chat-app-192.png",
   "./icons/chat-app-512.png",
   "./images/ad.png",
+  "./images/chat-foundation-avatar.jpg",
   "./images/aa.jpg",
   "./images/xx.jpg",
   "./pages/us.html",
