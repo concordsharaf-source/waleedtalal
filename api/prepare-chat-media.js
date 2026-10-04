@@ -81,7 +81,7 @@ module.exports = async function handler(request, response) {
     }
 
     const credentials = mediaStorageCredentials();
-    if (!credentials.url || !credentials.serviceKey || !credentials.anonKey) {
+    if (!credentials.url || !credentials.serviceKey) {
         return response.status(503).json({ error: 'supabase-media-not-configured' });
     }
 
@@ -126,8 +126,7 @@ module.exports = async function handler(request, response) {
 
         return response.status(200).json({
             upload: {
-                supabaseUrl: storage.url,
-                anonKey: storage.anonKey,
+                signedUrl: data.signedUrl,
                 bucket: storage.bucket,
                 path: objectPath,
                 token: data.token

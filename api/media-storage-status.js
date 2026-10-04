@@ -1,7 +1,6 @@
 'use strict';
 
 const {
-    mediaStorageCredentials,
     hasSupabaseCredentials,
     resolveSupabaseStorage
 } = require('../server/media-storage');
@@ -13,7 +12,6 @@ module.exports = async function handler(request, response) {
         return response.status(405).json({ error: 'method-not-allowed' });
     }
 
-    const credentials = mediaStorageCredentials();
     const blobConfigured = Boolean(String(process.env.BLOB_READ_WRITE_TOKEN || '').trim());
     if (!hasSupabaseCredentials()) {
         return response.status(200).json({
@@ -32,7 +30,7 @@ module.exports = async function handler(request, response) {
             supabaseConfigured: true,
             bucketReachable: true,
             bucketPrivate: storage.bucketPublic !== true,
-            signedUploadsReady: Boolean(credentials.anonKey),
+            signedUploadsReady: true,
             blobConfigured
         });
     } catch (error) {

@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.109.0";
-
 export function formatMediaSize(bytes) {
     const value = Math.max(0, Number(bytes) || 0);
     if (value < 1024) return `${value} B`;
@@ -37,16 +35,15 @@ export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
     }
 
     const upload = prepared.upload;
-    const supabase = createClient(upload.supabaseUrl, upload.anonKey, {
-        auth: { persistSession: false, autoRefreshToken: false }
+    const formData = new FormData();
+    formData.append("cacheControl", "3600");
+    formData.append("", file);
+    const uploadResponse = await fetch(upload.signedUrl, {
+        method: "PUT",
+        headers: { "X-Upsert": "false" },
+        body: formData
     });
-    const { error: uploadError } = await supabase.storage
-        .from(upload.bucket)
-        .uploadToSignedUrl(upload.path, upload.token, file, {
-            contentType: file.type || "application/octet-stream",
-            cacheControl: "3600"
-        });
-    if (uploadError) throw new Error(uploadError.message || "media-upload-failed");
+    if (!uploadResponse.ok) throw new Error("media-upload-failed");
 
     const finalizeResponse = await fetch("/api/finalize-chat-media", {
         method: "POST",
