@@ -449,7 +449,15 @@ query,
 
 where,
 
-getDocs
+getDocs,
+
+doc,
+
+updateDoc,
+
+increment,
+
+serverTimestamp
 
 }
 
@@ -457,7 +465,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDD_I84b3b6bmVx-t2g7Cbd6RPcYz_Q",
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -490,6 +498,75 @@ return "۰۱۲۳۴۵۶۷۸۹".indexOf(d);
 function normalizePhone(value){
 let phone=normalizeNumber(value);
 return phone.startsWith("00") ? phone.slice(2) : phone;
+}
+
+/* تسجيل نتيجة محاولة التتبع دون حفظ رقم الجوال أو عنوان IP. */
+function getDeviceDetails(){
+const ua=String(navigator.userAgent || "");
+let device="كمبيوتر";
+let browser="متصفح غير معروف";
+let os="نظام غير معروف";
+
+if(/ipad|tablet|playbook|silk/i.test(ua)) device="جهاز لوحي";
+else if(/mobi|android|iphone|ipod/i.test(ua)) device="جوال";
+
+if(/edg\//i.test(ua)) browser="Microsoft Edge";
+else if(/opr\//i.test(ua)) browser="Opera";
+else if(/firefox|fxios/i.test(ua)) browser="Firefox";
+else if(/chrome|crios/i.test(ua)) browser="Google Chrome";
+else if(/safari/i.test(ua)) browser="Safari";
+
+if(/windows nt/i.test(ua)) os="Windows";
+else if(/android/i.test(ua)) os="Android";
+else if(/iphone|ipad|ipod/i.test(ua)) os="iOS";
+else if(/mac os x/i.test(ua)) os="macOS";
+else if(/linux/i.test(ua)) os="Linux";
+
+return {
+device,
+browser,
+os,
+language:String(navigator.language || "غير معروف").slice(0,20),
+screen:(window.screen?.width || 0)+"x"+(window.screen?.height || 0),
+userAgent:ua.slice(0,500)
+};
+}
+
+async function logTrackingAttempt(orderDocument,result){
+if(!orderDocument)return;
+
+try{
+const deviceDetails=getDeviceDetails();
+const orderData=orderDocument.data();
+const previousLogs=Array.isArray(orderData.trackingLogs)
+? orderData.trackingLogs.slice(-49)
+: [];
+const logEntry={
+id:(globalThis.crypto?.randomUUID?.() || (Date.now()+"-"+Math.random())).slice(0,80),
+result:result === "success" ? "success" : "failed",
+clientTime:new Date().toISOString(),
+source:"track.html",
+...deviceDetails
+};
+
+const changes={
+trackingAttemptCount:increment(1),
+trackingLogs:[...previousLogs,logEntry],
+lastTrackingAccessAt:serverTimestamp()
+};
+
+if(logEntry.result==="success"){
+changes.trackingSuccessCount=increment(1);
+changes.lastTrackingSuccessAt=serverTimestamp();
+}else{
+changes.trackingFailedCount=increment(1);
+changes.lastTrackingFailedAt=serverTimestamp();
+}
+
+await updateDoc(doc(db,"orders",orderDocument.id),changes);
+}catch(logError){
+console.warn("تعذر تسجيل محاولة التتبع",logError);
+}
 }
 
 window.checkTransaction = async function(){
@@ -549,11 +626,14 @@ let matchedOrder = null;
 snapshot.forEach((orderDoc)=>{
 const data = orderDoc.data();
 if(!matchedOrder && normalizePhone(data.phone) === phone){
-matchedOrder = data;
+matchedOrder = orderDoc;
 }
 });
 
 if(!matchedOrder){
+
+/* إذا كان رقم المعاملة موجوداً نسجل محاولة الجوال غير المطابقة داخلها. */
+await logTrackingAttempt(snapshot.docs[0] || null,"failed");
 
 result.style.display="block";
 
@@ -574,6 +654,8 @@ result.innerHTML=
 return;
 
 }
+
+await logTrackingAttempt(matchedOrder,"success");
 
 // الانتقال إلى صفحة الحالة بقيم موحدة وآمنة داخل الرابط
 window.location.href =

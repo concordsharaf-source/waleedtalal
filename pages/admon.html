@@ -213,6 +213,82 @@ font-size:20px;
 color:#1a4332;
 }
 
+.access-log-box{
+margin-top:16px;
+border:1px solid #d7e5dc;
+border-radius:14px;
+background:#f7fbf8;
+overflow:hidden;
+}
+
+.access-log-box summary{
+list-style:none;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+padding:13px 15px;
+cursor:pointer;
+font-weight:bold;
+color:#1a4332;
+}
+
+.access-log-box summary::-webkit-details-marker{display:none;}
+
+.access-count{
+flex:0 0 auto;
+padding:5px 9px;
+border-radius:999px;
+background:#1a4332;
+color:white;
+font-size:12px;
+}
+
+.access-log-list{
+border-top:1px solid #d7e5dc;
+padding:10px;
+max-height:300px;
+overflow:auto;
+}
+
+.access-log-item{
+padding:10px;
+margin-bottom:8px;
+border-radius:10px;
+background:white;
+border-right:4px solid #168347;
+font-size:13px;
+line-height:1.8;
+}
+
+.access-log-item.failed{border-right-color:#b42318;}
+.access-log-item:last-child{margin-bottom:0;}
+.access-log-item .log-head{display:flex;justify-content:space-between;gap:10px;font-weight:bold;}
+.access-log-item .log-meta{color:#59645e;margin-top:3px;}
+.access-empty{padding:13px 15px;color:#66736b;font-size:13px;}
+
+.access-notification{
+position:fixed;
+top:18px;
+left:18px;
+z-index:10000;
+max-width:min(420px,calc(100% - 36px));
+padding:13px 17px;
+border-radius:12px;
+background:#126b3b;
+color:white;
+box-shadow:0 12px 35px rgba(0,0,0,.28);
+font-weight:bold;
+}
+
+.access-notification.failed{background:#a42a20;}
+.access-notification[hidden]{display:none;}
+
+@media (max-width:520px){
+.access-log-box summary,
+.access-log-item .log-head{align-items:flex-start;flex-direction:column;}
+}
+
 </style>
 
 </head>
@@ -269,6 +345,8 @@ font-weight:bold;
 </div>
 
 </div>
+
+<div id="accessNotification" class="access-notification" role="status" hidden></div>
 
 <div class="container">
 
@@ -626,17 +704,17 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
 getFirestore,
 collection,
-getDocs,
 doc,
 updateDoc,
-deleteDoc
+deleteDoc,
+onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 const firebaseConfig = {
 
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-tg2g7Cbd6RPcYz_Q",
+apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
 
 authDomain: "sparepartswebsite1.firebaseapp.com",
 
@@ -718,9 +796,13 @@ return phone.startsWith("00") ? phone.slice(2) : phone;
 
 
 let allOrders=[];
+let ordersLoaded=false;
+let ordersListenerReady=false;
+let accessNotificationTimer=null;
 
 
 const ordersDiv=document.getElementById("orders");
+const accessNotification=document.getElementById("accessNotification");
 
 function esc(v){return String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
@@ -737,57 +819,132 @@ return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours
 }catch(e){return "-";}
 }
 
+function logTimestamp(log){
+const date=new Date(log?.clientTime || 0);
+return isNaN(date.getTime()) ? 0 : date.getTime();
+}
 
+function logsForOrder(order){
+return (Array.isArray(order.trackingLogs) ? [...order.trackingLogs] : [])
+.sort((a,b)=>logTimestamp(b)-logTimestamp(a));
+}
 
-async function loadOrders(){
+function trackingCounts(order){
+const logs=logsForOrder(order);
+const logSuccess=logs.filter(log=>log.result==="success").length;
+const logFailed=logs.length-logSuccess;
+const successful=Number.isFinite(Number(order.trackingSuccessCount))
+? Number(order.trackingSuccessCount)
+: logSuccess;
+const failed=Number.isFinite(Number(order.trackingFailedCount))
+? Number(order.trackingFailedCount)
+: logFailed;
+const total=Number.isFinite(Number(order.trackingAttemptCount))
+? Number(order.trackingAttemptCount)
+: successful+failed;
+return {total,successful,failed,logs};
+}
 
-try{
+function renderAccessLogItem(log){
+const success=log.result==="success";
+return `
+<div class="access-log-item ${success ? "" : "failed"}">
+<div class="log-head">
+<strong>${success ? "✅ دخول ناجح" : "⚠️ محاولة فاشلة"}</strong>
+<span>${fmtDate(log.clientTime)}</span>
+</div>
+<div class="log-meta">
+${esc(log.device) || "جهاز غير معروف"} •
+${esc(log.browser) || "متصفح غير معروف"} •
+${esc(log.os) || "نظام غير معروف"}
+</div>
+</div>`;
+}
 
-const snapshot = await getDocs(collection(db,"orders"));
+function renderOrderAccessLogs(order){
+const {total,successful,failed,logs}=trackingCounts(order);
 
+if(!total){
+return `
+<details class="access-log-box">
+<summary>
+<span>👁️ لم يتم الدخول من صفحة التتبع حتى الآن</span>
+<span class="access-count">0 مرة</span>
+</summary>
+<div class="access-empty">لا يوجد سجل دخول لهذه المعاملة.</div>
+</details>`;
+}
 
-allOrders=[];
+return `
+<details class="access-log-box">
+<summary>
+<span>👁️ الدخول الناجح من صفحة التتبع: ${successful} مرة</span>
+<span class="access-count">الإجمالي ${total} • فاشل ${failed}</span>
+</summary>
+<div class="access-log-list">
+${logs.length
+? logs.map(log=>renderAccessLogItem(log)).join("")
+: '<div class="access-empty">لا تتوفر تفاصيل المحاولات القديمة.</div>'}
+</div>
+</details>`;
+}
 
-
-snapshot.forEach(item=>{
-
-allOrders.push({
-
-id:item.id,
-
-...item.data()
-
-});
-
-});
-
-
-
-allOrders.sort((a,b)=>{
-
-return (b.createdAt?.seconds || 0)
--
-(a.createdAt?.seconds || 0);
-
-});
-
-
-
+function rerenderCurrentOrders(){
+if(!ordersLoaded)return;
+const search=document.getElementById("searchInput").value.trim();
+if(search){
+window.searchOrders();
+}else{
 displayOrders(allOrders);
-
-
+}
 }
 
-catch(error){
+function showAccessNotification(order,log){
+clearTimeout(accessNotificationTimer);
+const success=log?.result==="success";
+const transactionId=String(order?.transactionId || "غير محدد");
+accessNotification.classList.toggle("failed",!success);
+accessNotification.textContent=success
+? `✅ تم الدخول للمعاملة ${transactionId} من صفحة التتبع`
+: `⚠️ محاولة تتبع فاشلة للمعاملة ${transactionId}`;
+accessNotification.hidden=false;
+accessNotificationTimer=setTimeout(()=>{
+accessNotification.hidden=true;
+},5000);
+}
 
+function listenToOrders(){
+onSnapshot(
+collection(db,"orders"),
+snapshot=>{
+const previousCounts=new Map(
+allOrders.map(order=>[order.id,trackingCounts(order).total])
+);
+
+const updatedOrders=snapshot.docs.map(item=>({id:item.id,...item.data()}));
+updatedOrders.sort((a,b)=>(b.createdAt?.seconds || 0)-(a.createdAt?.seconds || 0));
+allOrders=updatedOrders;
+ordersLoaded=true;
+rerenderCurrentOrders();
+
+if(ordersListenerReady){
+const changed=snapshot.docChanges()
+.filter(change=>change.type==="modified")
+.map(change=>({id:change.doc.id,...change.doc.data()}))
+.find(order=>trackingCounts(order).total>(previousCounts.get(order.id) || 0));
+
+if(changed){
+showAccessNotification(changed,logsForOrder(changed)[0]);
+}
+}
+ordersListenerReady=true;
+},
+error=>{
 console.log(error);
-
 ordersDiv.innerHTML="حدث خطأ في تحميل الطلبات";
-
 }
-
+);
 }
-
 
 
 function displayOrders(list){
@@ -901,7 +1058,7 @@ ordersDiv.innerHTML += `
 
 </div>
 
-
+${renderOrderAccessLogs(data)}
 
 <div class="order-actions">
 
@@ -1210,7 +1367,7 @@ displayOrders(allOrders);
 
 
 
-loadOrders();
+listenToOrders();
 
 
 </script>
