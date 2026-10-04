@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v31";
+const CACHE_NAME = "waleedtalal-pwa-v32";
 
 /* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
 let firebaseMessaging = null;

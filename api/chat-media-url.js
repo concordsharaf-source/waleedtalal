@@ -35,6 +35,7 @@ module.exports = async function handler(request, response) {
     const body = parseBody(request);
     const orderId = String(body.orderId || '').trim();
     const messageId = String(body.messageId || '').trim();
+    const variant = body.variant === 'preview' ? 'preview' : 'original';
     if (!/^[A-Za-z0-9_-]{1,1500}$/.test(orderId) || !/^[A-Za-z0-9_-]{1,100}$/.test(messageId)) {
         return response.status(400).json({ error: 'invalid-request' });
     }
@@ -55,7 +56,9 @@ module.exports = async function handler(request, response) {
             return response.status(200).json({ url, expiresIn: 0 });
         }
 
-        const path = String(message.mediaPath || message.audioPathname || message.media?.path || '');
+        const originalPath = String(message.mediaPath || message.audioPathname || message.media?.path || '');
+        const previewPath = String(message.mediaPreviewPath || '');
+        const path = variant === 'preview' && previewPath ? previewPath : originalPath;
         if (!path) return response.status(404).json({ error: 'media-not-found' });
         const storage = await resolveSupabaseStorage();
         const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUrl(path, 60 * 60);

@@ -7,6 +7,7 @@ const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
 const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
+const MAX_PREVIEW_BYTES = 1024 * 1024;
 const ALLOWED_PREFIXES = ['image/', 'video/', 'audio/'];
 const ALLOWED_DOCUMENT_TYPES = new Set([
     'application/pdf',
@@ -68,12 +69,20 @@ module.exports = async function handler(request, response) {
     const mimeType = String(body.mimeType || 'application/octet-stream').split(';')[0].toLowerCase();
     const fileSize = Math.round(Number(body.fileSize) || 0);
     const allowedType = ALLOWED_PREFIXES.some(prefix => mimeType.startsWith(prefix)) || ALLOWED_DOCUMENT_TYPES.has(mimeType);
+    const previewRequest = body.preview && typeof body.preview === 'object' ? body.preview : null;
+    const previewMime = String(previewRequest?.mimeType || '').split(';')[0].toLowerCase();
+    const previewSize = Math.round(Number(previewRequest?.fileSize) || 0);
+    const validPreview = !previewRequest || (
+        ['image/webp', 'image/jpeg'].includes(previewMime) &&
+        previewSize > 0 &&
+        previewSize <= MAX_PREVIEW_BYTES
+    );
 
     if (
         !/^[A-Za-z0-9_-]{1,1500}$/.test(orderId) ||
         !['admin', 'client'].includes(senderId) ||
         !/^[A-Za-z0-9_-]{1,100}$/.test(messageId) ||
-        !fileName || !allowedType || fileSize < 1 || fileSize > MAX_MEDIA_BYTES
+        !fileName || !allowedType || !validPreview || fileSize < 1 || fileSize > MAX_MEDIA_BYTES
     ) {
         return response.status(fileSize > MAX_MEDIA_BYTES ? 413 : 400).json({
             error: fileSize > MAX_MEDIA_BYTES ? 'media-too-large' : 'invalid-media-request'
@@ -96,12 +105,30 @@ module.exports = async function handler(request, response) {
         if (!pending || !['image', 'video', 'file'].includes(pending.messageType) || pending.uploadStatus !== 'pending') {
             return response.status(409).json({ error: 'media-message-not-pending' });
         }
+        if (previewRequest && pending.messageType !== 'image') {
+            return response.status(400).json({ error: 'invalid-media-preview' });
+        }
 
         const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 24);
         const objectPath = `chat-media/${orderHash}/${messageId}/${safeFileName(fileName, mimeType)}`;
+        const previewPath = previewRequest
+            ? `chat-media/${orderHash}/${messageId}/_preview/thumbnail.${previewMime === 'image/jpeg' ? 'jpg' : 'webp'}`
+            : '';
         const storage = await resolveSupabaseStorage();
-        const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUploadUrl(objectPath, { upsert: false });
-        if (error || !data?.token) throw new Error(error?.message || 'signed-upload-failed');
+        const { data: originalUpload, error: originalError } = await storage.client.storage
+            .from(storage.bucket)
+            .createSignedUploadUrl(objectPath, { upsert: false });
+        if (originalError || !originalUpload?.token) {
+            throw new Error(originalError?.message || 'signed-upload-failed');
+        }
+        let previewUpload = null;
+        if (previewPath) {
+            const { data, error } = await storage.client.storage
+                .from(storage.bucket)
+                .createSignedUploadUrl(previewPath, { upsert: false });
+            if (error || !data?.token) throw new Error(error?.message || 'preview-signed-upload-failed');
+            previewUpload = data;
+        }
 
         await database.runTransaction(async transaction => {
             const latestSnapshot = await transaction.get(orderRef);
@@ -117,7 +144,12 @@ module.exports = async function handler(request, response) {
                         mediaPath: objectPath,
                         mediaName: fileName.slice(0, 180),
                         mediaMime: mimeType,
-                        mediaBytes: fileSize
+                        mediaBytes: fileSize,
+                        ...(previewPath ? {
+                            mediaPreviewPath: previewPath,
+                            mediaPreviewMime: previewMime,
+                            mediaPreviewBytes: previewSize
+                        } : {})
                     };
                 });
             if (!changed) throw new Error('media-message-not-pending');
@@ -126,10 +158,15 @@ module.exports = async function handler(request, response) {
 
         return response.status(200).json({
             upload: {
-                signedUrl: data.signedUrl,
+                signedUrl: originalUpload.signedUrl,
                 bucket: storage.bucket,
                 path: objectPath,
-                token: data.token
+                token: originalUpload.token,
+                preview: previewUpload ? {
+                    signedUrl: previewUpload.signedUrl,
+                    path: previewPath,
+                    token: previewUpload.token
+                } : null
             }
         });
     } catch (error) {

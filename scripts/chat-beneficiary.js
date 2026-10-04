@@ -3,6 +3,7 @@ import {
     ADMIN_ACTOR,
     normalizePhone,
     normalizeTransaction,
+    createMessageId,
     findOrderByCredentials,
     ensureChatInitialized,
     subscribeToOrder,
@@ -33,7 +34,9 @@ import {
 } from "./chat-audio.js";
 import {
     uploadChatMedia,
-    createMediaMessageContent
+    createMediaMessageContent,
+    primeLocalMediaPreview,
+    releaseLocalMediaPreview
 } from "./chat-media.js";
 
 const SESSION_KEY = "waleed_internal_chat_session";
@@ -215,6 +218,7 @@ function messageRenderSignature(messages) {
             message.messageType,
             message.uploadStatus,
             message.mediaPath,
+            message.mediaPreviewPath,
             message.audioUrl,
             message.media?.url,
             message.media?.path,
@@ -460,6 +464,17 @@ async function sendRecordedVoice(blob, { duration, mimeType }) {
     }).catch(error => console.warn("Voice push send failed", error));
 }
 
+function showOptimisticMediaMessage(message) {
+    if (messageSearchQuery || starredOnly) return;
+    messagesList.querySelector(".empty-chat")?.remove();
+    messagesList.appendChild(createMessageElement(message));
+    requestAnimationFrame(() => { messagesArea.scrollTop = messagesArea.scrollHeight; });
+}
+
+function removeOptimisticMediaMessage(messageId) {
+    messagesList.querySelector(`[data-message-id="${String(messageId)}"]`)?.closest(".message-row")?.remove();
+}
+
 async function sendSelectedMedia(files) {
     if (!currentOrder || !files?.length) return;
     attachmentSheet.hidden = true;
@@ -472,23 +487,37 @@ async function sendSelectedMedia(files) {
             continue;
         }
         const orderId = currentOrder.id;
-        const pending = await createPendingMediaMessage(orderId, CLIENT_ACTOR, file, replyTarget);
+        const messageId = createMessageId();
+        primeLocalMediaPreview(messageId, file);
+        let pending = null;
         try {
+            pending = await createPendingMediaMessage(
+                orderId,
+                CLIENT_ACTOR,
+                file,
+                replyTarget,
+                messageId,
+                showOptimisticMediaMessage
+            );
             await uploadChatMedia({
                 orderId,
                 senderId: CLIENT_ACTOR,
-                messageId: pending.id,
+                messageId,
                 file
             });
             clearReply();
             sendPushForMessage({
                 orderId,
                 senderId: CLIENT_ACTOR,
-                messageId: pending.id
+                messageId
             }).catch(error => console.warn("Media push send failed", error));
         } catch (error) {
             console.error("Media send failed", error);
-            await markChatMediaFailed(orderId, pending.id).catch(console.error);
+            if (pending) await markChatMediaFailed(orderId, messageId).catch(console.error);
+            else {
+                removeOptimisticMediaMessage(messageId);
+                releaseLocalMediaPreview(messageId);
+            }
             showToast(error?.message === "supabase-media-not-configured"
                 ? "تأكد من إعداد تخزين Supabase"
                 : `تعذر إرسال ${file.name}`);

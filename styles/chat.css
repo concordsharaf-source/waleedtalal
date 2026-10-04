@@ -911,6 +911,8 @@ button { cursor: pointer; }
     font-size: .62rem;
     font-weight: 700;
 }
+.media-open-badge.pending-badge { background: rgba(0,113,188,.88); }
+.media-open-badge.failed-badge { background: rgba(179,38,30,.9); }
 .media-open-badge.video-badge {
     inset: 50% auto auto 50%;
     transform: translate(-50%, -50%);

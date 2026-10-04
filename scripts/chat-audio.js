@@ -419,7 +419,8 @@ export function createVoiceRecorder({
     };
 
     const beginGesture = async event => {
-        if (!triggerButton || !isVoiceMode() || event.button > 0 || !event.isPrimary) return;
+        if (!triggerButton || !isVoiceMode() || Number(event.button || 0) > 0 || event.isPrimary === false) return;
+        if (gesture || recorder || startingPromise || busy) return;
         event.preventDefault();
         suppressClickUntil = performance.now() + 500;
         const currentGesture = {
@@ -454,6 +455,20 @@ export function createVoiceRecorder({
         }
     };
 
+    const touchAsPointer = (event, touch) => ({
+        pointerId: gesture?.pointerId ?? `touch-${touch.identifier}`,
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        button: 0,
+        isPrimary: true,
+        cancelable: event.cancelable,
+        preventDefault: () => {
+            if (event.cancelable) event.preventDefault();
+        }
+    });
+
+    const primaryChangedTouch = event => event.changedTouches?.[0] || event.touches?.[0] || null;
+
     ensureWaveform();
     cancelButton.addEventListener("click", cancel);
     sendButton.addEventListener("click", stopAndSend);
@@ -465,6 +480,25 @@ export function createVoiceRecorder({
         window.addEventListener("pointermove", handleGestureMove, { passive: false });
         window.addEventListener("pointerup", handleGestureEnd, { passive: false });
         window.addEventListener("pointercancel", handleGestureCancel);
+
+        // دعم مباشر للمس في Samsung Internet وWebView عند عدم اكتمال أحداث Pointer.
+        triggerButton.addEventListener("touchstart", event => {
+            const touch = primaryChangedTouch(event);
+            if (touch) beginGesture(touchAsPointer(event, touch));
+        }, { passive: false });
+        window.addEventListener("touchmove", event => {
+            const touch = primaryChangedTouch(event);
+            if (touch) handleGestureMove(touchAsPointer(event, touch));
+        }, { passive: false });
+        window.addEventListener("touchend", event => {
+            const touch = primaryChangedTouch(event);
+            if (touch) handleGestureEnd(touchAsPointer(event, touch));
+        }, { passive: false });
+        window.addEventListener("touchcancel", event => {
+            const touch = primaryChangedTouch(event);
+            if (touch) handleGestureCancel(touchAsPointer(event, touch));
+        }, { passive: false });
+
         triggerButton.addEventListener("click", event => {
             if (!isVoiceMode()) return;
             event.preventDefault();

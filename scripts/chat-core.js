@@ -282,7 +282,7 @@ export async function markChatAudioFailed(orderId, messageId) {
     });
 }
 
-export async function createPendingMediaMessage(orderId, actor, file, replyTo = null) {
+export async function createPendingMediaMessage(orderId, actor, file, replyTo = null, requestedMessageId = "", onOptimistic = null) {
     const mimeType = String(file?.type || "application/octet-stream").split(";")[0].toLowerCase();
     const messageType = mimeType.startsWith("image/") ? "image"
         : mimeType.startsWith("video/") ? "video"
@@ -292,8 +292,9 @@ export async function createPendingMediaMessage(orderId, actor, file, replyTo = 
         : messageType === "video" ? "🎬 جارٍ إرسال الفيديو..."
             : `📎 جارٍ إرسال ${fileName}...`;
     const orderRef = doc(db, "orders", orderId);
+    const requestedId = String(requestedMessageId || "").trim();
     const message = {
-        id: createMessageId(),
+        id: /^[A-Za-z0-9_-]{1,100}$/.test(requestedId) ? requestedId : createMessageId(),
         senderId: actor,
         senderName: actor === ADMIN_ACTOR ? "إدارة المؤسسة" : "المستفيد",
         text: label,
@@ -315,6 +316,8 @@ export async function createPendingMediaMessage(orderId, actor, file, replyTo = 
         deletedForAll: false,
         starredBy: []
     };
+
+    if (typeof onOptimistic === "function") onOptimistic(message);
 
     await runTransaction(db, async transaction => {
         const snapshot = await transaction.get(orderRef);

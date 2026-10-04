@@ -71,6 +71,17 @@ module.exports = async function handler(request, response) {
         if (listError || !files?.some(file => file.name === fileName)) {
             return response.status(409).json({ error: 'uploaded-media-not-found' });
         }
+        if (pending.mediaPreviewPath) {
+            const previewFolder = path.posix.dirname(pending.mediaPreviewPath);
+            const previewName = path.posix.basename(pending.mediaPreviewPath);
+            const { data: previews, error: previewError } = await storage.client.storage.from(storage.bucket).list(previewFolder, {
+                limit: 10,
+                search: previewName
+            });
+            if (previewError || !previews?.some(file => file.name === previewName)) {
+                return response.status(409).json({ error: 'uploaded-preview-not-found' });
+            }
+        }
 
         let finalLabel = '📎 ملف';
         await database.runTransaction(async transaction => {

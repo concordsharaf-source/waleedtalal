@@ -1,5 +1,92 @@
 const mediaUrlCache = new Map();
 const mediaUrlPending = new Map();
+const localMediaPreviewCache = new Map();
+
+function canvasToBlob(canvas, type = "image/webp", quality = .72) {
+    return new Promise(resolve => canvas.toBlob(resolve, type, quality));
+}
+
+async function createImageThumbnail(file, maxDimension = 640) {
+    if (!String(file?.type || "").startsWith("image/")) return null;
+    let source = null;
+    let sourceUrl = "";
+    try {
+        if ("createImageBitmap" in window) {
+            source = await createImageBitmap(file);
+        } else {
+            sourceUrl = URL.createObjectURL(file);
+            source = new Image();
+            source.decoding = "async";
+            if (typeof source.decode === "function") {
+                source.src = sourceUrl;
+                await source.decode();
+            } else {
+                await new Promise((resolve, reject) => {
+                    source.onload = resolve;
+                    source.onerror = reject;
+                    source.src = sourceUrl;
+                });
+            }
+        }
+        const sourceWidth = Math.max(1, Number(source.width || source.naturalWidth) || 1);
+        const sourceHeight = Math.max(1, Number(source.height || source.naturalHeight) || 1);
+        const scale = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(sourceWidth * scale));
+        canvas.height = Math.max(1, Math.round(sourceHeight * scale));
+        const context = canvas.getContext("2d", { alpha: false });
+        if (!context) return null;
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(source, 0, 0, canvas.width, canvas.height);
+        return await canvasToBlob(canvas, "image/webp", .72) || await canvasToBlob(canvas, "image/jpeg", .74);
+    } finally {
+        if (typeof source?.close === "function") source.close();
+        if (sourceUrl) URL.revokeObjectURL(sourceUrl);
+    }
+}
+
+export function primeLocalMediaPreview(messageId, file) {
+    const id = String(messageId || "");
+    if (!id || !String(file?.type || "").startsWith("image/")) return null;
+    const previous = localMediaPreviewCache.get(id);
+    if (previous) return previous;
+
+    const entry = {
+        originalUrl: URL.createObjectURL(file),
+        previewUrl: "",
+        previewBlob: null,
+        ready: null,
+        cleanupTimer: null
+    };
+    entry.ready = createImageThumbnail(file).then(blob => {
+        if (!blob || localMediaPreviewCache.get(id) !== entry) return null;
+        entry.previewBlob = blob;
+        entry.previewUrl = URL.createObjectURL(blob);
+        return blob;
+    }).catch(error => {
+        console.warn("Image thumbnail creation failed", error);
+        return null;
+    });
+    entry.cleanupTimer = setTimeout(() => releaseLocalMediaPreview(id), 15 * 60 * 1000);
+    localMediaPreviewCache.set(id, entry);
+    return entry;
+}
+
+export function releaseLocalMediaPreview(messageId, delay = 0) {
+    const id = String(messageId || "");
+    const entry = localMediaPreviewCache.get(id);
+    if (!entry) return;
+    if (delay > 0) {
+        clearTimeout(entry.cleanupTimer);
+        entry.cleanupTimer = setTimeout(() => releaseLocalMediaPreview(id), delay);
+        return;
+    }
+    clearTimeout(entry.cleanupTimer);
+    if (entry.originalUrl) URL.revokeObjectURL(entry.originalUrl);
+    if (entry.previewUrl) URL.revokeObjectURL(entry.previewUrl);
+    localMediaPreviewCache.delete(id);
+}
 
 export function formatMediaSize(bytes) {
     const value = Math.max(0, Number(bytes) || 0);
@@ -8,8 +95,9 @@ export function formatMediaSize(bytes) {
     return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export async function resolveMessageMediaUrl(orderId, messageId) {
-    const key = `${orderId}:${messageId}`;
+export async function resolveMessageMediaUrl(orderId, messageId, variant = "original") {
+    const normalizedVariant = variant === "preview" ? "preview" : "original";
+    const key = `${orderId}:${messageId}:${normalizedVariant}`;
     const cached = mediaUrlCache.get(key);
     if (cached && cached.expiresAt > Date.now() + 60_000) return cached.url;
     if (mediaUrlPending.has(key)) return mediaUrlPending.get(key);
@@ -18,7 +106,7 @@ export async function resolveMessageMediaUrl(orderId, messageId) {
         const response = await fetch("/api/chat-media-url", {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({ orderId, messageId })
+            body: JSON.stringify({ orderId, messageId, variant: normalizedVariant })
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.url) throw new Error(result.error || "media-url-failed");
@@ -34,7 +122,34 @@ export async function resolveMessageMediaUrl(orderId, messageId) {
     }
 }
 
+async function uploadToSignedTarget(target, data, fileName = "") {
+    if (!target?.signedUrl || !data) return;
+    const formData = new FormData();
+    formData.append("cacheControl", "3600");
+    if (fileName) formData.append("", data, fileName);
+    else formData.append("", data);
+    const response = await fetch(target.signedUrl, {
+        method: "PUT",
+        headers: { "X-Upsert": "false" },
+        body: formData
+    });
+    if (!response.ok) throw new Error("media-upload-failed");
+}
+
 export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
+    const localPreview = localMediaPreviewCache.get(String(messageId));
+    const generatedPreview = String(file?.type || "").startsWith("image/")
+        ? await (localPreview?.ready || createImageThumbnail(file))
+        : null;
+    const previewBlob = generatedPreview?.size > 0 && generatedPreview.size <= 1024 * 1024
+        ? generatedPreview
+        : null;
+    const preview = previewBlob ? {
+        fileName: "thumbnail.webp",
+        mimeType: previewBlob.type || "image/webp",
+        fileSize: previewBlob.size
+    } : null;
+
     const prepareResponse = await fetch("/api/prepare-chat-media", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -44,7 +159,8 @@ export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
             messageId,
             fileName: file.name,
             mimeType: file.type || "application/octet-stream",
-            fileSize: file.size
+            fileSize: file.size,
+            preview
         })
     });
     const prepared = await prepareResponse.json().catch(() => ({}));
@@ -52,16 +168,12 @@ export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
         throw new Error(prepared.error || "media-prepare-failed");
     }
 
-    const upload = prepared.upload;
-    const formData = new FormData();
-    formData.append("cacheControl", "3600");
-    formData.append("", file);
-    const uploadResponse = await fetch(upload.signedUrl, {
-        method: "PUT",
-        headers: { "X-Upsert": "false" },
-        body: formData
-    });
-    if (!uploadResponse.ok) throw new Error("media-upload-failed");
+    await Promise.all([
+        uploadToSignedTarget(prepared.upload, file),
+        prepared.upload.preview && previewBlob
+            ? uploadToSignedTarget(prepared.upload.preview, previewBlob, preview.fileName)
+            : Promise.resolve()
+    ]);
 
     const finalizeResponse = await fetch("/api/finalize-chat-media", {
         method: "POST",
@@ -70,6 +182,7 @@ export async function uploadChatMedia({ orderId, senderId, messageId, file }) {
     });
     const finalized = await finalizeResponse.json().catch(() => ({}));
     if (!finalizeResponse.ok) throw new Error(finalized.error || "media-finalize-failed");
+    releaseLocalMediaPreview(messageId, 5 * 60 * 1000);
     return finalized;
 }
 
@@ -97,12 +210,18 @@ export function createMediaMessageContent(message, orderId) {
         ? legacyMedia.url
         : "";
     const legacyPath = typeof legacyMedia.path === "string" ? legacyMedia.path : "";
+    const localPreview = message.messageType === "image"
+        ? localMediaPreviewCache.get(String(message.id || ""))
+        : null;
     const isReady = (message.uploadStatus === "ready" && Boolean(message.mediaPath)) || Boolean(legacyUrl || legacyPath);
-    if (!isReady) return pendingView(message);
+    if (!isReady && !localPreview) return pendingView(message);
 
     const mediaUrl = () => legacyPath || message.mediaPath
-        ? resolveMessageMediaUrl(orderId, message.id)
+        ? resolveMessageMediaUrl(orderId, message.id, "original")
         : Promise.resolve(legacyUrl);
+    const previewMediaUrl = () => message.mediaPreviewPath
+        ? resolveMessageMediaUrl(orderId, message.id, "preview")
+        : mediaUrl();
     const mediaName = message.mediaName || legacyMedia.name || "مرفق";
     const mediaBytes = message.mediaBytes || legacyMedia.size || 0;
     const wrapper = document.createElement("div");
@@ -114,29 +233,53 @@ export function createMediaMessageContent(message, orderId) {
         originalLink.target = "_blank";
         originalLink.rel = "noopener noreferrer";
         originalLink.setAttribute("aria-label", "فتح الصورة الأصلية");
-        originalLink.hidden = true;
         const image = document.createElement("img");
         image.alt = mediaName || "صورة مرفقة";
-        image.loading = "lazy";
+        image.loading = localPreview ? "eager" : "lazy";
         image.decoding = "async";
         const badge = document.createElement("span");
         badge.className = "media-open-badge";
-        badge.textContent = "↗ عرض الأصل";
-        const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "image" });
+        badge.textContent = message.uploadStatus === "pending" ? "جارٍ الإرسال..."
+            : message.uploadStatus === "failed" ? "تعذر الإرسال"
+                : "↗ عرض الأصل";
+        if (message.uploadStatus === "pending") badge.classList.add("pending-badge");
+        if (message.uploadStatus === "failed") badge.classList.add("failed-badge");
         originalLink.append(image, badge);
+        originalLink.addEventListener("click", event => event.stopPropagation());
+
+        if (localPreview) {
+            originalLink.hidden = false;
+            originalLink.href = localPreview.originalUrl;
+            image.src = localPreview.previewUrl || localPreview.originalUrl;
+            localPreview.ready.then(() => {
+                if (localPreview.previewUrl && image.isConnected) image.src = localPreview.previewUrl;
+            });
+            if (isReady) {
+                mediaUrl().then(url => {
+                    originalLink.href = url;
+                    badge.textContent = "↗ عرض الأصل";
+                    badge.classList.remove("pending-badge", "failed-badge");
+                }).catch(() => {});
+            }
+            wrapper.appendChild(originalLink);
+            return wrapper;
+        }
+
+        originalLink.hidden = true;
+        const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "image" });
         wrapper.append(loading, originalLink);
         image.addEventListener("load", () => {
             originalLink.hidden = false;
             loading.remove();
         }, { once: true });
-        mediaUrl().then(url => {
-            originalLink.href = url;
+
+        mediaUrl().then(url => { originalLink.href = url; }).catch(() => {});
+        previewMediaUrl().catch(() => mediaUrl()).then(url => {
             image.src = url;
         }).catch(() => {
             loading.classList.add("failed");
             loading.textContent = "تعذر تحميل الصورة";
         });
-        originalLink.addEventListener("click", event => event.stopPropagation());
         return wrapper;
     }
 
