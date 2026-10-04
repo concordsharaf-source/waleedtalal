@@ -309,6 +309,10 @@ button { cursor: pointer; }
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23c9c3ba' stroke-width='.7' opacity='.55'%3E%3Cpath d='M10 12c6-6 12 0 8 5s-10 7-8 14M48 8c5 4 8 9 4 14s-11 2-12 9M14 58c5-7 13-5 14 2s-7 9-9 14M59 48c9-2 13 7 7 13s-12 1-16 7'/%3E%3Ccircle cx='34' cy='44' r='4'/%3E%3Ccircle cx='69' cy='28' r='3'/%3E%3C/g%3E%3C/svg%3E");
 }
 
+#messagesArea.messages-area {
+    padding-left: max(82px, calc(env(safe-area-inset-left) + 68px), calc((100% - 920px) / 2));
+}
+
 .messages-list {
     width: min(100%, 920px);
     margin: auto;
@@ -415,7 +419,7 @@ button { cursor: pointer; }
 
 .composer-zone {
     position: relative;
-    z-index: 4;
+    z-index: 40;
     padding-bottom: env(safe-area-inset-bottom);
     background: #0b141a;
     border-top: 1px solid rgba(255,255,255,.06);
@@ -527,7 +531,7 @@ button { cursor: pointer; }
 
 .attachment-sheet {
     position: absolute;
-    z-index: 20;
+    z-index: 40;
     left: 76px;
     bottom: calc(72px + env(safe-area-inset-bottom));
     width: min(330px, calc(100vw - 34px));
@@ -917,16 +921,22 @@ button { cursor: pointer; }
 .chat-floating-actions {
     position: fixed;
     z-index: 35;
-    left: max(14px, env(safe-area-inset-left));
-    bottom: calc(var(--chat-composer-height, 70px) + 12px);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    inset: 0;
     pointer-events: none;
 }
 
 .chat-floating-actions > * { pointer-events: auto; }
+.chat-floating-actions > .optional-whatsapp {
+    position: absolute;
+    left: max(14px, env(safe-area-inset-left));
+    top: 50%;
+    transform: translateY(-50%);
+}
+.chat-floating-actions > .install-chat-button {
+    position: absolute;
+    left: max(14px, env(safe-area-inset-left));
+    bottom: calc(var(--chat-composer-height, 70px) + 12px);
+}
 
 .optional-whatsapp {
     width: 58px;
@@ -1096,6 +1106,9 @@ button { cursor: pointer; }
     .chat-header .icon-button { width: 38px; height: 38px; }
     .order-badge { padding: 3px 8px; font-size: .7rem; }
     .messages-area { padding-inline: 18px; padding-bottom: 142px; }
+    #messagesArea.messages-area {
+        padding-left: max(76px, calc(env(safe-area-inset-left) + 65px));
+    }
     .message-bubble { max-width: 87%; }
     .composer { padding-inline: 7px; gap: 6px; }
     .composer-input-shell { min-height: 52px; padding-inline: 3px; }
@@ -1114,10 +1127,12 @@ button { cursor: pointer; }
     .voice-recording-status { min-width: 61px; font-size: .74rem; }
     .voice-record-send { width: 44px; height: 44px; }
     .voice-message-player { width: min(250px, 70vw); }
-    .chat-floating-actions {
+    .chat-floating-actions > .optional-whatsapp {
+        left: max(11px, env(safe-area-inset-left));
+    }
+    .chat-floating-actions > .install-chat-button {
         left: max(11px, env(safe-area-inset-left));
         bottom: calc(var(--chat-composer-height, 66px) + 10px);
-        gap: 10px;
     }
     .optional-whatsapp { width: 55px; height: 55px; }
     .optional-whatsapp img { width: 29px; height: 29px; }
