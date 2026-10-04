@@ -3,7 +3,7 @@
 const crypto = require('crypto');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
-const formidable = require('formidable');
+const { formidable } = require('formidable');
 
 const MAX_BYTES = 25 * 1024 * 1024;
 const ALLOWED_TYPES = /^(audio\/(webm|mpeg|mp4|ogg|wav)|video\/(webm|mp4|quicktime|ogg)|image\/(jpeg|png|gif|webp)|application\/pdf|text\/plain)$/i;
@@ -111,5 +111,11 @@ module.exports = async function handler(request, response) {
             return response.status(503).json({ error: 'media-storage-not-configured' });
         }
         return response.status(500).json({ error: 'media-upload-failed' });
+    }
+};
+
+module.exports.config = {
+    api: {
+        bodyParser: false
     }
 };
