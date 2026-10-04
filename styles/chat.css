@@ -302,7 +302,7 @@ button { cursor: pointer; }
 .messages-area {
     position: relative;
     overflow-y: auto;
-    padding: 20px max(14px, calc((100% - 920px) / 2)) 24px;
+    padding: 20px max(20px, calc((100% - 920px) / 2)) 150px;
     background-color: var(--wa-chat-bg);
     background-image:
         linear-gradient(rgba(239,234,226,.9), rgba(239,234,226,.9)),
@@ -410,7 +410,12 @@ button { cursor: pointer; }
     box-shadow: var(--shadow-sm);
 }
 
-.composer-zone { z-index: 4; background: var(--wa-toolbar); border-top: 1px solid var(--wa-line); }
+.composer-zone {
+    z-index: 4;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--wa-toolbar);
+    border-top: 1px solid var(--wa-line);
+}
 .typing-bar { padding: 4px 16px; color: var(--primary-green); font-size: .72rem; font-weight: 700; }
 
 .reply-preview {
@@ -543,48 +548,95 @@ button { cursor: pointer; }
     font-size: .8rem;
 }
 
+.chat-floating-actions {
+    position: fixed;
+    z-index: 35;
+    left: max(14px, env(safe-area-inset-left));
+    bottom: calc(var(--chat-composer-height, 70px) + 12px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.chat-floating-actions > * { pointer-events: auto; }
+
 .optional-whatsapp {
-    position: absolute;
-    z-index: 5;
-    left: 16px;
-    bottom: 82px;
-    width: 48px;
-    height: 48px;
+    width: 58px;
+    height: 58px;
     display: grid;
     place-items: center;
+    overflow: hidden;
+    border: 3px solid #fff;
     border-radius: 50%;
     color: white;
     background: #25d366;
     text-decoration: none;
-    box-shadow: 0 6px 18px rgba(37,211,102,.35);
+    box-shadow:
+        0 8px 22px rgba(37,211,102,.4),
+        0 0 0 2px rgba(4,86,82,.12);
+    isolation: isolate;
 }
 
 .optional-whatsapp img {
-    width: 27px;
-    height: 27px;
+    width: 31px;
+    height: 31px;
     display: block;
+    object-fit: contain;
 }
 
 .install-chat-button {
-    position: absolute;
-    z-index: 5;
-    left: 22px;
-    bottom: 140px;
-    width: 36px;
-    height: 36px;
-    display: grid;
-    place-items: center;
-    border: 1px solid rgba(255,255,255,.7);
-    border-radius: 50%;
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 2px solid rgba(255,255,255,.9);
+    border-radius: 999px;
+    padding: 7px 12px 7px 16px;
     color: white;
-    background: var(--primary-green);
-    box-shadow: 0 5px 16px rgba(4,86,82,.3);
+    background: linear-gradient(135deg, var(--primary-green-light), var(--primary-green-dark));
+    box-shadow:
+        0 9px 24px rgba(4,86,82,.34),
+        0 0 0 2px rgba(4,86,82,.1);
     font-family: "Cairo", sans-serif;
-    font-size: 1rem;
+    font-size: .9rem;
     font-weight: 800;
+    line-height: 1;
+    animation: install-button-float 2.6s ease-in-out infinite;
 }
 
-.install-chat-button:hover { background: var(--primary-green-light); }
+.install-chat-button:hover { filter: brightness(1.08); }
+.install-chat-button:focus-visible {
+    outline: 3px solid rgba(243,156,18,.55);
+    outline-offset: 3px;
+}
+
+.install-app-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--primary-green-dark);
+    background: #fff;
+    font-size: 1.25rem;
+    font-weight: 900;
+    box-shadow: inset 0 -2px 0 rgba(4,86,82,.1);
+}
+
+.install-app-label { white-space: nowrap; }
+
+@keyframes install-button-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .install-chat-button { animation: none; }
+}
 
 /* صفحة إدارة المحادثات */
 .admin-lock { z-index: 200; }
@@ -619,6 +671,11 @@ button { cursor: pointer; }
 .admin-sidebar-head h1 { margin: 0; font-size: 1rem; }
 .admin-sidebar-head a { color: white; text-decoration: none; }
 .admin-search { padding: 9px 12px; background: #f0f2f5; }
+.admin-install-button {
+    width: 100%;
+    margin-bottom: 9px;
+    min-height: 50px;
+}
 .admin-search input { width: 100%; min-height: 42px; border: 0; border-radius: 9px; padding: 9px 13px; outline: none; background: white; }
 
 .conversation-list { overflow-y: auto; }
@@ -672,11 +729,20 @@ button { cursor: pointer; }
     .chat-avatar-icon { width: 43px; height: 43px; }
     .chat-header .icon-button { width: 38px; height: 38px; }
     .order-badge { padding: 3px 8px; font-size: .7rem; }
+    .messages-area { padding-inline: 18px; padding-bottom: 142px; }
     .message-bubble { max-width: 87%; }
-    .composer { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .composer { grid-template-columns: auto minmax(0, 1fr) auto; padding-inline: 10px; }
     .composer .attachment-button { display: none; }
-    .optional-whatsapp { bottom: 78px; left: 10px; }
-    .install-chat-button { bottom: 136px; left: 16px; }
+    .chat-floating-actions {
+        left: max(11px, env(safe-area-inset-left));
+        bottom: calc(var(--chat-composer-height, 66px) + 10px);
+        gap: 10px;
+    }
+    .optional-whatsapp { width: 55px; height: 55px; }
+    .optional-whatsapp img { width: 29px; height: 29px; }
+    .install-chat-button { min-height: 50px; padding: 6px 10px 6px 14px; font-size: .84rem; }
+    .install-app-icon { width: 32px; height: 32px; flex-basis: 32px; }
+    .admin-install-button { width: 100%; }
 
     .admin-chat-app { grid-template-columns: 1fr; }
     .admin-conversation { display: none; }

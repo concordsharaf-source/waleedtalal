@@ -22,6 +22,7 @@ import {
 } from "./push-notifications.js";
 
 const ADMIN_PASSWORD = "232167";
+const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
 const adminLock = document.getElementById("adminLock");
@@ -59,6 +60,7 @@ const messageMenu = document.getElementById("adminMessageMenu");
 const infoModal = document.getElementById("adminMessageInfoModal");
 const infoBody = document.getElementById("adminMessageInfoBody");
 const toast = document.getElementById("adminToast");
+const installAdminChatAppButton = document.getElementById("installAdminChatAppButton");
 
 let allConversations = [];
 let currentOrder = null;
@@ -76,12 +78,25 @@ let starredOnly = false;
 let adminPushToken = "";
 let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
+let deferredAdminInstallPrompt = null;
 
 function showToast(message) {
     clearTimeout(toastTimer);
     toast.textContent = message;
     toast.hidden = false;
     toastTimer = setTimeout(() => { toast.hidden = true; }, 3000);
+}
+
+function isAdminAppContext() {
+    return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true ||
+        new URLSearchParams(location.search).get("source") === "admin-chat-pwa";
+}
+
+function markAdminAppInstalled() {
+    localStorage.setItem(ADMIN_INSTALL_KEY, "yes");
+    deferredAdminInstallPrompt = null;
+    installAdminChatAppButton.hidden = true;
 }
 
 function orderHasPushToken(order, token) {
@@ -513,6 +528,51 @@ function notifyAdmin(message) {
             icon: "../icons/icon-192.png"
         });
     }
+}
+
+window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    if (isAdminAppContext()) return markAdminAppInstalled();
+    localStorage.removeItem(ADMIN_INSTALL_KEY);
+    deferredAdminInstallPrompt = event;
+    installAdminChatAppButton.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+    markAdminAppInstalled();
+    showToast("تم تثبيت تطبيق إدارة المحادثات بنجاح");
+});
+
+installAdminChatAppButton.addEventListener("click", async () => {
+    if (isAdminAppContext()) {
+        markAdminAppInstalled();
+        return;
+    }
+
+    if (deferredAdminInstallPrompt) {
+        deferredAdminInstallPrompt.prompt();
+        const choice = await deferredAdminInstallPrompt.userChoice;
+        if (choice.outcome === "accepted") markAdminAppInstalled();
+        deferredAdminInstallPrompt = null;
+        return;
+    }
+
+    showToast(/iphone|ipad|ipod/i.test(navigator.userAgent)
+        ? "من زر المشاركة اختر: إضافة إلى الشاشة الرئيسية"
+        : "من قائمة المتصفح اختر: تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية");
+});
+
+const adminDisplayModeQuery = window.matchMedia("(display-mode: standalone)");
+if (typeof adminDisplayModeQuery.addEventListener === "function") {
+    adminDisplayModeQuery.addEventListener("change", event => {
+        if (event.matches) markAdminAppInstalled();
+    });
+}
+
+if (isAdminAppContext()) {
+    markAdminAppInstalled();
+} else if (/iphone|ipad|ipod/i.test(navigator.userAgent) && localStorage.getItem(ADMIN_INSTALL_KEY) !== "yes") {
+    installAdminChatAppButton.hidden = false;
 }
 
 loginForm.addEventListener("submit", event => {

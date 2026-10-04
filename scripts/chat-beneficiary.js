@@ -24,6 +24,7 @@ import {
 } from "./push-notifications.js";
 
 const SESSION_KEY = "waleed_internal_chat_session";
+const CHAT_INSTALL_KEY = "waleed_chat_app_installed";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
 const loginView = document.getElementById("loginView");
@@ -36,6 +37,7 @@ const loginError = document.getElementById("loginError");
 const messagesArea = document.getElementById("messagesArea");
 const messagesList = document.getElementById("messagesList");
 const messageForm = document.getElementById("messageForm");
+const composerZone = document.querySelector("#chatView > .composer-zone");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 const emojiPanel = document.getElementById("emojiPanel");
@@ -76,6 +78,16 @@ function showToast(message) {
     toast.hidden = false;
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
 }
+
+function updateFloatingActionsOffset() {
+    const height = Math.ceil(composerZone?.getBoundingClientRect().height || 0);
+    if (height > 0) chatView.style.setProperty("--chat-composer-height", `${height}px`);
+}
+
+if (composerZone && "ResizeObserver" in window) {
+    new ResizeObserver(updateFloatingActionsOffset).observe(composerZone);
+}
+window.addEventListener("resize", updateFloatingActionsOffset);
 
 async function enableClientPush({ requestPermission = false, quiet = false } = {}) {
     if (!currentOrder) return null;
@@ -145,6 +157,7 @@ async function startChat(session) {
     starredMessagesButton.textContent = "☆";
     loginView.hidden = true;
     chatView.hidden = false;
+    requestAnimationFrame(updateFloatingActionsOffset);
     initializedMessages = false;
     knownMessageIds = new Set();
 
@@ -584,44 +597,64 @@ document.getElementById("closeInfoButton").addEventListener("click", closeInfo);
 document.getElementById("closeInfoAction").addEventListener("click", closeInfo);
 infoModal.addEventListener("click", event => { if (event.target === infoModal) closeInfo(); });
 
+function isChatAppContext() {
+    return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true ||
+        new URLSearchParams(location.search).get("source") === "chat-pwa";
+}
+
+function markChatAppInstalled() {
+    localStorage.setItem(CHAT_INSTALL_KEY, "yes");
+    deferredInstallPrompt = null;
+    installChatAppButton.hidden = true;
+}
+
 window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
+    if (isChatAppContext()) return markChatAppInstalled();
+    // ظهور الحدث يعني أن المتصفح يرى التطبيق غير مثبت، حتى لو بقيت علامة قديمة محلياً.
+    localStorage.removeItem(CHAT_INSTALL_KEY);
     deferredInstallPrompt = event;
     installChatAppButton.hidden = false;
 });
 
 window.addEventListener("appinstalled", () => {
-    deferredInstallPrompt = null;
-    installChatAppButton.hidden = true;
+    markChatAppInstalled();
     showToast("تم تثبيت تطبيق المحادثة بنجاح");
 });
 
 installChatAppButton.addEventListener("click", async () => {
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-    if (standalone) {
-        await enableClientPush({ requestPermission: true });
-        installChatAppButton.hidden = true;
+    if (isChatAppContext()) {
+        markChatAppInstalled();
         return;
     }
 
     if (deferredInstallPrompt) {
         deferredInstallPrompt.prompt();
         const choice = await deferredInstallPrompt.userChoice;
-        if (choice.outcome === "accepted") installChatAppButton.hidden = true;
+        if (choice.outcome === "accepted") markChatAppInstalled();
         deferredInstallPrompt = null;
-        await enableClientPush({ requestPermission: true });
+        await enableClientPush({ requestPermission: true, quiet: true });
         return;
     }
 
-    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    showToast(isiOS
+    showToast(/iphone|ipad|ipod/i.test(navigator.userAgent)
         ? "من زر المشاركة اختر: إضافة إلى الشاشة الرئيسية"
         : "من قائمة المتصفح اختر: تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية");
-    await enableClientPush({ requestPermission: true, quiet: true });
 });
 
-if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
-    installChatAppButton.hidden = true;
+const displayModeQuery = window.matchMedia("(display-mode: standalone)");
+if (typeof displayModeQuery.addEventListener === "function") {
+    displayModeQuery.addEventListener("change", event => {
+        if (event.matches) markChatAppInstalled();
+    });
+}
+
+if (isChatAppContext()) {
+    markChatAppInstalled();
+} else if (/iphone|ipad|ipod/i.test(navigator.userAgent) && localStorage.getItem(CHAT_INSTALL_KEY) !== "yes") {
+    // iOS لا يطلق beforeinstallprompt؛ نظهر إرشاد الإضافة للشاشة الرئيسية فقط في المتصفح.
+    installChatAppButton.hidden = false;
 }
 
 document.addEventListener("visibilitychange", () => {

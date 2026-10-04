@@ -64,11 +64,17 @@
             <div id="messagesList" class="messages-list">
                 <div class="loading-chat">جاري تحميل المحادثة...</div>
             </div>
-            <button id="installChatAppButton" class="install-chat-button" type="button" aria-label="تثبيت تطبيق المحادثة" title="تثبيت تطبيق المحادثة">⬇</button>
+        </section>
+
+        <div class="chat-floating-actions" aria-label="إجراءات المحادثة">
+            <button id="installChatAppButton" class="install-chat-button" type="button" aria-label="تثبيت تطبيق المحادثة" title="تثبيت تطبيق المحادثة" data-page-install-button hidden>
+                <span class="install-app-icon" aria-hidden="true">↓</span>
+                <span class="install-app-label">تثبيت التطبيق</span>
+            </button>
             <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">
                 <img src="../icons/whatsapp.svg" alt="" aria-hidden="true">
             </a>
-        </section>
+        </div>
 
         <footer class="composer-zone">
             <div id="typingBar" class="typing-bar" hidden>الإدارة تكتب الآن...</div>

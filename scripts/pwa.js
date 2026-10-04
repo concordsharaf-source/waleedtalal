@@ -53,8 +53,8 @@
 
     function showInstallButton() {
         if (!deferredInstallPrompt || isRunningStandalone() || installButton) return;
-        // صفحة المحادثة توفر زر تثبيت صغيراً خاصاً بتطبيق المحادثة.
-        if (document.getElementById('installChatAppButton')) return;
+        // صفحات المحادثة توفر زر تثبيت خاصاً بها وبهوية التطبيق المناسبة.
+        if (document.querySelector('[data-page-install-button]')) return;
 
         installButton = document.createElement('button');
         installButton.type = 'button';
