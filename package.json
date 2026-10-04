@@ -4,7 +4,8 @@
   "private": true,
   "description": "موقع مؤسسة الوليد مع محادثات وإشعارات فورية",
   "dependencies": {
-    "firebase-admin": "^13.5.0",
-    "formidable": "^3.5.4"
+    "@supabase/supabase-js": "^2.109.0",
+    "@vercel/blob": "^2.8.0",
+    "firebase-admin": "^13.5.0"
   }
 }

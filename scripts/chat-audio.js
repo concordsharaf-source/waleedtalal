@@ -235,7 +235,7 @@ function createWaveform() {
     return wave;
 }
 
-export function createAudioMessagePlayer(message) {
+export function createAudioMessagePlayer(message, orderId) {
     const wrapper = document.createElement("div");
     wrapper.className = `voice-message-player ${message.uploadStatus || "ready"}`;
 
@@ -256,7 +256,20 @@ export function createAudioMessagePlayer(message) {
 
     const audio = document.createElement("audio");
     audio.preload = "metadata";
-    audio.src = message.audioUrl;
+    if (message.mediaProvider !== "supabase" && message.audioUrl) audio.src = message.audioUrl;
+
+    const resolveAudioUrl = async () => {
+        if (audio.src) return audio.src;
+        const response = await fetch("/api/chat-media-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({ orderId, messageId: message.id })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.url) throw new Error(result.error || "media-url-failed");
+        audio.src = result.url;
+        return result.url;
+    };
 
     const play = document.createElement("button");
     play.type = "button";
@@ -292,7 +305,14 @@ export function createAudioMessagePlayer(message) {
         if (audio.paused) {
             if (activePlayback && activePlayback !== audio) activePlayback.pause();
             activePlayback = audio;
-            try { await audio.play(); } catch { /* يعرض المتصفح حالة التعذر */ }
+            try {
+                await resolveAudioUrl();
+                await audio.play();
+            } catch (error) {
+                console.error("Audio playback failed", error);
+                play.textContent = "!";
+                play.setAttribute("aria-label", "تعذر تشغيل الرسالة الصوتية");
+            }
         } else {
             audio.pause();
         }

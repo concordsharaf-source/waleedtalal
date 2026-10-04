@@ -9,6 +9,8 @@ import {
     sendChatMessage,
     createPendingAudioMessage,
     markChatAudioFailed,
+    createPendingMediaMessage,
+    markChatMediaFailed,
     markMessagesRead,
     toggleMessageStar,
     deleteMessageForMe,
@@ -27,7 +29,10 @@ import {
     uploadChatAudio,
     createAudioMessagePlayer
 } from "./chat-audio.js";
-import { appendMessageMedia, mediaTypeFor, uploadChatMedia } from "./chat-media.js";
+import {
+    uploadChatMedia,
+    createMediaMessageContent
+} from "./chat-media.js";
 
 const ADMIN_PASSWORD = "232167";
 const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
@@ -66,7 +71,10 @@ const voiceRecordingTimer = document.getElementById("adminVoiceRecordingTimer");
 const cancelVoiceRecording = document.getElementById("adminCancelVoiceRecording");
 const pauseVoiceRecording = document.getElementById("adminPauseVoiceRecording");
 const sendVoiceRecording = document.getElementById("adminSendVoiceRecording");
-const attachmentInput = document.getElementById("adminAttachmentInput");
+const cameraButton = document.getElementById("adminCameraButton");
+const mediaInput = document.getElementById("adminChatMediaInput");
+const cameraInput = document.getElementById("adminChatCameraInput");
+const attachmentSheet = document.getElementById("adminAttachmentSheet");
 const emojiPanel = document.getElementById("adminEmojiPanel");
 const replyPreview = document.getElementById("adminReplyPreview");
 const replySender = document.getElementById("adminReplySender");
@@ -95,7 +103,6 @@ let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
 let voiceRecorder = null;
-let selectedAttachment = null;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -393,10 +400,13 @@ function createMessageElement(message) {
     }
 
     const isAudio = message.messageType === "audio" && !message.deletedForAll;
+    const isMedia = ["image", "video", "file"].includes(message.messageType) && !message.deletedForAll;
     const content = isAudio
-        ? createAudioMessagePlayer(message)
-        : document.createElement("div");
-    if (!isAudio) {
+        ? createAudioMessagePlayer(message, currentOrder?.id)
+        : isMedia
+            ? createMediaMessageContent(message, currentOrder?.id)
+            : document.createElement("div");
+    if (!isAudio && !isMedia) {
         content.className = `message-text${message.deletedForAll ? " deleted" : ""}`;
     }
     if (Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR)) {
@@ -405,10 +415,7 @@ function createMessageElement(message) {
         star.textContent = "★";
         content.prepend(star);
     }
-    if (!isAudio) {
-        content.appendChild(document.createTextNode(message.text || ""));
-        appendMessageMedia(content, message);
-    }
+    if (!isAudio && !isMedia) content.appendChild(document.createTextNode(message.text || ""));
 
     const meta = document.createElement("div");
     meta.className = "message-meta";
@@ -469,7 +476,7 @@ function clearReply() {
 
 function updateComposerAction() {
     const hasText = Boolean(messageInput.value.trim());
-    composerActionIcon.textContent = hasText ? "➤" : "🎙";
+    composerActionIcon.dataset.mode = hasText ? "send" : "voice";
     sendButton.classList.toggle("is-voice", !hasText);
     sendButton.setAttribute("aria-label", hasText ? "إرسال" : "تسجيل رسالة صوتية");
     sendButton.title = hasText ? "إرسال" : "تسجيل رسالة صوتية";
@@ -505,6 +512,42 @@ async function sendRecordedVoice(blob, { duration, mimeType }) {
         senderId: ADMIN_ACTOR,
         messageId: pending.id
     }).catch(error => console.warn("Voice push send failed", error));
+}
+
+async function sendSelectedMedia(files) {
+    if (!currentOrder || !files?.length) return;
+    attachmentSheet.hidden = true;
+    const selected = [...files].slice(0, 5);
+    if (files.length > 5) showToast("يمكن إرسال 5 ملفات في المرة الواحدة");
+
+    for (const file of selected) {
+        if (file.size > 25 * 1024 * 1024) {
+            showToast(`الملف ${file.name} أكبر من 25 ميجابايت`);
+            continue;
+        }
+        const orderId = currentOrder.id;
+        const pending = await createPendingMediaMessage(orderId, ADMIN_ACTOR, file, replyTarget);
+        try {
+            await uploadChatMedia({
+                orderId,
+                senderId: ADMIN_ACTOR,
+                messageId: pending.id,
+                file
+            });
+            clearReply();
+            sendPushForMessage({
+                orderId,
+                senderId: ADMIN_ACTOR,
+                messageId: pending.id
+            }).catch(error => console.warn("Media push send failed", error));
+        } catch (error) {
+            console.error("Media send failed", error);
+            await markChatMediaFailed(orderId, pending.id).catch(console.error);
+            showToast(error?.message === "supabase-media-not-configured"
+                ? "تأكد من إعداد تخزين Supabase"
+                : `تعذر إرسال ${file.name}`);
+        }
+    }
 }
 
 async function handleMenuAction(action) {
@@ -709,30 +752,6 @@ conversationSearch.addEventListener("input", renderConversationList);
 messageForm.addEventListener("submit", async event => {
     event.preventDefault();
     if (!currentOrder) return;
-    if (selectedAttachment) {
-        const file = selectedAttachment;
-        const text = messageInput.value;
-        const orderId = currentOrder.id;
-        sendButton.disabled = true;
-        try {
-            const uploaded = await uploadChatMedia(file, orderId, ADMIN_ACTOR);
-            const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget, { ...uploaded, type: mediaTypeFor(file) });
-            sendPushForMessage({ orderId, senderId: ADMIN_ACTOR, messageId: sentMessage.id }).catch(console.warn);
-            selectedAttachment = null;
-            attachmentInput.value = "";
-            messageInput.value = "";
-            resizeInput();
-            updateComposerAction();
-            clearReply();
-            showToast("تم إرسال المرفق");
-        } catch (error) {
-            console.error(error);
-            showToast("تعذر رفع المرفق");
-        } finally {
-            sendButton.disabled = false;
-        }
-        return;
-    }
     if (!messageInput.value.trim()) {
         emojiPanel.hidden = true;
         await voiceRecorder?.start();
@@ -782,13 +801,33 @@ messageInput.addEventListener("keydown", event => {
 
 document.getElementById("adminEmojiButton").addEventListener("click", () => {
     emojiPanel.hidden = !emojiPanel.hidden;
+    attachmentSheet.hidden = true;
 });
-document.getElementById("adminAttachmentButton").addEventListener("click", () => {
-    attachmentInput.click();
+document.getElementById("adminAttachmentButton").addEventListener("click", event => {
+    event.stopPropagation();
+    attachmentSheet.hidden = !attachmentSheet.hidden;
+    emojiPanel.hidden = true;
 });
-attachmentInput.addEventListener("change", () => {
-    selectedAttachment = attachmentInput.files?.[0] || null;
-    if (selectedAttachment) showToast(`تم اختيار ${selectedAttachment.name}. اضغط إرسال`);
+cameraButton.addEventListener("click", () => cameraInput.click());
+attachmentSheet.addEventListener("click", event => {
+    const choice = event.target.closest("button[data-attachment]")?.dataset.attachment;
+    if (!choice) return;
+    attachmentSheet.hidden = true;
+    if (choice === "camera") cameraInput.click();
+    else {
+        mediaInput.accept = choice === "gallery"
+            ? "image/*,video/*"
+            : ".pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,application/pdf,text/plain";
+        mediaInput.click();
+    }
+});
+mediaInput.addEventListener("change", async () => {
+    await sendSelectedMedia(mediaInput.files);
+    mediaInput.value = "";
+});
+cameraInput.addEventListener("change", async () => {
+    await sendSelectedMedia(cameraInput.files);
+    cameraInput.value = "";
 });
 document.getElementById("adminCancelReply").addEventListener("click", clearReply);
 
@@ -798,6 +837,9 @@ messageMenu.addEventListener("click", event => {
 });
 document.addEventListener("click", event => {
     if (!messageMenu.hidden && !messageMenu.contains(event.target)) closeMessageMenu();
+    if (!attachmentSheet.hidden && !attachmentSheet.contains(event.target) && !event.target.closest("#adminAttachmentButton")) {
+        attachmentSheet.hidden = true;
+    }
 });
 document.getElementById("adminCloseInfo").addEventListener("click", closeInfo);
 document.getElementById("adminCloseInfoAction").addEventListener("click", closeInfo);

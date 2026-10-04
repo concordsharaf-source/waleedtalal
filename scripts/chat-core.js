@@ -282,6 +282,64 @@ export async function markChatAudioFailed(orderId, messageId) {
     });
 }
 
+export async function createPendingMediaMessage(orderId, actor, file, replyTo = null) {
+    const mimeType = String(file?.type || "application/octet-stream").split(";")[0].toLowerCase();
+    const messageType = mimeType.startsWith("image/") ? "image"
+        : mimeType.startsWith("video/") ? "video"
+            : "file";
+    const fileName = String(file?.name || "ملف").slice(0, 180);
+    const label = messageType === "image" ? "📷 جارٍ إرسال الصورة..."
+        : messageType === "video" ? "🎬 جارٍ إرسال الفيديو..."
+            : `📎 جارٍ إرسال ${fileName}...`;
+    const orderRef = doc(db, "orders", orderId);
+    const message = {
+        id: createMessageId(),
+        senderId: actor,
+        senderName: actor === ADMIN_ACTOR ? "إدارة المؤسسة" : "المستفيد",
+        text: label,
+        clientTime: new Date().toISOString(),
+        messageType,
+        mediaName: fileName,
+        mediaMime: mimeType,
+        mediaBytes: Math.max(0, Number(file?.size) || 0),
+        mediaProvider: "supabase",
+        mediaPath: "",
+        uploadStatus: "pending",
+        replyTo: replyTo ? {
+            id: String(replyTo.id || ""),
+            senderName: String(replyTo.senderName || ""),
+            text: String(replyTo.text || "").slice(0, 180)
+        } : null,
+        readBy: [actor],
+        deletedFor: [],
+        deletedForAll: false,
+        starredBy: []
+    };
+
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        const order = snapshot.data();
+        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
+        transaction.update(orderRef, {
+            chatEnabled: true,
+            chatMessages: [...current.slice(-(MAX_CHAT_MESSAGES - 1)), message],
+            chatLastMessage: label,
+            chatLastSender: actor,
+            chatUpdatedAt: serverTimestamp(),
+            [`chatTyping.${actor}`]: false
+        });
+    });
+    return message;
+}
+
+export async function markChatMediaFailed(orderId, messageId) {
+    await mutateMessage(orderId, messageId, message => {
+        if (!["image", "video", "file"].includes(message.messageType) || message.uploadStatus !== "pending") return message;
+        return { ...message, text: "تعذر إرسال المرفق", uploadStatus: "failed" };
+    });
+}
+
 export async function markMessagesRead(orderId, actor) {
     const orderRef = doc(db, "orders", orderId);
     await runTransaction(db, async transaction => {

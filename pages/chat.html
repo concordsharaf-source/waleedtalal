@@ -102,12 +102,25 @@
             </div>
 
             <form id="messageForm" class="composer">
-                <button id="emojiButton" class="icon-button" type="button" aria-label="الرموز التعبيرية">😊</button>
-                <button id="attachmentButton" class="icon-button attachment-button" type="button" aria-label="إرفاق ملف" title="سيتم تفعيل الملفات بعد إعداد التخزين">📎</button>
-                <input id="attachmentInput" type="file" accept="image/*,audio/*,video/*,application/pdf,text/plain" hidden>
-                <textarea id="messageInput" class="message-input" rows="1" maxlength="2500" placeholder="اكتب رسالة" aria-label="نص الرسالة"></textarea>
-                <button id="sendButton" class="send-button composer-action-button is-voice" type="submit" aria-label="تسجيل رسالة صوتية" title="تسجيل رسالة صوتية"><span id="composerActionIcon" aria-hidden="true">🎙</span></button>
+                <div class="composer-input-shell">
+                    <button id="emojiButton" class="icon-button composer-tool emoji-tool" type="button" aria-label="الرموز التعبيرية" title="الرموز التعبيرية"><span aria-hidden="true">☺</span></button>
+                    <textarea id="messageInput" class="message-input" rows="1" maxlength="2500" placeholder="مراسلة" aria-label="نص الرسالة"></textarea>
+                    <button id="attachmentButton" class="icon-button composer-tool attachment-button" type="button" aria-label="إرفاق ملف" title="إرفاق ملف">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 6.5 8.9 14.1a3 3 0 0 0 4.2 4.2l7.1-7.1a5 5 0 0 0-7.1-7.1L5.3 11.9a7 7 0 0 0 9.9 9.9l6.3-6.3"/></svg>
+                    </button>
+                    <button id="cameraButton" class="icon-button composer-tool camera-button" type="button" aria-label="فتح الكاميرا" title="الكاميرا">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.5 10 3h4l1.5 2.5H19a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8.5a3 3 0 0 1 3-3h3.5Z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </button>
+                </div>
+                <button id="sendButton" class="send-button composer-action-button is-voice" type="submit" aria-label="تسجيل رسالة صوتية" title="تسجيل رسالة صوتية"><span id="composerActionIcon" class="composer-action-icon" aria-hidden="true"></span></button>
             </form>
+            <input id="chatMediaInput" type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip" multiple hidden>
+            <input id="chatCameraInput" type="file" accept="image/*" capture="environment" hidden>
+            <div id="attachmentSheet" class="attachment-sheet" hidden>
+                <button type="button" data-attachment="document"><span class="attachment-choice-icon document">▤</span><span>مستند</span></button>
+                <button type="button" data-attachment="gallery"><span class="attachment-choice-icon gallery">▧</span><span>الصور والفيديو</span></button>
+                <button type="button" data-attachment="camera"><span class="attachment-choice-icon camera">⌾</span><span>الكاميرا</span></button>
+            </div>
         </footer>
     </main>
 
