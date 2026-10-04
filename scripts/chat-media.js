@@ -109,41 +109,64 @@ export function createMediaMessageContent(message, orderId) {
     wrapper.className = `media-message-content ${message.messageType}`;
 
     if (message.messageType === "image") {
+        const originalLink = document.createElement("a");
+        originalLink.className = "media-preview-link image-preview-link";
+        originalLink.target = "_blank";
+        originalLink.rel = "noopener noreferrer";
+        originalLink.setAttribute("aria-label", "فتح الصورة الأصلية");
+        originalLink.hidden = true;
         const image = document.createElement("img");
         image.alt = mediaName || "صورة مرفقة";
         image.loading = "lazy";
         image.decoding = "async";
+        const badge = document.createElement("span");
+        badge.className = "media-open-badge";
+        badge.textContent = "↗ عرض الأصل";
         const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "image" });
-        wrapper.append(loading, image);
-        mediaUrl().then(url => {
-            image.src = url;
+        originalLink.append(image, badge);
+        wrapper.append(loading, originalLink);
+        image.addEventListener("load", () => {
+            originalLink.hidden = false;
             loading.remove();
+        }, { once: true });
+        mediaUrl().then(url => {
+            originalLink.href = url;
+            image.src = url;
         }).catch(() => {
             loading.classList.add("failed");
             loading.textContent = "تعذر تحميل الصورة";
         });
-        image.addEventListener("click", async event => {
-            event.stopPropagation();
-            try { window.open(await mediaUrl(), "_blank", "noopener"); } catch { /* لا شيء */ }
-        });
+        originalLink.addEventListener("click", event => event.stopPropagation());
         return wrapper;
     }
 
     if (message.messageType === "video") {
+        const originalLink = document.createElement("a");
+        originalLink.className = "media-preview-link video-preview-link";
+        originalLink.target = "_blank";
+        originalLink.rel = "noopener noreferrer";
+        originalLink.setAttribute("aria-label", "فتح الفيديو الأصلي");
+        originalLink.hidden = true;
         const video = document.createElement("video");
-        video.controls = true;
         video.preload = "metadata";
         video.playsInline = true;
+        video.muted = true;
+        const badge = document.createElement("span");
+        badge.className = "media-open-badge video-badge";
+        badge.textContent = "▶ فتح الفيديو";
         const loading = pendingView({ ...message, uploadStatus: "pending", messageType: "video" });
-        wrapper.append(loading, video);
+        originalLink.append(video, badge);
+        wrapper.append(loading, originalLink);
         mediaUrl().then(url => {
+            originalLink.href = url;
             video.src = url;
+            originalLink.hidden = false;
             loading.remove();
         }).catch(() => {
             loading.classList.add("failed");
             loading.textContent = "تعذر تحميل الفيديو";
         });
-        video.addEventListener("click", event => event.stopPropagation());
+        originalLink.addEventListener("click", event => event.stopPropagation());
         return wrapper;
     }
 
