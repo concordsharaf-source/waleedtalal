@@ -64,6 +64,18 @@
           "type": "image/png"
         }
       ]
+    },
+    {
+      "name": "المحادثة المباشرة",
+      "short_name": "المحادثة",
+      "url": "/pages/chat.html?source=pwa-shortcut",
+      "icons": [
+        {
+          "src": "/icons/icon-192-v2.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

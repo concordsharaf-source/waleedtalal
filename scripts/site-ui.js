@@ -47,6 +47,7 @@
         const insidePages = window.location.pathname.includes('/pages/');
         const requestUrl = insidePages ? 'us.html' : 'pages/us.html';
         const trackUrl = insidePages ? 'track.html' : 'pages/track.html';
+        const chatUrl = insidePages ? 'chat.html' : 'pages/chat.html';
 
         const links = [
             {
@@ -58,9 +59,8 @@
                 href: trackUrl
             },
             {
-                text: 'تطبيق الواتس الخاص بالمؤسسة',
-                href: 'https://messenger-gamma-five.vercel.app/index.html',
-                external: true,
+                text: 'المحادثة المباشرة',
+                href: chatUrl,
                 pulse: true
             },
             {

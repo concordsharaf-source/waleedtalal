@@ -273,7 +273,7 @@ border-radius:15px;
 
 
     <!-- إعدادات تطبيق الويب PWA -->
-    <link rel="manifest" href="../manifest.json?v=8">
+    <link rel="manifest" href="../manifest.json?v=9">
     <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
     <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon-v2.png">
     <meta name="theme-color" content="#006b35">
@@ -323,7 +323,7 @@ border-radius:15px;
             <a href="track.html"><i class="fas fa-search"></i> متابعة طلب</a>
             <a href="https://waleed-bin-talal-website.vercel.app/ar/" target="_blank"><i class="fas fa-globe"></i> موقع الأمير الوليد بن طلال</a>
             <a href="https://wa.me/966580272758" target="_blank"><i class="fab fa-whatsapp"></i> تواصل بالواتس</a>
-                <a href="https://messenger-gamma-five.vercel.app/index.html" target="_blank"><i class="fas fa-comment-dots"></i> تطبيق الواتس الخاص بالمؤسسة</a>
+                <a href="chat.html" target="_blank"><i class="fas fa-comment-dots"></i> المحادثة المباشرة مع الإدارة</a>
         </div>
     </div>
 </header>
@@ -656,6 +656,14 @@ return;
 }
 
 await logTrackingAttempt(matchedOrder,"success");
+
+/* حفظ جلسة المحادثة على الجهاز بعد التحقق الناجح من رقم الجوال. */
+localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
+orderId:matchedOrder.id,
+transactionId:transactionId,
+phone:phone,
+name:matchedOrder.data().name || "المستفيد"
+}));
 
 // الانتقال إلى صفحة الحالة بقيم موحدة وآمنة داخل الرابط
 window.location.href =

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>محادثات المستفيدين | الإدارة</title>
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta name="theme-color" content="#045652">
+    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../styles/chat.css">
+</head>
+<body>
+    <section id="adminLock" class="auth-page admin-lock" aria-labelledby="adminLoginTitle">
+        <form id="adminLoginForm" class="auth-card">
+            <img class="auth-logo" src="../images/ad.png" alt="شعار المؤسسة">
+            <h1 id="adminLoginTitle">إدارة المحادثات</h1>
+            <p class="auth-subtitle">دخول الإدارة لعرض محادثات المستفيدين والرد عليها.</p>
+            <label for="adminPassword">كلمة المرور</label>
+            <input id="adminPassword" type="password" required autocomplete="current-password" placeholder="كلمة مرور الإدارة">
+            <button class="primary-button" type="submit">دخول</button>
+            <p id="adminLoginError" class="auth-error" role="alert"></p>
+            <a class="auth-back" href="admon.html">العودة إلى إدارة الطلبات</a>
+        </form>
+    </section>
+
+    <main id="adminChatApp" class="admin-chat-app" hidden>
+        <aside class="admin-sidebar">
+            <header class="admin-sidebar-head">
+                <div>
+                    <h1>محادثات المستفيدين</h1>
+                    <small id="conversationCount">0 محادثة</small>
+                </div>
+                <div class="header-actions">
+                    <button id="adminNotificationButton" class="icon-button" type="button" title="تفعيل الإشعارات" aria-label="تفعيل الإشعارات">🔔</button>
+                    <a class="icon-button" href="admon.html" title="إدارة الطلبات" aria-label="إدارة الطلبات">⌂</a>
+                    <button id="adminLogoutButton" class="icon-button" type="button" title="تسجيل الخروج" aria-label="تسجيل الخروج">↩</button>
+                </div>
+            </header>
+            <div class="admin-search">
+                <input id="conversationSearch" type="search" autocomplete="off" placeholder="بحث بالاسم أو رقم المعاملة أو الجوال">
+            </div>
+            <section id="conversationList" class="conversation-list" aria-live="polite">
+                <div class="loading-chat">جاري تحميل المحادثات...</div>
+            </section>
+        </aside>
+
+        <section id="adminConversation" class="admin-conversation">
+            <div id="adminEmpty" class="admin-empty">
+                <div>
+                    <img src="../images/ad.png" alt="شعار المؤسسة">
+                    <h2>المحادثات المباشرة</h2>
+                    <p>اختر محادثة من القائمة لعرض الرسائل والرد على المستفيد.</p>
+                </div>
+            </div>
+
+            <header id="adminChatHeader" class="chat-header" hidden>
+                <button id="adminMobileBack" class="icon-button admin-mobile-back" type="button" aria-label="العودة إلى القائمة">←</button>
+                <div id="clientAvatar" class="conversation-avatar">م</div>
+                <div class="chat-contact">
+                    <strong id="clientName">المستفيد</strong>
+                    <span id="clientStatus">غير متصل</span>
+                </div>
+                <div class="header-actions">
+                    <a id="clientWhatsapp" class="icon-button" href="https://wa.me/966580272758" target="_blank" rel="noopener" title="واتساب اختياري" aria-label="واتساب اختياري">◉</a>
+                </div>
+            </header>
+
+            <section id="adminMessagesArea" class="messages-area" hidden>
+                <div id="adminMessagesList" class="messages-list"></div>
+            </section>
+
+            <footer id="adminComposerZone" class="composer-zone" hidden>
+                <div id="adminTypingBar" class="typing-bar" hidden>المستفيد يكتب الآن...</div>
+                <div id="adminReplyPreview" class="reply-preview" hidden>
+                    <div class="reply-preview-content">
+                        <strong id="adminReplySender"></strong>
+                        <span id="adminReplyText"></span>
+                    </div>
+                    <button id="adminCancelReply" class="icon-button" type="button" aria-label="إلغاء الرد">✕</button>
+                </div>
+                <div id="adminEmojiPanel" class="emoji-panel" hidden></div>
+                <form id="adminMessageForm" class="composer">
+                    <button id="adminEmojiButton" class="icon-button" type="button" aria-label="الرموز التعبيرية">😊</button>
+                    <button id="adminAttachmentButton" class="icon-button attachment-button" type="button" aria-label="إرفاق ملف">📎</button>
+                    <textarea id="adminMessageInput" class="message-input" rows="1" maxlength="2500" placeholder="اكتب رسالة" aria-label="نص الرسالة"></textarea>
+                    <button id="adminSendButton" class="send-button" type="submit" aria-label="إرسال">➤</button>
+                </form>
+            </footer>
+        </section>
+    </main>
+
+    <nav id="adminMessageMenu" class="context-menu" hidden aria-label="خيارات الرسالة">
+        <button data-action="reply" type="button">↩️ الرد</button>
+        <button data-action="copy" type="button">📋 نسخ النص</button>
+        <button data-action="forward" type="button">↪️ تحويل</button>
+        <button data-action="star" type="button">⭐ تمييز بنجمة</button>
+        <button data-action="info" type="button">ℹ️ معلومات الرسالة</button>
+        <button data-action="delete-me" type="button">🗑️ حذف لدي</button>
+        <button data-action="delete-all" class="danger" type="button">🚫 حذف لدى الجميع</button>
+    </nav>
+
+    <section id="adminMessageInfoModal" class="modal-overlay" hidden aria-labelledby="adminMessageInfoTitle">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <header class="modal-head">
+                <h2 id="adminMessageInfoTitle">معلومات الرسالة</h2>
+                <button id="adminCloseInfo" class="icon-button" type="button" aria-label="إغلاق">✕</button>
+            </header>
+            <div id="adminMessageInfoBody" class="modal-body"></div>
+            <div class="modal-actions">
+                <button id="adminCloseInfoAction" class="secondary-button" type="button">حسنًا</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="adminToast" class="toast" role="status" hidden></div>
+
+    <script type="module" src="../scripts/chat-admin.js"></script>
+</body>
+</html>

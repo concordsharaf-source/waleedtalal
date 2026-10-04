@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>المحادثة المباشرة | مؤسسة الوليد</title>
+    <meta name="theme-color" content="#045652">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
+    <link rel="manifest" href="../manifest.json?v=9">
+    <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../styles/chat.css">
+    <script src="../scripts/pwa.js" defer></script>
+</head>
+<body>
+    <section id="loginView" class="auth-page" aria-labelledby="loginTitle">
+        <form id="chatLoginForm" class="auth-card">
+            <img class="auth-logo" src="../images/ad.png" alt="شعار المؤسسة">
+            <h1 id="loginTitle">الدردشة المباشرة</h1>
+            <p class="auth-subtitle">أدخل رقم المعاملة ورقم الجوال المسجل للوصول إلى محادثتك مع الإدارة.</p>
+
+            <label for="transactionInput">رقم المعاملة</label>
+            <input id="transactionInput" inputmode="numeric" autocomplete="off" required placeholder="مثال: 1234">
+
+            <label for="phoneInput">رقم الجوال</label>
+            <input id="phoneInput" type="tel" inputmode="tel" autocomplete="tel" required placeholder="رقم الجوال المسجل في الطلب">
+
+            <button id="loginButton" class="primary-button" type="submit">💬 دخول إلى المحادثة</button>
+            <p id="loginError" class="auth-error" role="alert"></p>
+            <a class="auth-back" href="../index.html">العودة إلى الصفحة الرئيسية</a>
+        </form>
+    </section>
+
+    <main id="chatView" class="chat-shell" hidden>
+        <header class="chat-header">
+            <button id="logoutButton" class="icon-button" type="button" aria-label="تسجيل الخروج" title="تسجيل الخروج">↩</button>
+            <img class="chat-avatar" src="../images/ad.png" alt="شعار المؤسسة">
+            <div class="chat-contact">
+                <strong>إدارة مؤسسة الوليد</strong>
+                <span id="adminStatus">جاري الاتصال...</span>
+            </div>
+            <div class="header-actions">
+                <button id="notificationButton" class="icon-button optional-header-action" type="button" aria-label="تفعيل الإشعارات" title="تفعيل الإشعارات">🔔</button>
+                <a id="headerWhatsapp" class="icon-button optional-header-action" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="واتساب اختياري" title="واتساب اختياري">◉</a>
+            </div>
+        </header>
+
+        <section id="messagesArea" class="messages-area" aria-live="polite">
+            <div id="messagesList" class="messages-list">
+                <div class="loading-chat">جاري تحميل المحادثة...</div>
+            </div>
+            <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">◉</a>
+        </section>
+
+        <footer class="composer-zone">
+            <div id="typingBar" class="typing-bar" hidden>الإدارة تكتب الآن...</div>
+
+            <div id="replyPreview" class="reply-preview" hidden>
+                <div class="reply-preview-content">
+                    <strong id="replySender"></strong>
+                    <span id="replyText"></span>
+                </div>
+                <button id="cancelReplyButton" class="icon-button" type="button" aria-label="إلغاء الرد">✕</button>
+            </div>
+
+            <div id="emojiPanel" class="emoji-panel" hidden></div>
+
+            <form id="messageForm" class="composer">
+                <button id="emojiButton" class="icon-button" type="button" aria-label="الرموز التعبيرية">😊</button>
+                <button id="attachmentButton" class="icon-button attachment-button" type="button" aria-label="إرفاق ملف" title="سيتم تفعيل الملفات بعد إعداد التخزين">📎</button>
+                <textarea id="messageInput" class="message-input" rows="1" maxlength="2500" placeholder="اكتب رسالة" aria-label="نص الرسالة"></textarea>
+                <button id="sendButton" class="send-button" type="submit" aria-label="إرسال">➤</button>
+            </form>
+        </footer>
+    </main>
+
+    <nav id="messageMenu" class="context-menu" hidden aria-label="خيارات الرسالة">
+        <button data-action="reply" type="button">↩️ الرد</button>
+        <button data-action="copy" type="button">📋 نسخ النص</button>
+        <button data-action="forward" type="button">↪️ تحويل</button>
+        <button data-action="star" type="button">⭐ تمييز بنجمة</button>
+        <button data-action="info" type="button">ℹ️ معلومات الرسالة</button>
+        <button data-action="delete-me" type="button">🗑️ حذف لدي</button>
+        <button data-action="delete-all" class="danger" type="button">🚫 حذف لدى الجميع</button>
+    </nav>
+
+    <section id="messageInfoModal" class="modal-overlay" hidden aria-labelledby="messageInfoTitle">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <header class="modal-head">
+                <h2 id="messageInfoTitle">معلومات الرسالة</h2>
+                <button id="closeInfoButton" class="icon-button" type="button" aria-label="إغلاق">✕</button>
+            </header>
+            <div id="messageInfoBody" class="modal-body"></div>
+            <div class="modal-actions">
+                <button id="closeInfoAction" class="secondary-button" type="button">حسنًا</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" hidden></div>
+
+    <script type="module" src="../scripts/chat-beneficiary.js"></script>
+</body>
+</html>
