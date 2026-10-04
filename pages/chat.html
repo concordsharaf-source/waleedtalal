@@ -7,7 +7,12 @@
     <meta name="theme-color" content="#045652">
     <meta name="robots" content="noindex,nofollow,noarchive">
     <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
-    <link rel="manifest" href="../manifest.json?v=9">
+    <link rel="apple-touch-icon" href="../icons/chat-app-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="واتساب الوليد">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="../chat-manifest.json?v=1">
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../styles/chat.css">
@@ -59,7 +64,10 @@
             <div id="messagesList" class="messages-list">
                 <div class="loading-chat">جاري تحميل المحادثة...</div>
             </div>
-            <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">☎</a>
+            <button id="installChatAppButton" class="install-chat-button" type="button" aria-label="تثبيت تطبيق المحادثة" title="تثبيت تطبيق المحادثة">⬇</button>
+            <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">
+                <img src="../icons/whatsapp.svg" alt="" aria-hidden="true">
+            </a>
         </section>
 
         <footer class="composer-zone">

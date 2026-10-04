@@ -1,0 +1,37 @@
+{
+  "id": "/chat-app",
+  "name": "واتساب مؤسسة الوليد",
+  "short_name": "واتساب الوليد",
+  "description": "المحادثة المباشرة بين المستفيد وإدارة مؤسسة الوليد",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/pages/chat.html?source=chat-pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait-primary",
+  "background_color": "#efeae2",
+  "theme_color": "#045652",
+  "categories": [
+    "social",
+    "communication"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/chat-app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/chat-app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

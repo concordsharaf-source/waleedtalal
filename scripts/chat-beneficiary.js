@@ -48,6 +48,7 @@ const messageMenu = document.getElementById("messageMenu");
 const infoModal = document.getElementById("messageInfoModal");
 const infoBody = document.getElementById("messageInfoBody");
 const toast = document.getElementById("toast");
+const installChatAppButton = document.getElementById("installChatAppButton");
 
 let currentOrder = null;
 let unsubscribe = null;
@@ -61,6 +62,7 @@ let markReadTimer = null;
 let longPressTimer = null;
 let messageSearchQuery = "";
 let starredOnly = false;
+let deferredInstallPrompt = null;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -541,6 +543,44 @@ document.addEventListener("click", event => {
 document.getElementById("closeInfoButton").addEventListener("click", closeInfo);
 document.getElementById("closeInfoAction").addEventListener("click", closeInfo);
 infoModal.addEventListener("click", event => { if (event.target === infoModal) closeInfo(); });
+
+window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installChatAppButton.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    installChatAppButton.hidden = true;
+    showToast("تم تثبيت تطبيق المحادثة بنجاح");
+});
+
+installChatAppButton.addEventListener("click", async () => {
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (standalone) {
+        installChatAppButton.hidden = true;
+        showToast("تطبيق المحادثة مثبت بالفعل");
+        return;
+    }
+
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice.outcome === "accepted") installChatAppButton.hidden = true;
+        deferredInstallPrompt = null;
+        return;
+    }
+
+    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    showToast(isiOS
+        ? "من زر المشاركة اختر: إضافة إلى الشاشة الرئيسية"
+        : "من قائمة المتصفح اختر: تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية");
+});
+
+if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {
+    installChatAppButton.hidden = true;
+}
 
 document.addEventListener("visibilitychange", () => {
     if (!currentOrder) return;

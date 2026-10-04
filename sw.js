@@ -1,10 +1,11 @@
-const CACHE_NAME = "waleedtalal-pwa-v21";
+const CACHE_NAME = "waleedtalal-pwa-v22";
 
 const APP_SHELL = [
   "./",
   "./index.html",
   "./offline.html",
   "./manifest.json",
+  "./chat-manifest.json",
   "./styles/site-buttons.css",
   "./styles/chat.css",
   "./scripts/site-ui.js",
@@ -19,6 +20,9 @@ const APP_SHELL = [
   "./icons/icon-512-v2.png",
   "./icons/icon-maskable-512-v2.png",
   "./icons/apple-touch-icon-v2.png",
+  "./icons/whatsapp.svg",
+  "./icons/chat-app-192.png",
+  "./icons/chat-app-512.png",
   "./images/ad.png",
   "./images/aa.jpg",
   "./images/xx.jpg",
