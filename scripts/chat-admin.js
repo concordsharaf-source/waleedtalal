@@ -7,6 +7,8 @@ import {
     formatMessageTime,
     formatMessageDate,
     sendChatMessage,
+    createPendingAudioMessage,
+    markChatAudioFailed,
     markMessagesRead,
     toggleMessageStar,
     deleteMessageForMe,
@@ -20,6 +22,11 @@ import {
     getBrowserPushToken,
     sendPushForMessage
 } from "./push-notifications.js";
+import {
+    createVoiceRecorder,
+    uploadChatAudio,
+    createAudioMessagePlayer
+} from "./chat-audio.js";
 
 const ADMIN_PASSWORD = "232167";
 const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
@@ -52,6 +59,12 @@ const adminTypingBar = document.getElementById("adminTypingBar");
 const messageForm = document.getElementById("adminMessageForm");
 const messageInput = document.getElementById("adminMessageInput");
 const sendButton = document.getElementById("adminSendButton");
+const composerActionIcon = document.getElementById("adminComposerActionIcon");
+const voiceRecorderPanel = document.getElementById("adminVoiceRecorder");
+const voiceRecordingTimer = document.getElementById("adminVoiceRecordingTimer");
+const cancelVoiceRecording = document.getElementById("adminCancelVoiceRecording");
+const pauseVoiceRecording = document.getElementById("adminPauseVoiceRecording");
+const sendVoiceRecording = document.getElementById("adminSendVoiceRecording");
 const emojiPanel = document.getElementById("adminEmojiPanel");
 const replyPreview = document.getElementById("adminReplyPreview");
 const replySender = document.getElementById("adminReplySender");
@@ -79,6 +92,7 @@ let adminPushToken = "";
 let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
+let voiceRecorder = null;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -266,6 +280,7 @@ function renderConversationList() {
 }
 
 async function selectConversation(orderId) {
+    voiceRecorder?.cancel();
     const order = allConversations.find(item => item.id === orderId);
     if (!order) return;
     if (currentOrder && currentOrder.id !== order.id) {
@@ -374,15 +389,20 @@ function createMessageElement(message) {
         bubble.appendChild(quote);
     }
 
-    const text = document.createElement("div");
-    text.className = `message-text${message.deletedForAll ? " deleted" : ""}`;
+    const isAudio = message.messageType === "audio" && !message.deletedForAll;
+    const content = isAudio
+        ? createAudioMessagePlayer(message)
+        : document.createElement("div");
+    if (!isAudio) {
+        content.className = `message-text${message.deletedForAll ? " deleted" : ""}`;
+    }
     if (Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR)) {
         const star = document.createElement("span");
         star.className = "message-star";
         star.textContent = "★";
-        text.appendChild(star);
+        content.prepend(star);
     }
-    text.appendChild(document.createTextNode(message.text || ""));
+    if (!isAudio) content.appendChild(document.createTextNode(message.text || ""));
 
     const meta = document.createElement("div");
     meta.className = "message-meta";
@@ -396,7 +416,7 @@ function createMessageElement(message) {
         checks.textContent = read ? "✓✓" : "✓";
         meta.appendChild(checks);
     }
-    bubble.append(text, meta);
+    bubble.append(content, meta);
 
     bubble.addEventListener("contextmenu", event => openMessageMenu(event, message));
     bubble.addEventListener("dblclick", event => openMessageMenu(event, message));
@@ -441,6 +461,46 @@ function clearReply() {
     replyPreview.hidden = true;
 }
 
+function updateComposerAction() {
+    const hasText = Boolean(messageInput.value.trim());
+    composerActionIcon.textContent = hasText ? "➤" : "🎙";
+    sendButton.classList.toggle("is-voice", !hasText);
+    sendButton.setAttribute("aria-label", hasText ? "إرسال" : "تسجيل رسالة صوتية");
+    sendButton.title = hasText ? "إرسال" : "تسجيل رسالة صوتية";
+}
+
+async function sendRecordedVoice(blob, { duration, mimeType }) {
+    if (!currentOrder) throw new Error("order-not-found");
+    const orderId = currentOrder.id;
+    const pending = await createPendingAudioMessage(
+        orderId,
+        ADMIN_ACTOR,
+        duration,
+        mimeType,
+        replyTarget
+    );
+    try {
+        await uploadChatAudio({
+            orderId,
+            senderId: ADMIN_ACTOR,
+            messageId: pending.id,
+            blob,
+            duration
+        });
+    } catch (error) {
+        await markChatAudioFailed(orderId, pending.id).catch(console.error);
+        throw error;
+    }
+
+    clearReply();
+    emojiPanel.hidden = true;
+    sendPushForMessage({
+        orderId,
+        senderId: ADMIN_ACTOR,
+        messageId: pending.id
+    }).catch(error => console.warn("Voice push send failed", error));
+}
+
 async function handleMenuAction(action) {
     const message = activeMessage;
     closeMessageMenu();
@@ -454,6 +514,7 @@ async function handleMenuAction(action) {
         if (action === "forward") {
             messageInput.value = `↪️ رسالة محوّلة\n${message.text || ""}`;
             resizeInput();
+            updateComposerAction();
             messageInput.focus();
         }
         if (action === "star") await toggleMessageStar(currentOrder.id, message.id, ADMIN_ACTOR);
@@ -503,6 +564,7 @@ function buildEmojiPanel() {
             messageInput.selectionStart = messageInput.selectionEnd = start + emoji.length;
             messageInput.focus();
             resizeInput();
+            updateComposerAction();
         });
         fragment.appendChild(button);
     });
@@ -571,7 +633,8 @@ if (typeof adminDisplayModeQuery.addEventListener === "function") {
 
 if (isAdminAppContext()) {
     markAdminAppInstalled();
-} else if (/iphone|ipad|ipod/i.test(navigator.userAgent) && localStorage.getItem(ADMIN_INSTALL_KEY) !== "yes") {
+} else if (localStorage.getItem(ADMIN_INSTALL_KEY) !== "yes") {
+    // نظهره دائماً في المتصفح، ثم نخفيه بعد التثبيت أو داخل التطبيق المستقل.
     installAdminChatAppButton.hidden = false;
 }
 
@@ -587,6 +650,7 @@ loginForm.addEventListener("submit", event => {
 });
 
 document.getElementById("adminLogoutButton").addEventListener("click", async () => {
+    voiceRecorder?.cancel();
     if (currentOrder) await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
     localStorage.removeItem("adminLogin");
     location.reload();
@@ -621,6 +685,7 @@ adminStarredMessagesButton.addEventListener("click", () => {
 });
 
 document.getElementById("adminMobileBack").addEventListener("click", async () => {
+    voiceRecorder?.cancel();
     adminChatApp.classList.remove("conversation-open");
     if (window.innerWidth > 720 && currentOrder) {
         await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
@@ -637,11 +702,17 @@ conversationSearch.addEventListener("input", renderConversationList);
 
 messageForm.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!currentOrder || !messageInput.value.trim()) return;
+    if (!currentOrder) return;
+    if (!messageInput.value.trim()) {
+        emojiPanel.hidden = true;
+        await voiceRecorder?.start();
+        return;
+    }
     const text = messageInput.value;
     const orderId = currentOrder.id;
     messageInput.value = "";
     resizeInput();
+    updateComposerAction();
     sendButton.disabled = true;
     try {
         const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget);
@@ -656,6 +727,7 @@ messageForm.addEventListener("submit", async event => {
         console.error(error);
         messageInput.value = text;
         resizeInput();
+        updateComposerAction();
         showToast("تعذر إرسال الرسالة");
     } finally {
         sendButton.disabled = false;
@@ -664,6 +736,7 @@ messageForm.addEventListener("submit", async event => {
 
 messageInput.addEventListener("input", () => {
     resizeInput();
+    updateComposerAction();
     if (!currentOrder) return;
     setChatTyping(currentOrder.id, ADMIN_ACTOR, Boolean(messageInput.value.trim()));
     clearTimeout(typingTimer);
@@ -704,5 +777,16 @@ window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
 });
 
+voiceRecorder = createVoiceRecorder({
+    panel: voiceRecorderPanel,
+    composer: messageForm,
+    timer: voiceRecordingTimer,
+    pauseButton: pauseVoiceRecording,
+    cancelButton: cancelVoiceRecording,
+    sendButton: sendVoiceRecording,
+    onSend: sendRecordedVoice,
+    onNotify: showToast
+});
+updateComposerAction();
 buildEmojiPanel();
 if (localStorage.getItem("adminLogin") === "yes") unlockAdmin();

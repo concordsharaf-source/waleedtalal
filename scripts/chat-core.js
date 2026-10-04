@@ -222,6 +222,61 @@ export async function sendChatMessage(orderId, actor, text, replyTo = null) {
     return message;
 }
 
+export async function createPendingAudioMessage(orderId, actor, duration, mimeType, replyTo = null) {
+    const safeDuration = Math.max(1, Math.min(180, Math.round(Number(duration) || 1)));
+    const orderRef = doc(db, "orders", orderId);
+    const message = {
+        id: createMessageId(),
+        senderId: actor,
+        senderName: actor === ADMIN_ACTOR ? "إدارة المؤسسة" : "المستفيد",
+        text: "🎤 جارٍ رفع الرسالة الصوتية...",
+        clientTime: new Date().toISOString(),
+        messageType: "audio",
+        audioUrl: "",
+        audioDuration: safeDuration,
+        audioMime: String(mimeType || "audio/webm").slice(0, 80),
+        uploadStatus: "pending",
+        replyTo: replyTo ? {
+            id: String(replyTo.id || ""),
+            senderName: String(replyTo.senderName || ""),
+            text: String(replyTo.text || "").slice(0, 180)
+        } : null,
+        readBy: [actor],
+        deletedFor: [],
+        deletedForAll: false,
+        starredBy: []
+    };
+
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        const order = snapshot.data();
+        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
+        const next = [...current.slice(-(MAX_CHAT_MESSAGES - 1)), message];
+        transaction.update(orderRef, {
+            chatEnabled: true,
+            chatMessages: next,
+            chatLastMessage: "🎤 رسالة صوتية",
+            chatLastSender: actor,
+            chatUpdatedAt: serverTimestamp(),
+            [`chatTyping.${actor}`]: false
+        });
+    });
+
+    return message;
+}
+
+export async function markChatAudioFailed(orderId, messageId) {
+    await mutateMessage(orderId, messageId, message => {
+        if (message.messageType !== "audio" || message.uploadStatus !== "pending") return message;
+        return {
+            ...message,
+            text: "تعذر إرسال الرسالة الصوتية",
+            uploadStatus: "failed"
+        };
+    });
+}
+
 export async function markMessagesRead(orderId, actor) {
     const orderRef = doc(db, "orders", orderId);
     await runTransaction(db, async transaction => {

@@ -102,11 +102,22 @@
                     <button id="adminCancelReply" class="icon-button" type="button" aria-label="إلغاء الرد">✕</button>
                 </div>
                 <div id="adminEmojiPanel" class="emoji-panel" hidden></div>
+                <div id="adminVoiceRecorder" class="voice-recorder" aria-live="polite" hidden>
+                    <button id="adminCancelVoiceRecording" class="voice-control voice-cancel" type="button" aria-label="إلغاء التسجيل" title="إلغاء التسجيل">🗑</button>
+                    <div class="voice-recording-status">
+                        <span class="voice-recording-dot" aria-hidden="true"></span>
+                        <time id="adminVoiceRecordingTimer" datetime="PT0S">00:00</time>
+                    </div>
+                    <div class="voice-live-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                    <span class="voice-slide-hint">تسجيل صوتي</span>
+                    <button id="adminPauseVoiceRecording" class="voice-control" type="button" aria-label="إيقاف التسجيل مؤقتًا" title="إيقاف مؤقت">⏸</button>
+                    <button id="adminSendVoiceRecording" class="send-button voice-record-send" type="button" aria-label="إرسال التسجيل">➤</button>
+                </div>
                 <form id="adminMessageForm" class="composer">
                     <button id="adminEmojiButton" class="icon-button" type="button" aria-label="الرموز التعبيرية">😊</button>
                     <button id="adminAttachmentButton" class="icon-button attachment-button" type="button" aria-label="إرفاق ملف">📎</button>
                     <textarea id="adminMessageInput" class="message-input" rows="1" maxlength="2500" placeholder="اكتب رسالة" aria-label="نص الرسالة"></textarea>
-                    <button id="adminSendButton" class="send-button" type="submit" aria-label="إرسال">➤</button>
+                    <button id="adminSendButton" class="send-button composer-action-button is-voice" type="submit" aria-label="تسجيل رسالة صوتية" title="تسجيل رسالة صوتية"><span id="adminComposerActionIcon" aria-hidden="true">🎙</span></button>
                 </form>
             </footer>
         </section>
