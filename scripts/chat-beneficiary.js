@@ -39,6 +39,11 @@ const replySender = document.getElementById("replySender");
 const replyText = document.getElementById("replyText");
 const typingBar = document.getElementById("typingBar");
 const adminStatus = document.getElementById("adminStatus");
+const chatOrderBadge = document.getElementById("chatOrderBadge");
+const messageSearchBar = document.getElementById("messageSearchBar");
+const messageSearchInput = document.getElementById("messageSearchInput");
+const messageSearchCount = document.getElementById("messageSearchCount");
+const starredMessagesButton = document.getElementById("starredMessagesButton");
 const messageMenu = document.getElementById("messageMenu");
 const infoModal = document.getElementById("messageInfoModal");
 const infoBody = document.getElementById("messageInfoBody");
@@ -54,6 +59,8 @@ let typingTimer = null;
 let toastTimer = null;
 let markReadTimer = null;
 let longPressTimer = null;
+let messageSearchQuery = "";
+let starredOnly = false;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -82,7 +89,6 @@ function clearSession() {
 function setWhatsappLinks(transactionId) {
     const message = `السلام عليكم، أحتاج المساعدة بخصوص المعاملة رقم ${transactionId}`;
     const url = `https://wa.me/966580272758?text=${encodeURIComponent(message)}`;
-    document.getElementById("headerWhatsapp").href = url;
     document.getElementById("floatingWhatsapp").href = url;
 }
 
@@ -101,6 +107,13 @@ async function startChat(session) {
 
     currentOrder = { id: session.orderId, transactionId: session.transactionId, phone: session.phone };
     setWhatsappLinks(session.transactionId);
+    chatOrderBadge.textContent = `#${session.transactionId}`;
+    messageSearchQuery = "";
+    messageSearchInput.value = "";
+    messageSearchBar.hidden = true;
+    starredOnly = false;
+    starredMessagesButton.classList.remove("active");
+    starredMessagesButton.textContent = "☆";
     loginView.hidden = true;
     chatView.hidden = false;
     initializedMessages = false;
@@ -121,12 +134,21 @@ async function startChat(session) {
 }
 
 function renderOrder(order) {
-    const messages = sortMessages(order.chatMessages)
+    const allMessages = sortMessages(order.chatMessages)
         .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(CLIENT_ACTOR)));
 
-    const newAdminMessages = messages.filter(message =>
+    const newAdminMessages = allMessages.filter(message =>
         message.senderId === ADMIN_ACTOR && !knownMessageIds.has(message.id)
     );
+
+    const query = messageSearchQuery.trim().toLowerCase();
+    const messages = allMessages.filter(message => {
+        const matchesSearch = !query || String(message.text || "").toLowerCase().includes(query);
+        const matchesStar = !starredOnly || (Array.isArray(message.starredBy) && message.starredBy.includes(CLIENT_ACTOR));
+        return matchesSearch && matchesStar;
+    });
+    messageSearchCount.textContent = query || starredOnly ? `${messages.length} نتيجة` : "";
+    chatOrderBadge.textContent = `#${order.transactionId || currentOrder?.transactionId || "----"}`;
 
     renderMessages(messages);
     updateAdminStatus(order);
@@ -137,7 +159,7 @@ function renderOrder(order) {
         notifyNewMessage(latest.text);
     }
 
-    knownMessageIds = new Set(messages.map(message => message.id));
+    knownMessageIds = new Set(allMessages.map(message => message.id));
     initializedMessages = true;
     clearTimeout(markReadTimer);
     markReadTimer = setTimeout(() => {
@@ -173,7 +195,9 @@ function renderMessages(messages) {
     if (!messages.length) {
         const empty = document.createElement("div");
         empty.className = "empty-chat";
-        empty.textContent = "ابدأ محادثتك مع الإدارة.";
+        empty.textContent = messageSearchQuery || starredOnly
+            ? "لا توجد رسائل مطابقة."
+            : "ابدأ محادثتك مع الإدارة.";
         messagesList.appendChild(empty);
         return;
     }
@@ -428,6 +452,9 @@ messageForm.addEventListener("submit", async event => {
         localStorage.removeItem(`waleed_chat_draft_${currentOrder.id}`);
         clearReply();
         emojiPanel.hidden = true;
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission().catch(() => {});
+        }
     } catch (error) {
         console.error(error);
         messageInput.value = text;
@@ -473,10 +500,33 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
     messagesList.textContent = "";
 });
 
-document.getElementById("notificationButton").addEventListener("click", async () => {
-    if (!("Notification" in window)) return showToast("الإشعارات غير مدعومة في هذا المتصفح");
-    const permission = await Notification.requestPermission();
-    showToast(permission === "granted" ? "تم تفعيل الإشعارات" : "لم يتم السماح بالإشعارات");
+document.getElementById("chatBackButton").addEventListener("click", () => {
+    if (history.length > 1) history.back();
+    else location.href = "../index.html";
+});
+
+document.getElementById("messageSearchButton").addEventListener("click", () => {
+    messageSearchBar.hidden = !messageSearchBar.hidden;
+    if (!messageSearchBar.hidden) messageSearchInput.focus();
+});
+
+document.getElementById("closeMessageSearch").addEventListener("click", () => {
+    messageSearchBar.hidden = true;
+    messageSearchInput.value = "";
+    messageSearchQuery = "";
+    if (currentOrder) renderOrder(currentOrder);
+});
+
+messageSearchInput.addEventListener("input", () => {
+    messageSearchQuery = messageSearchInput.value;
+    if (currentOrder) renderOrder(currentOrder);
+});
+
+starredMessagesButton.addEventListener("click", () => {
+    starredOnly = !starredOnly;
+    starredMessagesButton.classList.toggle("active", starredOnly);
+    starredMessagesButton.textContent = starredOnly ? "★" : "☆";
+    if (currentOrder) renderOrder(currentOrder);
 });
 
 messageMenu.addEventListener("click", event => {

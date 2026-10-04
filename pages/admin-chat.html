@@ -21,7 +21,7 @@
             <input id="adminPassword" type="password" required autocomplete="current-password" placeholder="كلمة مرور الإدارة">
             <button class="primary-button" type="submit">دخول</button>
             <p id="adminLoginError" class="auth-error" role="alert"></p>
-            <a class="auth-back" href="admon.html">العودة إلى إدارة الطلبات</a>
+            <a class="auth-back" href="orders-code-admin.html">العودة إلى إدارة الطلبات</a>
         </form>
     </section>
 
@@ -34,7 +34,7 @@
                 </div>
                 <div class="header-actions">
                     <button id="adminNotificationButton" class="icon-button" type="button" title="تفعيل الإشعارات" aria-label="تفعيل الإشعارات">🔔</button>
-                    <a class="icon-button" href="admon.html" title="إدارة الطلبات" aria-label="إدارة الطلبات">⌂</a>
+                    <a class="icon-button" href="orders-code-admin.html" title="إدارة الطلبات" aria-label="إدارة الطلبات">⌂</a>
                     <button id="adminLogoutButton" class="icon-button" type="button" title="تسجيل الخروج" aria-label="تسجيل الخروج">↩</button>
                 </div>
             </header>
@@ -55,17 +55,27 @@
                 </div>
             </div>
 
-            <header id="adminChatHeader" class="chat-header" hidden>
-                <button id="adminMobileBack" class="icon-button admin-mobile-back" type="button" aria-label="العودة إلى القائمة">←</button>
-                <div id="clientAvatar" class="conversation-avatar">م</div>
-                <div class="chat-contact">
-                    <strong id="clientName">المستفيد</strong>
-                    <span id="clientStatus">غير متصل</span>
+            <div id="adminChatTop" class="chat-top" hidden>
+                <header class="chat-header">
+                    <button id="adminMobileBack" class="icon-button" type="button" aria-label="العودة إلى القائمة" title="رجوع">➜</button>
+                    <div id="clientAvatar" class="chat-avatar-icon">👤</div>
+                    <div class="chat-contact">
+                        <strong id="clientName">المستفيد</strong>
+                        <span id="clientStatus">غير متصل</span>
+                    </div>
+                    <span id="adminOrderBadge" class="order-badge">#----</span>
+                    <div class="header-actions">
+                        <button id="adminMessageSearchButton" class="icon-button" type="button" aria-label="البحث في المحادثة" title="بحث">🔍</button>
+                        <button id="adminStarredMessagesButton" class="icon-button" type="button" aria-label="الرسائل المميزة" title="الرسائل المميزة">☆</button>
+                        <a id="clientWhatsapp" class="icon-button optional-header-action" href="https://wa.me/966580272758" target="_blank" rel="noopener" title="واتساب اختياري" aria-label="واتساب اختياري">☎</a>
+                    </div>
+                </header>
+                <div id="adminMessageSearchBar" class="chat-search-bar" hidden>
+                    <input id="adminMessageSearchInput" type="search" autocomplete="off" placeholder="البحث في الرسائل...">
+                    <span id="adminMessageSearchCount" class="chat-search-count"></span>
+                    <button id="adminCloseMessageSearch" class="icon-button" type="button" aria-label="إغلاق البحث">✕</button>
                 </div>
-                <div class="header-actions">
-                    <a id="clientWhatsapp" class="icon-button" href="https://wa.me/966580272758" target="_blank" rel="noopener" title="واتساب اختياري" aria-label="واتساب اختياري">◉</a>
-                </div>
-            </header>
+            </div>
 
             <section id="adminMessagesArea" class="messages-area" hidden>
                 <div id="adminMessagesList" class="messages-list"></div>

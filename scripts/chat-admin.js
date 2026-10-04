@@ -29,7 +29,7 @@ const conversationSearch = document.getElementById("conversationSearch");
 const conversationCount = document.getElementById("conversationCount");
 const adminConversation = document.getElementById("adminConversation");
 const adminEmpty = document.getElementById("adminEmpty");
-const adminChatHeader = document.getElementById("adminChatHeader");
+const adminChatTop = document.getElementById("adminChatTop");
 const adminMessagesArea = document.getElementById("adminMessagesArea");
 const adminMessagesList = document.getElementById("adminMessagesList");
 const adminComposerZone = document.getElementById("adminComposerZone");
@@ -37,6 +37,11 @@ const clientName = document.getElementById("clientName");
 const clientAvatar = document.getElementById("clientAvatar");
 const clientStatus = document.getElementById("clientStatus");
 const clientWhatsapp = document.getElementById("clientWhatsapp");
+const adminOrderBadge = document.getElementById("adminOrderBadge");
+const adminMessageSearchBar = document.getElementById("adminMessageSearchBar");
+const adminMessageSearchInput = document.getElementById("adminMessageSearchInput");
+const adminMessageSearchCount = document.getElementById("adminMessageSearchCount");
+const adminStarredMessagesButton = document.getElementById("adminStarredMessagesButton");
 const adminTypingBar = document.getElementById("adminTypingBar");
 const messageForm = document.getElementById("adminMessageForm");
 const messageInput = document.getElementById("adminMessageInput");
@@ -61,6 +66,8 @@ let toastTimer = null;
 let typingTimer = null;
 let longPressTimer = null;
 let markReadTimer = null;
+let messageSearchQuery = "";
+let starredOnly = false;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -193,8 +200,14 @@ async function selectConversation(orderId) {
     currentOrder = order;
     replyTarget = null;
     replyPreview.hidden = true;
+    messageSearchQuery = "";
+    adminMessageSearchInput.value = "";
+    adminMessageSearchBar.hidden = true;
+    starredOnly = false;
+    adminStarredMessagesButton.classList.remove("active");
+    adminStarredMessagesButton.textContent = "☆";
     adminEmpty.hidden = true;
-    adminChatHeader.hidden = false;
+    adminChatTop.hidden = false;
     adminMessagesArea.hidden = false;
     adminComposerZone.hidden = false;
     adminChatApp.classList.add("conversation-open");
@@ -207,8 +220,9 @@ async function selectConversation(orderId) {
 
 function renderCurrentConversation() {
     if (!currentOrder) return;
-    clientName.textContent = `${currentOrder.name || "المستفيد"} — #${currentOrder.transactionId || "—"}`;
+    clientName.textContent = currentOrder.name || "المستفيد";
     clientAvatar.textContent = String(currentOrder.name || "م").trim().charAt(0) || "م";
+    adminOrderBadge.textContent = `#${currentOrder.transactionId || "----"}`;
     const phone = String(currentOrder.phone || "").replace(/[^0-9]/g, "");
     clientWhatsapp.href = `https://wa.me/${phone || "966580272758"}?text=${encodeURIComponent(`السلام عليكم، بخصوص معاملتك رقم ${currentOrder.transactionId || ""}`)}`;
 
@@ -223,8 +237,16 @@ function renderCurrentConversation() {
         clientStatus.className = "";
     }
     adminTypingBar.hidden = currentOrder.chatTyping?.client !== true;
-    renderMessages(sortMessages(currentOrder.chatMessages)
-        .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(ADMIN_ACTOR))));
+    const allMessages = sortMessages(currentOrder.chatMessages)
+        .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(ADMIN_ACTOR)));
+    const query = messageSearchQuery.trim().toLowerCase();
+    const visibleMessages = allMessages.filter(message => {
+        const matchesSearch = !query || String(message.text || "").toLowerCase().includes(query);
+        const matchesStar = !starredOnly || (Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR));
+        return matchesSearch && matchesStar;
+    });
+    adminMessageSearchCount.textContent = query || starredOnly ? `${visibleMessages.length} نتيجة` : "";
+    renderMessages(visibleMessages);
 
     clearTimeout(markReadTimer);
     markReadTimer = setTimeout(() => markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error), 250);
@@ -233,6 +255,13 @@ function renderCurrentConversation() {
 function renderMessages(messages) {
     const wasNearBottom = adminMessagesArea.scrollHeight - adminMessagesArea.scrollTop - adminMessagesArea.clientHeight < 130;
     adminMessagesList.textContent = "";
+    if (!messages.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-chat";
+        empty.textContent = messageSearchQuery || starredOnly ? "لا توجد رسائل مطابقة." : "لا توجد رسائل في هذه المحادثة.";
+        adminMessagesList.appendChild(empty);
+        return;
+    }
     let activeDate = "";
     const fragment = document.createDocumentFragment();
 
@@ -449,8 +478,41 @@ document.getElementById("adminNotificationButton").addEventListener("click", asy
     showToast(permission === "granted" ? "تم تفعيل الإشعارات" : "لم يتم السماح بالإشعارات");
 });
 
-document.getElementById("adminMobileBack").addEventListener("click", () => {
+document.getElementById("adminMessageSearchButton").addEventListener("click", () => {
+    adminMessageSearchBar.hidden = !adminMessageSearchBar.hidden;
+    if (!adminMessageSearchBar.hidden) adminMessageSearchInput.focus();
+});
+
+document.getElementById("adminCloseMessageSearch").addEventListener("click", () => {
+    adminMessageSearchBar.hidden = true;
+    adminMessageSearchInput.value = "";
+    messageSearchQuery = "";
+    renderCurrentConversation();
+});
+
+adminMessageSearchInput.addEventListener("input", () => {
+    messageSearchQuery = adminMessageSearchInput.value;
+    renderCurrentConversation();
+});
+
+adminStarredMessagesButton.addEventListener("click", () => {
+    starredOnly = !starredOnly;
+    adminStarredMessagesButton.classList.toggle("active", starredOnly);
+    adminStarredMessagesButton.textContent = starredOnly ? "★" : "☆";
+    renderCurrentConversation();
+});
+
+document.getElementById("adminMobileBack").addEventListener("click", async () => {
     adminChatApp.classList.remove("conversation-open");
+    if (window.innerWidth > 720 && currentOrder) {
+        await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
+        currentOrder = null;
+        adminChatTop.hidden = true;
+        adminMessagesArea.hidden = true;
+        adminComposerZone.hidden = true;
+        adminEmpty.hidden = false;
+        renderConversationList();
+    }
 });
 
 conversationSearch.addEventListener("input", renderConversationList);

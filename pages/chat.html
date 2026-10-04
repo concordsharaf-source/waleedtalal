@@ -33,24 +33,33 @@
     </section>
 
     <main id="chatView" class="chat-shell" hidden>
-        <header class="chat-header">
-            <button id="logoutButton" class="icon-button" type="button" aria-label="تسجيل الخروج" title="تسجيل الخروج">↩</button>
-            <img class="chat-avatar" src="../images/ad.png" alt="شعار المؤسسة">
-            <div class="chat-contact">
-                <strong>إدارة مؤسسة الوليد</strong>
-                <span id="adminStatus">جاري الاتصال...</span>
+        <div class="chat-top">
+            <header class="chat-header">
+                <button id="chatBackButton" class="icon-button" type="button" aria-label="رجوع" title="رجوع">➜</button>
+                <div class="chat-avatar-icon" aria-hidden="true">🎧</div>
+                <div class="chat-contact">
+                    <strong>إدارة مؤسسة الوليد</strong>
+                    <span id="adminStatus">جاري الاتصال...</span>
+                </div>
+                <span id="chatOrderBadge" class="order-badge">#----</span>
+                <div class="header-actions">
+                    <button id="messageSearchButton" class="icon-button" type="button" aria-label="البحث في المحادثة" title="بحث">🔍</button>
+                    <button id="starredMessagesButton" class="icon-button" type="button" aria-label="الرسائل المميزة" title="الرسائل المميزة">☆</button>
+                    <button id="logoutButton" class="icon-button" type="button" aria-label="تسجيل الخروج" title="تسجيل الخروج">⇥</button>
+                </div>
+            </header>
+            <div id="messageSearchBar" class="chat-search-bar" hidden>
+                <input id="messageSearchInput" type="search" autocomplete="off" placeholder="البحث في الرسائل...">
+                <span id="messageSearchCount" class="chat-search-count"></span>
+                <button id="closeMessageSearch" class="icon-button" type="button" aria-label="إغلاق البحث">✕</button>
             </div>
-            <div class="header-actions">
-                <button id="notificationButton" class="icon-button optional-header-action" type="button" aria-label="تفعيل الإشعارات" title="تفعيل الإشعارات">🔔</button>
-                <a id="headerWhatsapp" class="icon-button optional-header-action" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="واتساب اختياري" title="واتساب اختياري">◉</a>
-            </div>
-        </header>
+        </div>
 
         <section id="messagesArea" class="messages-area" aria-live="polite">
             <div id="messagesList" class="messages-list">
                 <div class="loading-chat">جاري تحميل المحادثة...</div>
             </div>
-            <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">◉</a>
+            <a id="floatingWhatsapp" class="optional-whatsapp" href="https://wa.me/966580272758" target="_blank" rel="noopener" aria-label="التواصل عبر واتساب" title="واتساب اختياري">☎</a>
         </section>
 
         <footer class="composer-zone">

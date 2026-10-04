@@ -10,6 +10,22 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "Noto Naskh Arabic";
+    src: url("../fonts/noto-naskh-arabic-400.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Noto Naskh Arabic";
+    src: url("../fonts/noto-naskh-arabic-700.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --primary-green: #045652;
     --primary-green-dark: #023835;
@@ -42,7 +58,7 @@ body {
     margin: 0;
     color: var(--text-dark);
     background: #f8fafc;
-    font-family: "Cairo", system-ui, -apple-system, sans-serif;
+    font-family: "Noto Naskh Arabic", "Cairo", system-ui, -apple-system, sans-serif;
     direction: rtl;
 }
 
@@ -171,6 +187,12 @@ button { cursor: pointer; }
     background: var(--wa-chat-bg);
 }
 
+.chat-top {
+    position: relative;
+    z-index: 4;
+    background: var(--primary-green);
+}
+
 .chat-header {
     min-height: 70px;
     display: flex;
@@ -193,6 +215,19 @@ button { cursor: pointer; }
     border: 2px solid rgba(255,255,255,.55);
 }
 
+.chat-avatar-icon {
+    width: 48px;
+    height: 48px;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: rgba(255,255,255,.18);
+    border: 2px solid rgba(255,255,255,.25);
+    font-size: 1.35rem;
+}
+
 .chat-contact {
     min-width: 0;
     flex: 1;
@@ -205,7 +240,52 @@ button { cursor: pointer; }
 .online-dot { color: #6cff93; }
 .typing-text { color: #8deeff !important; font-weight: 700; }
 
+.order-badge {
+    flex: 0 0 auto;
+    direction: ltr;
+    padding: 4px 11px;
+    border-radius: 14px;
+    color: rgba(255,255,255,.92);
+    background: rgba(255,255,255,.16);
+    font-family: "Cairo", sans-serif;
+    font-size: .78rem;
+}
+
 .header-actions { display: flex; align-items: center; gap: 4px; }
+.header-actions .icon-button.active {
+    color: #ffe08a;
+    background: rgba(255,255,255,.17);
+}
+
+.chat-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-top: 1px solid rgba(255,255,255,.12);
+    background: #f0f2f5;
+}
+
+.chat-search-bar input {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    border: 0;
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: #111b21;
+    background: white;
+    outline: none;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.chat-search-count {
+    flex: 0 0 auto;
+    color: #667781;
+    font-family: "Cairo", sans-serif;
+    font-size: .7rem;
+}
 .icon-button {
     width: 42px;
     height: 42px;
@@ -285,7 +365,14 @@ button { cursor: pointer; }
 }
 
 .message-star { color: #d89a00; margin-inline-end: 4px; }
-.message-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.75; font-size: .91rem; }
+.message-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.8;
+    font-family: "Noto Naskh Arabic", "Cairo", serif;
+    font-size: 1.12rem;
+    font-weight: 600;
+}
 .message-text.deleted { color: #667781; font-style: italic; }
 .message-meta {
     display: flex;
@@ -361,7 +448,9 @@ button { cursor: pointer; }
     color: #111b21;
     background: #fff;
     outline: none;
-    line-height: 1.5;
+    line-height: 1.65;
+    font-family: "Noto Naskh Arabic", "Cairo", serif;
+    font-size: 1.08rem;
 }
 .send-button {
     width: 46px;
@@ -552,8 +641,11 @@ button { cursor: pointer; }
 
 @media (max-width: 720px) {
     .auth-card { padding: 24px 19px; }
-    .chat-header { min-height: 64px; }
-    .chat-avatar { width: 43px; height: 43px; }
+    .chat-header { min-height: 64px; gap: 6px; padding-inline: 7px; }
+    .chat-avatar,
+    .chat-avatar-icon { width: 43px; height: 43px; }
+    .chat-header .icon-button { width: 38px; height: 38px; }
+    .order-badge { padding: 3px 8px; font-size: .7rem; }
     .message-bubble { max-width: 87%; }
     .composer { grid-template-columns: auto minmax(0, 1fr) auto; }
     .composer .attachment-button { display: none; }
@@ -567,7 +659,8 @@ button { cursor: pointer; }
 }
 
 @media (max-width: 410px) {
-    .chat-contact strong { font-size: .88rem; }
+    .chat-contact strong { font-size: .82rem; }
+    .chat-contact > span:not(.order-badge) { display: none; }
     .header-actions .optional-header-action { display: none; }
     .message-bubble { max-width: 91%; }
     .emoji-panel { grid-template-columns: repeat(7, 1fr); }
