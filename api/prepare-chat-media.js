@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
+const { mediaStorageCredentials, resolveSupabaseStorage } = require('../server/media-storage');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
@@ -80,11 +80,8 @@ module.exports = async function handler(request, response) {
         });
     }
 
-    const supabaseUrl = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
-    const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-    const anonKey = String(process.env.SUPABASE_ANON_KEY || '').trim();
-    const bucket = String(process.env.SUPABASE_CHAT_BUCKET || 'media file').trim();
-    if (!supabaseUrl || !serviceKey || !anonKey || !bucket) {
+    const credentials = mediaStorageCredentials();
+    if (!credentials.url || !credentials.serviceKey || !credentials.anonKey) {
         return response.status(503).json({ error: 'supabase-media-not-configured' });
     }
 
@@ -102,10 +99,8 @@ module.exports = async function handler(request, response) {
 
         const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 24);
         const objectPath = `chat-media/${orderHash}/${messageId}/${safeFileName(fileName, mimeType)}`;
-        const supabase = createClient(supabaseUrl, serviceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-        });
-        const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(objectPath, { upsert: false });
+        const storage = await resolveSupabaseStorage();
+        const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUploadUrl(objectPath, { upsert: false });
         if (error || !data?.token) throw new Error(error?.message || 'signed-upload-failed');
 
         await database.runTransaction(async transaction => {
@@ -131,9 +126,9 @@ module.exports = async function handler(request, response) {
 
         return response.status(200).json({
             upload: {
-                supabaseUrl,
-                anonKey,
-                bucket,
+                supabaseUrl: storage.url,
+                anonKey: storage.anonKey,
+                bucket: storage.bucket,
                 path: objectPath,
                 token: data.token
             }

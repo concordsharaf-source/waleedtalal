@@ -1,7 +1,7 @@
 'use strict';
 
 const path = require('path');
-const { createClient } = require('@supabase/supabase-js');
+const { resolveSupabaseStorage } = require('../server/media-storage');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
@@ -49,13 +49,6 @@ module.exports = async function handler(request, response) {
         !/^[A-Za-z0-9_-]{1,100}$/.test(messageId)
     ) return response.status(400).json({ error: 'invalid-request' });
 
-    const supabaseUrl = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
-    const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-    const bucket = String(process.env.SUPABASE_CHAT_BUCKET || 'media file').trim();
-    if (!supabaseUrl || !serviceKey || !bucket) {
-        return response.status(503).json({ error: 'supabase-media-not-configured' });
-    }
-
     try {
         initializeAdmin();
         const database = getFirestore();
@@ -70,10 +63,8 @@ module.exports = async function handler(request, response) {
 
         const folder = path.posix.dirname(pending.mediaPath);
         const fileName = path.posix.basename(pending.mediaPath);
-        const supabase = createClient(supabaseUrl, serviceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-        });
-        const { data: files, error: listError } = await supabase.storage.from(bucket).list(folder, {
+        const storage = await resolveSupabaseStorage();
+        const { data: files, error: listError } = await storage.client.storage.from(storage.bucket).list(folder, {
             limit: 10,
             search: fileName
         });

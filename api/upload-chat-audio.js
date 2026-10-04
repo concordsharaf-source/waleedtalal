@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 const { put, del } = require('@vercel/blob');
-const { createClient } = require('@supabase/supabase-js');
+const { hasSupabaseCredentials, resolveSupabaseStorage } = require('../server/media-storage');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
@@ -56,21 +56,13 @@ function plainHeader(request, name) {
     return Array.isArray(value) ? String(value[0] || '') : String(value || '');
 }
 
-function supabaseStorage() {
-    const url = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
-    const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-    const bucket = String(process.env.SUPABASE_CHAT_BUCKET || 'media file').trim();
-    if (!url || !serviceKey || !bucket) return null;
-    return {
-        bucket,
-        client: createClient(url, serviceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-        })
-    };
-}
-
 async function uploadAudioObject(pathname, buffer, contentType) {
-    const supabase = supabaseStorage();
+    let supabase = null;
+    if (hasSupabaseCredentials()) {
+        try { supabase = await resolveSupabaseStorage(); } catch (error) {
+            if (!String(process.env.BLOB_READ_WRITE_TOKEN || '').trim()) throw error;
+        }
+    }
     if (supabase) {
         const { error } = await supabase.client.storage.from(supabase.bucket).upload(pathname, buffer, {
             contentType,
@@ -132,7 +124,7 @@ module.exports = async function handler(request, response) {
         return response.status(400).json({ error: 'invalid-audio-request' });
     }
 
-    const hasSupabase = Boolean(supabaseStorage());
+    const hasSupabase = hasSupabaseCredentials();
     const hasBlob = Boolean(String(process.env.BLOB_READ_WRITE_TOKEN || '').trim());
     if (!hasSupabase && !hasBlob) {
         return response.status(503).json({ error: 'audio-storage-not-configured' });

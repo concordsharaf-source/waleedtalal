@@ -1,6 +1,6 @@
 'use strict';
 
-const { createClient } = require('@supabase/supabase-js');
+const { resolveSupabaseStorage } = require('../server/media-storage');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
@@ -56,17 +56,9 @@ module.exports = async function handler(request, response) {
         }
 
         const path = String(message.mediaPath || message.audioPathname || '');
-        const supabaseUrl = String(process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
-        const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-        const bucket = String(process.env.SUPABASE_CHAT_BUCKET || 'media file').trim();
-        if (!path || !supabaseUrl || !serviceKey || !bucket) {
-            return response.status(503).json({ error: 'media-storage-not-configured' });
-        }
-
-        const supabase = createClient(supabaseUrl, serviceKey, {
-            auth: { persistSession: false, autoRefreshToken: false }
-        });
-        const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+        if (!path) return response.status(404).json({ error: 'media-not-found' });
+        const storage = await resolveSupabaseStorage();
+        const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUrl(path, 60 * 60);
         if (error || !data?.signedUrl) throw new Error(error?.message || 'signed-url-failed');
         return response.status(200).json({ url: data.signedUrl, expiresIn: 3600 });
     } catch (error) {
