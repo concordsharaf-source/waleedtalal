@@ -248,7 +248,7 @@ export function createAudioMessagePlayer(message, orderId) {
         return wrapper;
     }
 
-    if (message.uploadStatus === "failed" || !message.audioUrl) {
+    if (message.uploadStatus === "failed" || (!message.audioUrl && !message.mediaPath)) {
         wrapper.classList.add("failed");
         wrapper.textContent = "⚠ تعذر إرسال الرسالة الصوتية";
         return wrapper;
