@@ -43,6 +43,7 @@ module.exports = async function handler(request, response) {
             bucketPrivate: null,
             signedUploadsReady: false,
             blobConfigured,
+            availableBuckets: Array.isArray(error?.availableBuckets) ? error.availableBuckets : [],
             error: error?.message === 'supabase-bucket-not-found' ? 'bucket-unreachable' : 'bucket-check-failed'
         });
     }

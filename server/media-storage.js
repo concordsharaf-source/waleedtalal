@@ -35,8 +35,15 @@ async function resolveSupabaseStorage() {
     let bucket = preferredNames
         .map(name => buckets.find(item => item.name === name || item.id === name))
         .find(Boolean);
+    if (!bucket) {
+        bucket = buckets.find(item => /chat|media|file|upload|محادث|وسائط|ملف/i.test(`${item.name || ''} ${item.id || ''}`));
+    }
     if (!bucket && buckets.length === 1) bucket = buckets[0];
-    if (!bucket) throw new Error('supabase-bucket-not-found');
+    if (!bucket) {
+        const notFound = new Error('supabase-bucket-not-found');
+        notFound.availableBuckets = buckets.map(item => item.name || item.id).filter(Boolean).slice(0, 20);
+        throw notFound;
+    }
     return {
         ...config,
         client,
