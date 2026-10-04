@@ -20,4 +20,14 @@ git push --force-with-lease origin main
 
 ## الرجوع عن المحادثة مع الاحتفاظ بأي تغييرات أحدث
 
-الأفضل في هذه الحالة استخدام `git revert` لالتزام إضافة المحادثة بدل `reset`. يُحدد رقم الالتزام بعد اكتمال ونشر النظام.
+التزام إضافة نظام المحادثة هو:
+
+`ae41d6de5220de9611191e0780c84917b127bb6b`
+
+ولإلغائه مع الاحتفاظ بسجل Git:
+
+```bash
+git checkout main
+git revert ae41d6de5220de9611191e0780c84917b127bb6b
+git push origin main
+```
