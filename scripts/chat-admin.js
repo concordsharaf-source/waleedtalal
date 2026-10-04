@@ -27,6 +27,7 @@ import {
     uploadChatAudio,
     createAudioMessagePlayer
 } from "./chat-audio.js";
+import { appendMessageMedia, mediaTypeFor, uploadChatMedia } from "./chat-media.js";
 
 const ADMIN_PASSWORD = "232167";
 const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
@@ -65,6 +66,7 @@ const voiceRecordingTimer = document.getElementById("adminVoiceRecordingTimer");
 const cancelVoiceRecording = document.getElementById("adminCancelVoiceRecording");
 const pauseVoiceRecording = document.getElementById("adminPauseVoiceRecording");
 const sendVoiceRecording = document.getElementById("adminSendVoiceRecording");
+const attachmentInput = document.getElementById("adminAttachmentInput");
 const emojiPanel = document.getElementById("adminEmojiPanel");
 const replyPreview = document.getElementById("adminReplyPreview");
 const replySender = document.getElementById("adminReplySender");
@@ -93,6 +95,7 @@ let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
 let voiceRecorder = null;
+let selectedAttachment = null;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -402,7 +405,10 @@ function createMessageElement(message) {
         star.textContent = "★";
         content.prepend(star);
     }
-    if (!isAudio) content.appendChild(document.createTextNode(message.text || ""));
+    if (!isAudio) {
+        content.appendChild(document.createTextNode(message.text || ""));
+        appendMessageMedia(content, message);
+    }
 
     const meta = document.createElement("div");
     meta.className = "message-meta";
@@ -703,6 +709,30 @@ conversationSearch.addEventListener("input", renderConversationList);
 messageForm.addEventListener("submit", async event => {
     event.preventDefault();
     if (!currentOrder) return;
+    if (selectedAttachment) {
+        const file = selectedAttachment;
+        const text = messageInput.value;
+        const orderId = currentOrder.id;
+        sendButton.disabled = true;
+        try {
+            const uploaded = await uploadChatMedia(file, orderId, ADMIN_ACTOR);
+            const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget, { ...uploaded, type: mediaTypeFor(file) });
+            sendPushForMessage({ orderId, senderId: ADMIN_ACTOR, messageId: sentMessage.id }).catch(console.warn);
+            selectedAttachment = null;
+            attachmentInput.value = "";
+            messageInput.value = "";
+            resizeInput();
+            updateComposerAction();
+            clearReply();
+            showToast("تم إرسال المرفق");
+        } catch (error) {
+            console.error(error);
+            showToast("تعذر رفع المرفق");
+        } finally {
+            sendButton.disabled = false;
+        }
+        return;
+    }
     if (!messageInput.value.trim()) {
         emojiPanel.hidden = true;
         await voiceRecorder?.start();
@@ -754,7 +784,11 @@ document.getElementById("adminEmojiButton").addEventListener("click", () => {
     emojiPanel.hidden = !emojiPanel.hidden;
 });
 document.getElementById("adminAttachmentButton").addEventListener("click", () => {
-    showToast("سيتم تفعيل الصور والملفات بعد إعداد Firebase Storage");
+    attachmentInput.click();
+});
+attachmentInput.addEventListener("change", () => {
+    selectedAttachment = attachmentInput.files?.[0] || null;
+    if (selectedAttachment) showToast(`تم اختيار ${selectedAttachment.name}. اضغط إرسال`);
 });
 document.getElementById("adminCancelReply").addEventListener("click", clearReply);
 

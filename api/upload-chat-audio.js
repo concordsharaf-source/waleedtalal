@@ -1,7 +1,6 @@
 'use strict';
 
 const crypto = require('crypto');
-const { put, del } = require('@vercel/blob');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
@@ -81,8 +80,9 @@ module.exports = async function handler(request, response) {
         return response.status(400).json({ error: 'invalid-audio-request' });
     }
 
-    const blobToken = String(process.env.BLOB_READ_WRITE_TOKEN || '').trim();
-    if (!blobToken) return response.status(503).json({ error: 'audio-storage-not-configured' });
+    const supabaseUrl = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
+    const serviceKey = String(process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
+    if (!supabaseUrl || !serviceKey) return response.status(503).json({ error: 'audio-storage-not-configured' });
 
     let uploaded = null;
     try {
@@ -112,12 +112,23 @@ module.exports = async function handler(request, response) {
 
         const orderHash = crypto.createHash('sha256').update(orderId).digest('hex').slice(0, 24);
         const pathname = `chat-audio/${orderHash}/${messageId}.${extension}`;
-        uploaded = await put(pathname, audioBuffer, {
-            access: 'public',
-            addRandomSuffix: false,
-            contentType,
-            token: blobToken
+        const bucket = 'media file';
+        const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/${encodeURIComponent(bucket)}/${pathname}`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': contentType, 'x-upsert': 'true' },
+            body: audioBuffer
         });
+        if (!uploadResponse.ok) throw new Error('supabase-audio-upload-failed');
+        const signedResponse = await fetch(`${supabaseUrl}/storage/v1/object/sign/${encodeURIComponent(bucket)}/${pathname}`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ expiresIn: 60 * 60 * 24 * 7 })
+        });
+        if (!signedResponse.ok) throw new Error('supabase-audio-sign-failed');
+        const signed = await signedResponse.json();
+        const signedPath = signed.signedURL || signed.signedUrl || signed.path;
+        if (!signedPath) throw new Error('supabase-audio-sign-failed');
+        uploaded = { url: signedPath.startsWith('http') ? signedPath : `${supabaseUrl}/storage/v1${signedPath}`, pathname };
 
         await database.runTransaction(async transaction => {
             let messageUpdated = false;
@@ -159,9 +170,6 @@ module.exports = async function handler(request, response) {
             bytes: audioBuffer.length
         });
     } catch (error) {
-        if (uploaded?.url) {
-            try { await del(uploaded.url, { token: String(process.env.BLOB_READ_WRITE_TOKEN || '') }); } catch { /* تنظيف اختياري */ }
-        }
         console.error('Chat audio upload error', error?.message || error);
         const status = error?.message === 'audio-too-large' ? 413
             : error?.message === 'audio-message-not-pending' ? 409

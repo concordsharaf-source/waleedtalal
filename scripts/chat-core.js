@@ -180,18 +180,23 @@ export function subscribeToOrder(orderId, onData, onError = console.error) {
     }, onError);
 }
 
-export async function sendChatMessage(orderId, actor, text, replyTo = null) {
+export async function sendChatMessage(orderId, actor, text, replyTo = null, media = null) {
     const cleanText = String(text || "").trim().slice(0, 2500);
-    if (!cleanText) return null;
+    if (!cleanText && !media?.url) return null;
 
     const orderRef = doc(db, "orders", orderId);
     const message = {
         id: createMessageId(),
         senderId: actor,
         senderName: actor === ADMIN_ACTOR ? "إدارة المؤسسة" : "المستفيد",
-        text: cleanText,
+        text: cleanText || (media.type === "voice" ? "رسالة صوتية" : "مرفق"),
         clientTime: new Date().toISOString(),
-        messageType: "text",
+        messageType: media?.type || "text",
+        media: media?.url ? {
+            url: String(media.url), path: String(media.path || ""),
+            mimeType: String(media.mimeType || "application/octet-stream"),
+            name: String(media.name || "مرفق").slice(0, 180), size: Number(media.size || 0)
+        } : null,
         replyTo: replyTo ? {
             id: String(replyTo.id || ""),
             senderName: String(replyTo.senderName || ""),
@@ -212,7 +217,7 @@ export async function sendChatMessage(orderId, actor, text, replyTo = null) {
         transaction.update(orderRef, {
             chatEnabled: true,
             chatMessages: next,
-            chatLastMessage: cleanText,
+            chatLastMessage: message.text,
             chatLastSender: actor,
             chatUpdatedAt: serverTimestamp(),
             [`chatTyping.${actor}`]: false

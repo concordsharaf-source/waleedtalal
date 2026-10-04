@@ -104,6 +104,7 @@
             <form id="messageForm" class="composer">
                 <button id="emojiButton" class="icon-button" type="button" aria-label="الرموز التعبيرية">😊</button>
                 <button id="attachmentButton" class="icon-button attachment-button" type="button" aria-label="إرفاق ملف" title="سيتم تفعيل الملفات بعد إعداد التخزين">📎</button>
+                <input id="attachmentInput" type="file" accept="image/*,audio/*,video/*,application/pdf,text/plain" hidden>
                 <textarea id="messageInput" class="message-input" rows="1" maxlength="2500" placeholder="اكتب رسالة" aria-label="نص الرسالة"></textarea>
                 <button id="sendButton" class="send-button composer-action-button is-voice" type="submit" aria-label="تسجيل رسالة صوتية" title="تسجيل رسالة صوتية"><span id="composerActionIcon" aria-hidden="true">🎙</span></button>
             </form>
