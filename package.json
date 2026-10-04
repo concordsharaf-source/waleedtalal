@@ -1,0 +1,9 @@
+{
+  "name": "waleedtalal-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "موقع مؤسسة الوليد مع محادثات وإشعارات فورية",
+  "dependencies": {
+    "firebase-admin": "^13.5.0"
+  }
+}

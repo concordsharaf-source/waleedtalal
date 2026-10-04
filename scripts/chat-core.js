@@ -291,6 +291,44 @@ async function mutateMessage(orderId, messageId, transform) {
     });
 }
 
+function getPushDeviceId() {
+    const key = "waleed_chat_push_device_id";
+    let value = localStorage.getItem(key);
+    if (!value) {
+        value = createMessageId();
+        localStorage.setItem(key, value);
+    }
+    return value;
+}
+
+export async function registerChatPushToken(orderId, actor, token) {
+    if (!orderId || ![ADMIN_ACTOR, CLIENT_ACTOR].includes(actor) || !token) return false;
+    const orderRef = doc(db, "orders", orderId);
+    const deviceId = getPushDeviceId();
+
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        const order = snapshot.data();
+        const existing = Array.isArray(order.chatPushTokens?.[actor])
+            ? order.chatPushTokens[actor]
+            : [];
+        const normalized = existing
+            .map(item => typeof item === "string" ? { token: item } : item)
+            .filter(item => item && item.token && item.token !== token && item.deviceId !== deviceId)
+            .slice(-4);
+        normalized.push({
+            token: String(token).slice(0, 500),
+            deviceId,
+            updatedAt: new Date().toISOString()
+        });
+        transaction.update(orderRef, {
+            [`chatPushTokens.${actor}`]: normalized
+        });
+    });
+    return true;
+}
+
 export async function setChatPresence(orderId, actor, online) {
     if (!orderId) return;
     const changes = {

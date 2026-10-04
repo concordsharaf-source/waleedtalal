@@ -14,9 +14,14 @@ import {
     toggleMessageStar,
     deleteMessageForMe,
     deleteMessageForEveryone,
+    registerChatPushToken,
     setChatPresence,
     setChatTyping
 } from "./chat-core.js";
+import {
+    getBrowserPushToken,
+    sendPushForMessage
+} from "./push-notifications.js";
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
@@ -63,12 +68,34 @@ let longPressTimer = null;
 let messageSearchQuery = "";
 let starredOnly = false;
 let deferredInstallPrompt = null;
+let clientPushToken = "";
 
 function showToast(message) {
     clearTimeout(toastTimer);
     toast.textContent = message;
     toast.hidden = false;
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2800);
+}
+
+async function enableClientPush({ requestPermission = false, quiet = false } = {}) {
+    if (!currentOrder) return null;
+    try {
+        const token = await getBrowserPushToken({ requestPermission });
+        if (!token) {
+            if (!quiet && requestPermission) showToast("لم يتم السماح بالإشعارات");
+            return null;
+        }
+        if (token !== clientPushToken) {
+            await registerChatPushToken(currentOrder.id, CLIENT_ACTOR, token);
+            clientPushToken = token;
+        }
+        if (!quiet) showToast("تم تفعيل إشعارات المحادثة");
+        return token;
+    } catch (error) {
+        console.error("Push registration failed", error);
+        if (!quiet) showToast("تعذر تفعيل الإشعارات الآن");
+        return null;
+    }
 }
 
 function loadSession() {
@@ -126,6 +153,9 @@ async function startChat(session) {
     resizeInput();
 
     await setChatPresence(session.orderId, CLIENT_ACTOR, true);
+    if ("Notification" in window && Notification.permission === "granted") {
+        enableClientPush({ quiet: true });
+    }
     unsubscribe = subscribeToOrder(session.orderId, order => {
         currentOrder = order;
         renderOrder(order);
@@ -446,17 +476,27 @@ messageForm.addEventListener("submit", async event => {
     event.preventDefault();
     if (!currentOrder || !messageInput.value.trim()) return;
     const text = messageInput.value;
+    const orderId = currentOrder.id;
+    const pushRegistration = clientPushToken
+        ? Promise.resolve(clientPushToken)
+        : enableClientPush({
+            requestPermission: "Notification" in window && Notification.permission === "default",
+            quiet: true
+        });
     messageInput.value = "";
     resizeInput();
     sendButton.disabled = true;
     try {
-        await sendChatMessage(currentOrder.id, CLIENT_ACTOR, text, replyTarget);
-        localStorage.removeItem(`waleed_chat_draft_${currentOrder.id}`);
+        const sentMessage = await sendChatMessage(orderId, CLIENT_ACTOR, text, replyTarget);
+        pushRegistration.catch(() => {});
+        sendPushForMessage({
+            orderId,
+            senderId: CLIENT_ACTOR,
+            messageId: sentMessage.id
+        }).catch(error => console.warn("Push send failed", error));
+        localStorage.removeItem(`waleed_chat_draft_${orderId}`);
         clearReply();
         emojiPanel.hidden = true;
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission().catch(() => {});
-        }
     } catch (error) {
         console.error(error);
         messageInput.value = text;
@@ -559,8 +599,8 @@ window.addEventListener("appinstalled", () => {
 installChatAppButton.addEventListener("click", async () => {
     const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
     if (standalone) {
+        await enableClientPush({ requestPermission: true });
         installChatAppButton.hidden = true;
-        showToast("تطبيق المحادثة مثبت بالفعل");
         return;
     }
 
@@ -569,6 +609,7 @@ installChatAppButton.addEventListener("click", async () => {
         const choice = await deferredInstallPrompt.userChoice;
         if (choice.outcome === "accepted") installChatAppButton.hidden = true;
         deferredInstallPrompt = null;
+        await enableClientPush({ requestPermission: true });
         return;
     }
 
@@ -576,6 +617,7 @@ installChatAppButton.addEventListener("click", async () => {
     showToast(isiOS
         ? "من زر المشاركة اختر: إضافة إلى الشاشة الرئيسية"
         : "من قائمة المتصفح اختر: تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية");
+    await enableClientPush({ requestPermission: true, quiet: true });
 });
 
 if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) {

@@ -11,10 +11,15 @@ import {
     toggleMessageStar,
     deleteMessageForMe,
     deleteMessageForEveryone,
+    registerChatPushToken,
     setChatPresence,
     setChatTyping,
     normalizeDigits
 } from "./chat-core.js";
+import {
+    getBrowserPushToken,
+    sendPushForMessage
+} from "./push-notifications.js";
 
 const ADMIN_PASSWORD = "232167";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
@@ -68,6 +73,9 @@ let longPressTimer = null;
 let markReadTimer = null;
 let messageSearchQuery = "";
 let starredOnly = false;
+let adminPushToken = "";
+let adminTokenRegistrationRunning = false;
+let notificationOrderHandled = false;
 
 function showToast(message) {
     clearTimeout(toastTimer);
@@ -76,10 +84,52 @@ function showToast(message) {
     toastTimer = setTimeout(() => { toast.hidden = true; }, 3000);
 }
 
+function orderHasPushToken(order, token) {
+    const records = Array.isArray(order.chatPushTokens?.admin) ? order.chatPushTokens.admin : [];
+    return records.some(item => (typeof item === "string" ? item : item?.token) === token);
+}
+
+async function registerAdminTokenForConversations(token) {
+    if (!token || adminTokenRegistrationRunning) return;
+    adminTokenRegistrationRunning = true;
+    try {
+        const pending = allConversations.filter(order => !orderHasPushToken(order, token));
+        for (let index = 0; index < pending.length; index += 5) {
+            const group = pending.slice(index, index + 5);
+            await Promise.allSettled(group.map(order =>
+                registerChatPushToken(order.id, ADMIN_ACTOR, token)
+            ));
+        }
+    } finally {
+        adminTokenRegistrationRunning = false;
+    }
+}
+
+async function enableAdminPush({ requestPermission = false, quiet = false } = {}) {
+    try {
+        const token = await getBrowserPushToken({ requestPermission });
+        if (!token) {
+            if (!quiet && requestPermission) showToast("لم يتم السماح بالإشعارات");
+            return null;
+        }
+        adminPushToken = token;
+        await registerAdminTokenForConversations(token);
+        if (!quiet) showToast("تم تفعيل إشعارات الإدارة");
+        return token;
+    } catch (error) {
+        console.error("Admin push registration failed", error);
+        if (!quiet) showToast("تعذر تفعيل الإشعارات الآن");
+        return null;
+    }
+}
+
 function unlockAdmin() {
     adminLock.hidden = true;
     adminChatApp.hidden = false;
     if (!unsubscribeOrders) listenToConversations();
+    if ("Notification" in window && Notification.permission === "granted") {
+        enableAdminPush({ quiet: true });
+    }
 }
 
 function conversationTimestamp(order) {
@@ -112,6 +162,15 @@ function listenToConversations() {
 
         allConversations = orders;
         renderConversationList();
+        if (adminPushToken) registerAdminTokenForConversations(adminPushToken).catch(console.error);
+
+        if (!notificationOrderHandled) {
+            const requestedOrderId = new URLSearchParams(location.search).get("order");
+            if (requestedOrderId && orders.some(order => order.id === requestedOrderId)) {
+                notificationOrderHandled = true;
+                selectConversation(requestedOrderId);
+            }
+        }
 
         if (currentOrder) {
             const updated = orders.find(order => order.id === currentOrder.id);
@@ -214,6 +273,7 @@ async function selectConversation(orderId) {
     renderConversationList();
     renderCurrentConversation();
     await setChatPresence(order.id, ADMIN_ACTOR, true);
+    if (adminPushToken) await registerChatPushToken(order.id, ADMIN_ACTOR, adminPushToken);
     await markMessagesRead(order.id, ADMIN_ACTOR);
     messageInput.focus();
 }
@@ -473,9 +533,7 @@ document.getElementById("adminLogoutButton").addEventListener("click", async () 
 });
 
 document.getElementById("adminNotificationButton").addEventListener("click", async () => {
-    if (!("Notification" in window)) return showToast("الإشعارات غير مدعومة في هذا المتصفح");
-    const permission = await Notification.requestPermission();
-    showToast(permission === "granted" ? "تم تفعيل الإشعارات" : "لم يتم السماح بالإشعارات");
+    await enableAdminPush({ requestPermission: true });
 });
 
 document.getElementById("adminMessageSearchButton").addEventListener("click", () => {
@@ -521,11 +579,17 @@ messageForm.addEventListener("submit", async event => {
     event.preventDefault();
     if (!currentOrder || !messageInput.value.trim()) return;
     const text = messageInput.value;
+    const orderId = currentOrder.id;
     messageInput.value = "";
     resizeInput();
     sendButton.disabled = true;
     try {
-        await sendChatMessage(currentOrder.id, ADMIN_ACTOR, text, replyTarget);
+        const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget);
+        sendPushForMessage({
+            orderId,
+            senderId: ADMIN_ACTOR,
+            messageId: sentMessage.id
+        }).catch(error => console.warn("Push send failed", error));
         clearReply();
         emojiPanel.hidden = true;
     } catch (error) {
