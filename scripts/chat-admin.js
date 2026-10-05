@@ -15,8 +15,14 @@ import {
     markMessagesDelivered,
     markMessagesRead,
     toggleMessageStar,
+    setMessagesStarred,
+    togglePinnedMessage,
+    toggleConversationPin,
     deleteMessageForMe,
+    deleteMessagesForMe,
     deleteMessageForEveryone,
+    deleteMessagesForEveryone,
+    clearConversationMessages,
     registerChatPushToken,
     setChatPresence,
     setChatTyping,
@@ -86,6 +92,18 @@ const replyText = document.getElementById("adminReplyText");
 const messageMenu = document.getElementById("adminMessageMenu");
 const infoModal = document.getElementById("adminMessageInfoModal");
 const infoBody = document.getElementById("adminMessageInfoBody");
+const selectionBar = document.getElementById("adminSelectionBar");
+const selectionCount = document.getElementById("adminSelectionCount");
+const selectionStar = document.getElementById("adminSelectionStar");
+const selectionPin = document.getElementById("adminSelectionPin");
+const selectionDeleteAll = document.getElementById("adminSelectionDeleteAll");
+const pinnedMessageBar = document.getElementById("adminPinnedMessage");
+const pinnedMessageSender = document.getElementById("adminPinnedMessageSender");
+const pinnedMessageText = document.getElementById("adminPinnedMessageText");
+const confirmModal = document.getElementById("adminConfirmModal");
+const confirmTitle = document.getElementById("adminConfirmTitle");
+const confirmMessage = document.getElementById("adminConfirmMessage");
+const confirmAccept = document.getElementById("adminAcceptConfirm");
 const toast = document.getElementById("adminToast");
 const installAdminChatAppButton = document.getElementById("installAdminChatAppButton");
 
@@ -94,11 +112,16 @@ let currentOrder = null;
 let unsubscribeOrders = null;
 let replyTarget = null;
 let activeMessage = null;
+let messageMenuOpenedAt = 0;
+let selectionMode = false;
+const selectedMessageIds = new Set();
+let confirmationResolver = null;
 let initialSnapshotLoaded = false;
 let knownClientMessageIds = new Set();
 let toastTimer = null;
 let typingTimer = null;
 let longPressTimer = null;
+let longPressOrigin = { x: 0, y: 0 };
 let messageAckRunning = false;
 let messageAckPending = false;
 let messageSearchQuery = "";
@@ -217,7 +240,11 @@ function listenToConversations() {
         const orders = snapshot.docs
             .map(item => ({ id: item.id, ...item.data() }))
             .filter(order => order.chatEnabled === true || (Array.isArray(order.chatMessages) && order.chatMessages.length))
-            .sort((a, b) => conversationTimestamp(b) - conversationTimestamp(a));
+            .sort((a, b) => {
+                const pinDifference = Number(b.chatPinnedBy?.[ADMIN_ACTOR] === true) -
+                    Number(a.chatPinnedBy?.[ADMIN_ACTOR] === true);
+                return pinDifference || conversationTimestamp(b) - conversationTimestamp(a);
+            });
 
         const clientMessages = orders.flatMap(order =>
             sortMessages(order.chatMessages)
@@ -244,6 +271,8 @@ function listenToConversations() {
             if (updated) {
                 currentOrder = updated;
                 renderCurrentConversation();
+            } else {
+                resetAdminConversationView();
             }
         }
 
@@ -279,9 +308,10 @@ function renderConversationList() {
 
     const fragment = document.createDocumentFragment();
     visible.forEach(order => {
+        const pinned = order.chatPinnedBy?.[ADMIN_ACTOR] === true;
         const button = document.createElement("button");
         button.type = "button";
-        button.className = `conversation-item${currentOrder?.id === order.id ? " active" : ""}`;
+        button.className = `conversation-item${currentOrder?.id === order.id ? " active" : ""}${pinned ? " pinned" : ""}`;
 
         const avatar = document.createElement("span");
         avatar.className = "conversation-avatar";
@@ -302,6 +332,13 @@ function renderConversationList() {
         const time = document.createElement("span");
         time.textContent = new Date(conversationTimestamp(order)).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" });
         side.appendChild(time);
+        if (pinned) {
+            const pin = document.createElement("span");
+            pin.className = "conversation-pin";
+            pin.textContent = "📌";
+            pin.title = "محادثة مثبتة";
+            side.appendChild(pin);
+        }
         const unread = unreadCount(order);
         if (unread) {
             const badge = document.createElement("span");
@@ -324,6 +361,7 @@ async function selectConversation(orderId) {
     if (currentOrder && currentOrder.id !== order.id) {
         await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
     }
+    exitSelectionMode(false);
     currentOrder = order;
     renderedMessagesSignature = "";
     replyTarget = null;
@@ -349,6 +387,9 @@ async function selectConversation(orderId) {
 function messageRenderSignature(messages) {
     return JSON.stringify([
         currentOrder?.id,
+        currentOrder?.chatPinnedMessage?.[ADMIN_ACTOR] || "",
+        selectionMode,
+        [...selectedMessageIds].sort(),
         messageSearchQuery,
         starredOnly,
         messages.map(message => [
@@ -405,6 +446,165 @@ async function acknowledgeIncomingMessages(order) {
     }
 }
 
+function messageSummary(message) {
+    if (!message) return "";
+    if (message.deletedForAll) return "تم حذف هذه الرسالة";
+    if (message.messageType === "audio") return "رسالة صوتية";
+    if (message.messageType === "image") return "صورة";
+    if (message.messageType === "video") return "فيديو";
+    if (message.messageType === "file") return message.mediaName || "ملف";
+    return String(message.text || "رسالة").replace(/\s+/g, " ").trim().slice(0, 140);
+}
+
+function renderPinnedMessage(order) {
+    const pinnedId = String(order?.chatPinnedMessage?.[ADMIN_ACTOR] || "");
+    const message = sortMessages(order?.chatMessages).find(item =>
+        item.id === pinnedId &&
+        !item.deletedForAll &&
+        !(Array.isArray(item.deletedFor) && item.deletedFor.includes(ADMIN_ACTOR))
+    );
+    if (!message) {
+        pinnedMessageBar.hidden = true;
+        pinnedMessageBar.dataset.messageId = "";
+        return;
+    }
+    pinnedMessageBar.dataset.messageId = message.id;
+    pinnedMessageSender.textContent = message.senderName || (message.senderId === ADMIN_ACTOR ? "إدارة المؤسسة" : "المستفيد");
+    pinnedMessageText.textContent = messageSummary(message);
+    pinnedMessageBar.hidden = false;
+}
+
+function getSelectedMessages() {
+    const messages = sortMessages(currentOrder?.chatMessages).filter(message =>
+        selectedMessageIds.has(message.id) &&
+        !(Array.isArray(message.deletedFor) && message.deletedFor.includes(ADMIN_ACTOR))
+    );
+    const validIds = new Set(messages.map(message => message.id));
+    [...selectedMessageIds].forEach(id => {
+        if (!validIds.has(id)) selectedMessageIds.delete(id);
+    });
+    return messages;
+}
+
+function updateSelectionToolbar() {
+    if (!selectionMode) {
+        selectionBar.hidden = true;
+        return;
+    }
+    const messages = getSelectedMessages();
+    if (!messages.length) {
+        exitSelectionMode(false);
+        return;
+    }
+    const count = messages.length;
+    selectionBar.hidden = false;
+    selectionCount.textContent = count === 1 ? "رسالة واحدة" : `${count.toLocaleString("ar")} رسائل`;
+    const allStarred = messages.every(message =>
+        Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR)
+    );
+    selectionStar.textContent = allStarred ? "★" : "☆";
+    selectionStar.title = allStarred ? "إزالة النجمة" : "تمييز بنجمة";
+    selectionStar.setAttribute("aria-label", selectionStar.title);
+    selectionPin.disabled = count !== 1 || messages[0].deletedForAll;
+    selectionDeleteAll.hidden = !messages.every(message =>
+        message.senderId === ADMIN_ACTOR && !message.deletedForAll
+    );
+}
+
+function enterSelectionMode(message) {
+    if (!message) return;
+    closeMessageMenu();
+    selectionMode = true;
+    selectedMessageIds.clear();
+    selectedMessageIds.add(message.id);
+    messageSearchQuery = "";
+    adminMessageSearchInput.value = "";
+    adminMessageSearchBar.hidden = true;
+    starredOnly = false;
+    adminStarredMessagesButton.classList.remove("active");
+    adminStarredMessagesButton.textContent = "☆";
+    renderedMessagesSignature = "";
+    renderCurrentConversation();
+}
+
+function exitSelectionMode(shouldRender = true) {
+    selectionMode = false;
+    selectedMessageIds.clear();
+    selectionBar.hidden = true;
+    adminMessagesList.querySelectorAll(".message-row.selected").forEach(row => row.classList.remove("selected"));
+    if (shouldRender && currentOrder) {
+        renderedMessagesSignature = "";
+        renderCurrentConversation();
+    }
+}
+
+function toggleMessageSelection(message) {
+    if (!selectionMode || !message) return;
+    if (selectedMessageIds.has(message.id)) selectedMessageIds.delete(message.id);
+    else selectedMessageIds.add(message.id);
+    if (!selectedMessageIds.size) {
+        exitSelectionMode();
+        return;
+    }
+    renderedMessagesSignature = "";
+    renderCurrentConversation();
+}
+
+function scrollToMessage(messageId) {
+    if (!currentOrder || !messageId) return;
+    exitSelectionMode(false);
+    messageSearchQuery = "";
+    adminMessageSearchInput.value = "";
+    adminMessageSearchBar.hidden = true;
+    starredOnly = false;
+    adminStarredMessagesButton.classList.remove("active");
+    adminStarredMessagesButton.textContent = "☆";
+    renderedMessagesSignature = "";
+    renderCurrentConversation();
+    requestAnimationFrame(() => {
+        const target = [...adminMessagesList.querySelectorAll("[data-message-id]")]
+            .find(element => element.dataset.messageId === messageId);
+        if (!target) return;
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        target.classList.add("message-highlight");
+        setTimeout(() => target.classList.remove("message-highlight"), 1600);
+    });
+}
+
+function requestAdminConfirmation({ title, message, acceptText = "تأكيد" }) {
+    if (confirmationResolver) confirmationResolver(false);
+    confirmTitle.textContent = title;
+    confirmMessage.textContent = message;
+    confirmAccept.textContent = acceptText;
+    confirmModal.hidden = false;
+    requestAnimationFrame(() => confirmAccept.focus());
+    return new Promise(resolve => { confirmationResolver = resolve; });
+}
+
+function settleAdminConfirmation(accepted) {
+    confirmModal.hidden = true;
+    const resolve = confirmationResolver;
+    confirmationResolver = null;
+    if (resolve) resolve(Boolean(accepted));
+}
+
+function resetAdminConversationView() {
+    voiceRecorder?.cancel();
+    exitSelectionMode(false);
+    currentOrder = null;
+    activeMessage = null;
+    renderedMessagesSignature = "";
+    clearReply();
+    pinnedMessageBar.hidden = true;
+    adminChatTop.hidden = true;
+    adminMessagesArea.hidden = true;
+    adminComposerZone.hidden = true;
+    adminMessagesList.textContent = "";
+    adminEmpty.hidden = false;
+    adminChatApp.classList.remove("conversation-open");
+    renderConversationList();
+}
+
 function renderCurrentConversation() {
     if (!currentOrder) return;
     clientName.textContent = currentOrder.name || "المستفيد";
@@ -424,6 +624,7 @@ function renderCurrentConversation() {
         clientStatus.className = "";
     }
     adminTypingBar.hidden = currentOrder.chatTyping?.client !== true;
+    renderPinnedMessage(currentOrder);
     const serverMessages = sortMessages(currentOrder.chatMessages);
     serverMessages.forEach(message => optimisticMessages.delete(message.id));
     const pendingMessages = [...optimisticMessages.values()].filter(message => !serverMessages.some(item => item.id === message.id));
@@ -441,6 +642,7 @@ function renderCurrentConversation() {
         renderMessages(visibleMessages);
         renderedMessagesSignature = nextSignature;
     }
+    updateSelectionToolbar();
 
     acknowledgeIncomingMessages(currentOrder);
 }
@@ -476,7 +678,8 @@ function renderMessages(messages) {
 function createMessageElement(message) {
     const mine = message.senderId === ADMIN_ACTOR;
     const row = document.createElement("div");
-    row.className = `message-row ${mine ? "mine" : "theirs"}`;
+    row.className = `message-row ${mine ? "mine" : "theirs"}${selectedMessageIds.has(message.id) ? " selected" : ""}`;
+    row.dataset.messageId = message.id;
     const bubble = document.createElement("article");
     bubble.className = "message-bubble";
     bubble.tabIndex = 0;
@@ -509,6 +712,12 @@ function createMessageElement(message) {
         star.textContent = "★";
         content.prepend(star);
     }
+    if (currentOrder?.chatPinnedMessage?.[ADMIN_ACTOR] === message.id) {
+        const pin = document.createElement("span");
+        pin.className = "message-pin";
+        pin.textContent = "📌";
+        content.prepend(pin);
+    }
     if (!isAudio && !isMedia) content.appendChild(document.createTextNode(message.text || ""));
 
     const meta = document.createElement("div");
@@ -527,12 +736,32 @@ function createMessageElement(message) {
     }
     bubble.append(content, meta);
 
-    bubble.addEventListener("contextmenu", event => openMessageMenu(event, message));
-    bubble.addEventListener("dblclick", event => openMessageMenu(event, message));
+    bubble.addEventListener("click", event => {
+        if (!selectionMode) return;
+        event.preventDefault();
+        event.stopPropagation();
+        toggleMessageSelection(message);
+    }, true);
+    bubble.addEventListener("contextmenu", event => {
+        if (selectionMode) {
+            event.preventDefault();
+            toggleMessageSelection(message);
+            return;
+        }
+        openMessageMenu(event, message);
+    });
+    bubble.addEventListener("dblclick", event => {
+        if (!selectionMode) openMessageMenu(event, message);
+    });
     bubble.addEventListener("pointerdown", event => {
-        if (event.pointerType === "mouse") return;
+        if (event.pointerType === "mouse" || selectionMode) return;
         clearTimeout(longPressTimer);
+        longPressOrigin = { x: event.clientX, y: event.clientY };
         longPressTimer = setTimeout(() => openMessageMenu(event, message), 560);
+    });
+    bubble.addEventListener("pointermove", event => {
+        const distance = Math.abs(event.clientX - longPressOrigin.x) + Math.abs(event.clientY - longPressOrigin.y);
+        if (distance > 12) clearTimeout(longPressTimer);
     });
     bubble.addEventListener("pointerup", () => clearTimeout(longPressTimer));
     bubble.addEventListener("pointercancel", () => clearTimeout(longPressTimer));
@@ -548,11 +777,24 @@ function openMessageMenu(event, message) {
     const star = messageMenu.querySelector('[data-action="star"]');
     star.textContent = Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR)
         ? "☆ إزالة النجمة" : "⭐ تمييز بنجمة";
+    const pinMessage = messageMenu.querySelector('[data-action="pin-message"]');
+    const isMessagePinned = currentOrder?.chatPinnedMessage?.[ADMIN_ACTOR] === message.id;
+    pinMessage.hidden = message.deletedForAll;
+    pinMessage.textContent = isMessagePinned ? "📌 إلغاء تثبيت الرسالة" : "📌 تثبيت الرسالة";
+    const pinConversation = messageMenu.querySelector('[data-action="pin-conversation"]');
+    pinConversation.textContent = currentOrder?.chatPinnedBy?.[ADMIN_ACTOR] === true
+        ? "📍 إلغاء تثبيت المحادثة" : "📍 تثبيت المحادثة";
+
     messageMenu.hidden = false;
-    const x = Math.min(event.clientX || window.innerWidth / 2, window.innerWidth - 220);
-    const y = Math.min(event.clientY || window.innerHeight / 2, window.innerHeight - 300);
-    messageMenu.style.left = `${Math.max(8, x)}px`;
-    messageMenu.style.top = `${Math.max(8, y)}px`;
+    messageMenuOpenedAt = Date.now();
+    messageMenu.scrollTop = 0;
+    const rect = messageMenu.getBoundingClientRect();
+    const preferredX = Number(event.clientX) || window.innerWidth / 2;
+    const preferredY = Number(event.clientY) || window.innerHeight / 2;
+    const x = Math.min(Math.max(8, preferredX), Math.max(8, window.innerWidth - rect.width - 8));
+    const y = Math.min(Math.max(8, preferredY), Math.max(8, window.innerHeight - rect.height - 8));
+    messageMenu.style.left = `${x}px`;
+    messageMenu.style.top = `${y}px`;
 }
 
 function closeMessageMenu() { messageMenu.hidden = true; }
@@ -677,6 +919,7 @@ async function handleMenuAction(action) {
     const message = activeMessage;
     closeMessageMenu();
     if (!message || !currentOrder) return;
+    const orderId = currentOrder.id;
     try {
         if (action === "reply") setReply(message);
         if (action === "copy") {
@@ -689,10 +932,44 @@ async function handleMenuAction(action) {
             updateComposerAction();
             messageInput.focus();
         }
-        if (action === "star") await toggleMessageStar(currentOrder.id, message.id, ADMIN_ACTOR);
-        if (action === "delete-me") await deleteMessageForMe(currentOrder.id, message.id, ADMIN_ACTOR);
-        if (action === "delete-all" && confirm("حذف الرسالة لدى الجميع؟")) {
-            await deleteMessageForEveryone(currentOrder.id, message.id, ADMIN_ACTOR);
+        if (action === "pin-message") {
+            const pinned = await togglePinnedMessage(orderId, message.id, ADMIN_ACTOR);
+            showToast(pinned ? "تم تثبيت الرسالة" : "تم إلغاء تثبيت الرسالة");
+        }
+        if (action === "pin-conversation") {
+            const pinned = await toggleConversationPin(orderId, ADMIN_ACTOR);
+            showToast(pinned ? "تم تثبيت المحادثة أعلى القائمة" : "تم إلغاء تثبيت المحادثة");
+        }
+        if (action === "select") enterSelectionMode(message);
+        if (action === "star") await toggleMessageStar(orderId, message.id, ADMIN_ACTOR);
+        if (action === "delete-me") {
+            const accepted = await requestAdminConfirmation({
+                title: "حذف الرسالة لدي",
+                message: "ستختفي هذه الرسالة من صفحة الإدارة فقط، وستبقى ظاهرة للطرف الآخر.",
+                acceptText: "حذف لدي"
+            });
+            if (accepted) await deleteMessageForMe(orderId, message.id, ADMIN_ACTOR);
+        }
+        if (action === "delete-all") {
+            const accepted = await requestAdminConfirmation({
+                title: "حذف الرسالة لدى الجميع",
+                message: "سيُستبدل محتوى الرسالة بإشعار يفيد بأنها حُذفت لدى الإدارة والمستفيد.",
+                acceptText: "حذف لدى الجميع"
+            });
+            if (accepted) await deleteMessageForEveryone(orderId, message.id, ADMIN_ACTOR);
+        }
+        if (action === "delete-conversation") {
+            const transactionLabel = currentOrder.transactionId ? ` رقم ${currentOrder.transactionId}` : "";
+            const accepted = await requestAdminConfirmation({
+                title: "حذف المحادثة كاملة",
+                message: `سيتم حذف جميع رسائل المحادثة${transactionLabel} نهائيًا من سجل الدردشة مع بقاء الطلب نفسه. لا يمكن التراجع عن هذه العملية.`,
+                acceptText: "حذف المحادثة"
+            });
+            if (!accepted) return;
+            await clearConversationMessages(orderId, ADMIN_ACTOR);
+            allConversations = allConversations.filter(order => order.id !== orderId);
+            resetAdminConversationView();
+            showToast("تم حذف سجل المحادثة");
         }
         if (action === "info") showMessageInfo(message);
     } catch (error) {
@@ -704,11 +981,13 @@ async function handleMenuAction(action) {
 function showMessageInfo(message) {
     const read = Array.isArray(message.readBy) && message.readBy.includes(CLIENT_ACTOR);
     const delivered = read || (Array.isArray(message.deliveredBy) && message.deliveredBy.includes(CLIENT_ACTOR));
+    const pinned = currentOrder?.chatPinnedMessage?.[ADMIN_ACTOR] === message.id;
     infoBody.textContent = "";
     [
         `المرسل: ${message.senderName || "غير محدد"}`,
         `وقت الإرسال: ${new Date(message.clientTime).toLocaleString("ar-SA")}`,
         `حالة الرسالة: ${read ? "تمت القراءة" : delivered ? "تم التسليم" : "تم الإرسال"}`,
+        `التثبيت: ${pinned ? "مثبتة أعلى المحادثة" : "غير مثبتة"}`,
         `معرّف الرسالة: ${message.id}`
     ].forEach(line => {
         const paragraph = document.createElement("p");
@@ -858,8 +1137,119 @@ adminStarredMessagesButton.addEventListener("click", () => {
     renderCurrentConversation();
 });
 
+document.getElementById("adminCancelSelection").addEventListener("click", () => exitSelectionMode());
+
+document.getElementById("adminSelectionCopy").addEventListener("click", async () => {
+    const messages = getSelectedMessages();
+    if (!messages.length) return;
+    const text = messages.map(message => `${message.senderName || "رسالة"}: ${messageSummary(message)}`).join("\n");
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast("تم نسخ الرسائل المحددة");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر نسخ الرسائل");
+    }
+});
+
+selectionStar.addEventListener("click", async () => {
+    if (!currentOrder) return;
+    const messages = getSelectedMessages();
+    if (!messages.length) return;
+    const shouldStar = !messages.every(message =>
+        Array.isArray(message.starredBy) && message.starredBy.includes(ADMIN_ACTOR)
+    );
+    try {
+        await setMessagesStarred(currentOrder.id, messages.map(message => message.id), ADMIN_ACTOR, shouldStar);
+        showToast(shouldStar ? "تم تمييز الرسائل" : "تمت إزالة النجمة");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر تمييز الرسائل");
+    }
+});
+
+selectionPin.addEventListener("click", async () => {
+    if (!currentOrder) return;
+    const [message] = getSelectedMessages();
+    if (!message || selectedMessageIds.size !== 1) return;
+    try {
+        const pinned = await togglePinnedMessage(currentOrder.id, message.id, ADMIN_ACTOR);
+        exitSelectionMode();
+        showToast(pinned ? "تم تثبيت الرسالة" : "تم إلغاء تثبيت الرسالة");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر تثبيت الرسالة");
+    }
+});
+
+document.getElementById("adminSelectionDeleteMe").addEventListener("click", async () => {
+    if (!currentOrder) return;
+    const messages = getSelectedMessages();
+    if (!messages.length) return;
+    const accepted = await requestAdminConfirmation({
+        title: "حذف الرسائل المحددة لدي",
+        message: `ستختفي ${messages.length.toLocaleString("ar")} من الرسائل المحددة من صفحة الإدارة فقط.`,
+        acceptText: "حذف لدي"
+    });
+    if (!accepted) return;
+    try {
+        await deleteMessagesForMe(currentOrder.id, messages.map(message => message.id), ADMIN_ACTOR);
+        exitSelectionMode();
+        showToast("تم حذف الرسائل المحددة لديك");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر حذف الرسائل");
+    }
+});
+
+selectionDeleteAll.addEventListener("click", async () => {
+    if (!currentOrder) return;
+    const messages = getSelectedMessages().filter(message =>
+        message.senderId === ADMIN_ACTOR && !message.deletedForAll
+    );
+    if (!messages.length || messages.length !== selectedMessageIds.size) return;
+    const accepted = await requestAdminConfirmation({
+        title: "حذف الرسائل المحددة لدى الجميع",
+        message: `سيتم حذف ${messages.length.toLocaleString("ar")} من رسائل الإدارة لدى الطرفين.`,
+        acceptText: "حذف لدى الجميع"
+    });
+    if (!accepted) return;
+    try {
+        await deleteMessagesForEveryone(currentOrder.id, messages.map(message => message.id), ADMIN_ACTOR);
+        exitSelectionMode();
+        showToast("تم حذف الرسائل لدى الجميع");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر حذف الرسائل");
+    }
+});
+
+document.getElementById("adminPinnedMessageJump").addEventListener("click", () => {
+    scrollToMessage(pinnedMessageBar.dataset.messageId || "");
+});
+
+document.getElementById("adminUnpinMessage").addEventListener("click", async () => {
+    if (!currentOrder) return;
+    const messageId = pinnedMessageBar.dataset.messageId || "";
+    if (!messageId) return;
+    try {
+        await togglePinnedMessage(currentOrder.id, messageId, ADMIN_ACTOR);
+        showToast("تم إلغاء تثبيت الرسالة");
+    } catch (error) {
+        console.error(error);
+        showToast("تعذر إلغاء التثبيت");
+    }
+});
+
+document.getElementById("adminCancelConfirm").addEventListener("click", () => settleAdminConfirmation(false));
+confirmAccept.addEventListener("click", () => settleAdminConfirmation(true));
+confirmModal.addEventListener("click", event => {
+    if (event.target === confirmModal) settleAdminConfirmation(false);
+});
+
 document.getElementById("adminMobileBack").addEventListener("click", async () => {
     voiceRecorder?.cancel();
+    exitSelectionMode(false);
     adminChatApp.classList.remove("conversation-open");
     if (window.innerWidth > 720 && currentOrder) {
         await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
@@ -968,10 +1358,18 @@ messageMenu.addEventListener("click", event => {
     if (button) handleMenuAction(button.dataset.action);
 });
 document.addEventListener("click", event => {
-    if (!messageMenu.hidden && !messageMenu.contains(event.target)) closeMessageMenu();
+    const justOpenedByLongPress = Date.now() - messageMenuOpenedAt < 450;
+    if (!messageMenu.hidden && !messageMenu.contains(event.target) && !justOpenedByLongPress) closeMessageMenu();
     if (!attachmentSheet.hidden && !attachmentSheet.contains(event.target) && !event.target.closest("#adminAttachmentButton")) {
         attachmentSheet.hidden = true;
     }
+});
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    if (!confirmModal.hidden) settleAdminConfirmation(false);
+    else if (!infoModal.hidden) closeInfo();
+    else if (!messageMenu.hidden) closeMessageMenu();
+    else if (selectionMode) exitSelectionMode();
 });
 document.getElementById("adminCloseInfo").addEventListener("click", closeInfo);
 document.getElementById("adminCloseInfoAction").addEventListener("click", closeInfo);

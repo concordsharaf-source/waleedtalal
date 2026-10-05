@@ -15,7 +15,7 @@
     <link rel="manifest" href="../admin-chat-manifest.json?v=1">
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../styles/chat.css?v=37">
+    <link rel="stylesheet" href="../styles/chat.css?v=38">
     <script src="../scripts/pwa.js" defer></script>
 </head>
 <body>
@@ -86,6 +86,27 @@
                     <span id="adminMessageSearchCount" class="chat-search-count"></span>
                     <button id="adminCloseMessageSearch" class="icon-button" type="button" aria-label="إغلاق البحث">✕</button>
                 </div>
+                <div id="adminSelectionBar" class="message-selection-bar" hidden aria-label="أدوات الرسائل المحددة">
+                    <button id="adminCancelSelection" class="icon-button" type="button" aria-label="إلغاء التحديد" title="إلغاء التحديد">✕</button>
+                    <strong id="adminSelectionCount">رسالة واحدة</strong>
+                    <div class="message-selection-actions">
+                        <button id="adminSelectionCopy" class="icon-button" type="button" aria-label="نسخ الرسائل المحددة" title="نسخ">📋</button>
+                        <button id="adminSelectionStar" class="icon-button" type="button" aria-label="تمييز الرسائل المحددة" title="تمييز بنجمة">☆</button>
+                        <button id="adminSelectionPin" class="icon-button" type="button" aria-label="تثبيت الرسالة المحددة" title="تثبيت الرسالة">📌</button>
+                        <button id="adminSelectionDeleteMe" class="icon-button danger-icon" type="button" aria-label="حذف الرسائل المحددة لدي" title="حذف لدي">🗑</button>
+                        <button id="adminSelectionDeleteAll" class="icon-button danger-icon" type="button" aria-label="حذف الرسائل المحددة لدى الجميع" title="حذف لدى الجميع">🚫</button>
+                    </div>
+                </div>
+                <div id="adminPinnedMessage" class="pinned-message-bar" hidden>
+                    <button id="adminPinnedMessageJump" class="pinned-message-jump" type="button" aria-label="الانتقال إلى الرسالة المثبتة">
+                        <span class="pinned-message-icon" aria-hidden="true">📌</span>
+                        <span class="pinned-message-content">
+                            <strong id="adminPinnedMessageSender">رسالة مثبتة</strong>
+                            <span id="adminPinnedMessageText"></span>
+                        </span>
+                    </button>
+                    <button id="adminUnpinMessage" class="icon-button" type="button" aria-label="إلغاء تثبيت الرسالة" title="إلغاء التثبيت">✕</button>
+                </div>
             </div>
 
             <section id="adminMessagesArea" class="messages-area" hidden>
@@ -141,14 +162,18 @@
         </section>
     </main>
 
-    <nav id="adminMessageMenu" class="context-menu" hidden aria-label="خيارات الرسالة">
+    <nav id="adminMessageMenu" class="context-menu admin-message-menu" hidden aria-label="خيارات الرسالة">
         <button data-action="reply" type="button">↩️ الرد</button>
         <button data-action="copy" type="button">📋 نسخ النص</button>
         <button data-action="forward" type="button">↪️ تحويل</button>
+        <button data-action="pin-message" type="button">📌 تثبيت الرسالة</button>
+        <button data-action="pin-conversation" type="button">📍 تثبيت المحادثة</button>
+        <button data-action="select" type="button">☑️ تحديد الرسائل</button>
         <button data-action="star" type="button">⭐ تمييز بنجمة</button>
         <button data-action="info" type="button">ℹ️ معلومات الرسالة</button>
-        <button data-action="delete-me" type="button">🗑️ حذف لدي</button>
-        <button data-action="delete-all" class="danger" type="button">🚫 حذف لدى الجميع</button>
+        <button data-action="delete-me" type="button">🗑️ حذف الرسالة لدي</button>
+        <button data-action="delete-all" class="danger" type="button">🚫 حذف الرسالة لدى الجميع</button>
+        <button data-action="delete-conversation" class="danger context-menu-separator" type="button">🗑️ حذف المحادثة كاملة</button>
     </nav>
 
     <section id="adminMessageInfoModal" class="modal-overlay" hidden aria-labelledby="adminMessageInfoTitle">
@@ -164,8 +189,23 @@
         </div>
     </section>
 
+    <section id="adminConfirmModal" class="modal-overlay" hidden aria-labelledby="adminConfirmTitle">
+        <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
+            <header class="modal-head">
+                <h2 id="adminConfirmTitle">تأكيد العملية</h2>
+            </header>
+            <div class="modal-body">
+                <p id="adminConfirmMessage"></p>
+            </div>
+            <div class="modal-actions">
+                <button id="adminCancelConfirm" class="secondary-button" type="button">إلغاء</button>
+                <button id="adminAcceptConfirm" class="danger-button" type="button">تأكيد</button>
+            </div>
+        </div>
+    </section>
+
     <div id="adminToast" class="toast" role="status" hidden></div>
 
-    <script type="module" src="../scripts/chat-admin.js?v=37"></script>
+    <script type="module" src="../scripts/chat-admin.js?v=38"></script>
 </body>
 </html>

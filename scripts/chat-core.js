@@ -382,8 +382,60 @@ export async function toggleMessageStar(orderId, messageId, actor) {
     });
 }
 
+export async function setMessagesStarred(orderId, messageIds, actor, starred) {
+    await mutateMessages(orderId, messageIds, message => {
+        const starredBy = Array.isArray(message.starredBy) ? message.starredBy : [];
+        const isStarred = starredBy.includes(actor);
+        if (isStarred === Boolean(starred)) return message;
+        return {
+            ...message,
+            starredBy: starred
+                ? [...starredBy, actor]
+                : starredBy.filter(item => item !== actor)
+        };
+    });
+}
+
+export async function togglePinnedMessage(orderId, messageId, actor) {
+    const orderRef = doc(db, "orders", orderId);
+    let pinned = false;
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        const order = snapshot.data();
+        const messages = Array.isArray(order.chatMessages) ? order.chatMessages : [];
+        const message = messages.find(item => item?.id === messageId);
+        if (!message || message.deletedForAll) throw new Error("message-not-found");
+        const currentId = String(order.chatPinnedMessage?.[actor] || "");
+        const nextId = currentId === messageId ? null : messageId;
+        pinned = Boolean(nextId);
+        transaction.update(orderRef, { [`chatPinnedMessage.${actor}`]: nextId });
+    });
+    return pinned;
+}
+
+export async function toggleConversationPin(orderId, actor) {
+    const orderRef = doc(db, "orders", orderId);
+    let pinned = false;
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        pinned = orderPinState(snapshot.data(), actor) !== true;
+        transaction.update(orderRef, { [`chatPinnedBy.${actor}`]: pinned });
+    });
+    return pinned;
+}
+
+function orderPinState(order, actor) {
+    return order?.chatPinnedBy?.[actor] === true;
+}
+
 export async function deleteMessageForMe(orderId, messageId, actor) {
-    await mutateMessage(orderId, messageId, message => {
+    await deleteMessagesForMe(orderId, [messageId], actor);
+}
+
+export async function deleteMessagesForMe(orderId, messageIds, actor) {
+    await mutateMessages(orderId, messageIds, message => {
         const deletedFor = Array.isArray(message.deletedFor) ? message.deletedFor : [];
         if (deletedFor.includes(actor)) return message;
         return { ...message, deletedFor: [...deletedFor, actor] };
@@ -391,8 +443,12 @@ export async function deleteMessageForMe(orderId, messageId, actor) {
 }
 
 export async function deleteMessageForEveryone(orderId, messageId, actor) {
-    await mutateMessage(orderId, messageId, message => {
-        if (message.senderId !== actor) return message;
+    await deleteMessagesForEveryone(orderId, [messageId], actor);
+}
+
+export async function deleteMessagesForEveryone(orderId, messageIds, actor) {
+    await mutateMessages(orderId, messageIds, message => {
+        if (message.senderId !== actor || message.deletedForAll) return message;
         return {
             ...message,
             text: "تم حذف هذه الرسالة",
@@ -402,7 +458,40 @@ export async function deleteMessageForEveryone(orderId, messageId, actor) {
     });
 }
 
+export async function clearConversationMessages(orderId, actor) {
+    if (actor !== ADMIN_ACTOR) throw new Error("not-authorized");
+    const orderRef = doc(db, "orders", orderId);
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) throw new Error("order-not-found");
+        transaction.update(orderRef, {
+            chatMessages: [],
+            chatEnabled: false,
+            chatLastMessage: "",
+            chatLastSender: "",
+            "chatPinnedMessage.admin": null,
+            "chatPinnedBy.admin": false,
+            "chatTyping.admin": false,
+            "chatTyping.client": false,
+            "chatOnline.admin": false,
+            chatClearedBy: actor,
+            chatClearedAt: serverTimestamp(),
+            chatUpdatedAt: serverTimestamp()
+        });
+    });
+}
+
 async function mutateMessage(orderId, messageId, transform) {
+    await mutateMessages(orderId, [messageId], transform);
+}
+
+async function mutateMessages(orderId, messageIds, transform) {
+    const ids = new Set((Array.isArray(messageIds) ? messageIds : [messageIds])
+        .map(id => String(id || "").trim())
+        .filter(Boolean)
+        .slice(0, MAX_CHAT_MESSAGES));
+    if (!ids.size) return;
+
     const orderRef = doc(db, "orders", orderId);
     await runTransaction(db, async transaction => {
         const snapshot = await transaction.get(orderRef);
@@ -411,9 +500,11 @@ async function mutateMessage(orderId, messageId, transform) {
         const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
         let changed = false;
         const next = current.map(message => {
-            if (message.id !== messageId) return message;
+            if (!ids.has(message.id)) return message;
+            const transformed = transform(message);
+            if (transformed === message) return message;
             changed = true;
-            return transform(message);
+            return transformed;
         });
         if (changed) transaction.update(orderRef, {
             chatMessages: next,
