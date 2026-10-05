@@ -320,7 +320,9 @@ async function selectConversation(orderId) {
     renderCurrentConversation();
     await setChatPresence(order.id, ADMIN_ACTOR, true);
     if (adminPushToken) await registerChatPushToken(order.id, ADMIN_ACTOR, adminPushToken);
-    await markMessagesRead(order.id, ADMIN_ACTOR);
+    if (document.visibilityState === "visible" && document.hasFocus()) {
+        await markMessagesRead(order.id, ADMIN_ACTOR);
+    }
     messageInput.focus();
 }
 
@@ -386,7 +388,11 @@ function renderCurrentConversation() {
     }
 
     clearTimeout(markReadTimer);
-    markReadTimer = setTimeout(() => markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error), 250);
+    const visibleOrderId = currentOrder.id;
+    markReadTimer = setTimeout(() => {
+        if (currentOrder?.id !== visibleOrderId || document.visibilityState !== "visible" || !document.hasFocus() || adminMessagesArea.hidden) return;
+        markMessagesRead(visibleOrderId, ADMIN_ACTOR).catch(console.error);
+    }, 250);
 }
 
 function renderMessages(messages) {
@@ -920,7 +926,16 @@ infoModal.addEventListener("click", event => { if (event.target === infoModal) c
 
 document.addEventListener("visibilitychange", () => {
     if (!currentOrder) return;
-    setChatPresence(currentOrder.id, ADMIN_ACTOR, document.visibilityState === "visible");
+    const isVisible = document.visibilityState === "visible";
+    setChatPresence(currentOrder.id, ADMIN_ACTOR, isVisible);
+    if (isVisible && document.hasFocus() && !adminMessagesArea.hidden) {
+        markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error);
+    }
+});
+window.addEventListener("focus", () => {
+    if (currentOrder && !adminMessagesArea.hidden) {
+        markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error);
+    }
 });
 window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
