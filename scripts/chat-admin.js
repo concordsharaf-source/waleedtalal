@@ -102,6 +102,7 @@ let markReadTimer = null;
 let messageSearchQuery = "";
 let starredOnly = false;
 let adminPushToken = "";
+const optimisticMessages = new Map();
 let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
@@ -366,7 +367,10 @@ function renderCurrentConversation() {
         clientStatus.className = "";
     }
     adminTypingBar.hidden = currentOrder.chatTyping?.client !== true;
-    const allMessages = sortMessages(currentOrder.chatMessages)
+    const serverMessages = sortMessages(currentOrder.chatMessages);
+    serverMessages.forEach(message => optimisticMessages.delete(message.id));
+    const pendingMessages = [...optimisticMessages.values()].filter(message => !serverMessages.some(item => item.id === message.id));
+    const allMessages = sortMessages([...serverMessages, ...pendingMessages])
         .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(ADMIN_ACTOR)));
     const query = messageSearchQuery.trim().toLowerCase();
     const visibleMessages = allMessages.filter(message => {
@@ -826,7 +830,10 @@ messageForm.addEventListener("submit", async event => {
     updateComposerAction();
     sendButton.disabled = true;
     try {
-        const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget);
+        const sentMessage = await sendChatMessage(orderId, ADMIN_ACTOR, text, replyTarget, null, message => {
+            optimisticMessages.set(message.id, message);
+            renderCurrentConversation();
+        });
         sendPushForMessage({
             orderId,
             senderId: ADMIN_ACTOR,
@@ -836,6 +843,10 @@ messageForm.addEventListener("submit", async event => {
         emojiPanel.hidden = true;
     } catch (error) {
         console.error(error);
+        for (const [id, message] of optimisticMessages) {
+            if (message.senderId === ADMIN_ACTOR && message.text === text) optimisticMessages.delete(id);
+        }
+        if (currentOrder) renderCurrentConversation();
         messageInput.value = text;
         resizeInput();
         updateComposerAction();

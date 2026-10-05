@@ -98,6 +98,7 @@ let messageSearchQuery = "";
 let starredOnly = false;
 let deferredInstallPrompt = null;
 let clientPushToken = "";
+const optimisticMessages = new Map();
 let voiceRecorder = null;
 let renderedMessagesSignature = "";
 
@@ -233,7 +234,10 @@ function messageRenderSignature(messages) {
 }
 
 function renderOrder(order) {
-    const allMessages = sortMessages(order.chatMessages)
+    const serverMessages = sortMessages(order.chatMessages);
+    serverMessages.forEach(message => optimisticMessages.delete(message.id));
+    const pendingMessages = [...optimisticMessages.values()].filter(message => !serverMessages.some(item => item.id === message.id));
+    const allMessages = sortMessages([...serverMessages, ...pendingMessages])
         .filter(message => !(Array.isArray(message.deletedFor) && message.deletedFor.includes(CLIENT_ACTOR)));
 
     const newAdminMessages = allMessages.filter(message =>
@@ -677,7 +681,10 @@ messageForm.addEventListener("submit", async event => {
     updateComposerAction();
     sendButton.disabled = true;
     try {
-        const sentMessage = await sendChatMessage(orderId, CLIENT_ACTOR, text, replyTarget);
+        const sentMessage = await sendChatMessage(orderId, CLIENT_ACTOR, text, replyTarget, null, message => {
+            optimisticMessages.set(message.id, message);
+            renderOrder(currentOrder);
+        });
         pushRegistration.catch(() => {});
         sendPushForMessage({
             orderId,
@@ -689,6 +696,10 @@ messageForm.addEventListener("submit", async event => {
         emojiPanel.hidden = true;
     } catch (error) {
         console.error(error);
+        for (const [id, message] of optimisticMessages) {
+            if (message.senderId === CLIENT_ACTOR && message.text === text) optimisticMessages.delete(id);
+        }
+        if (currentOrder) renderOrder(currentOrder);
         messageInput.value = text;
         resizeInput();
         updateComposerAction();

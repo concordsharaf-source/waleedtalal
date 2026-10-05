@@ -9,6 +9,7 @@ import {
     onSnapshot,
     runTransaction,
     updateDoc,
+    arrayUnion,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -180,7 +181,7 @@ export function subscribeToOrder(orderId, onData, onError = console.error) {
     }, onError);
 }
 
-export async function sendChatMessage(orderId, actor, text, replyTo = null, media = null) {
+export async function sendChatMessage(orderId, actor, text, replyTo = null, media = null, onOptimistic = null) {
     const cleanText = String(text || "").trim().slice(0, 2500);
     if (!cleanText && !media?.url) return null;
 
@@ -208,20 +209,14 @@ export async function sendChatMessage(orderId, actor, text, replyTo = null, medi
         starredBy: []
     };
 
-    await runTransaction(db, async transaction => {
-        const snapshot = await transaction.get(orderRef);
-        if (!snapshot.exists()) throw new Error("order-not-found");
-        const order = snapshot.data();
-        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
-        const next = [...current.slice(-(MAX_CHAT_MESSAGES - 1)), message];
-        transaction.update(orderRef, {
-            chatEnabled: true,
-            chatMessages: next,
-            chatLastMessage: message.text,
-            chatLastSender: actor,
-            chatUpdatedAt: serverTimestamp(),
-            [`chatTyping.${actor}`]: false
-        });
+    if (typeof onOptimistic === "function") onOptimistic(message);
+    await updateDoc(orderRef, {
+        chatEnabled: true,
+        chatMessages: arrayUnion(message),
+        chatLastMessage: message.text,
+        chatLastSender: actor,
+        chatUpdatedAt: serverTimestamp(),
+        [`chatTyping.${actor}`]: false
     });
 
     return message;
@@ -252,20 +247,13 @@ export async function createPendingAudioMessage(orderId, actor, duration, mimeTy
         starredBy: []
     };
 
-    await runTransaction(db, async transaction => {
-        const snapshot = await transaction.get(orderRef);
-        if (!snapshot.exists()) throw new Error("order-not-found");
-        const order = snapshot.data();
-        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
-        const next = [...current.slice(-(MAX_CHAT_MESSAGES - 1)), message];
-        transaction.update(orderRef, {
-            chatEnabled: true,
-            chatMessages: next,
-            chatLastMessage: "🎤 رسالة صوتية",
-            chatLastSender: actor,
-            chatUpdatedAt: serverTimestamp(),
-            [`chatTyping.${actor}`]: false
-        });
+    await updateDoc(orderRef, {
+        chatEnabled: true,
+        chatMessages: arrayUnion(message),
+        chatLastMessage: "🎤 رسالة صوتية",
+        chatLastSender: actor,
+        chatUpdatedAt: serverTimestamp(),
+        [`chatTyping.${actor}`]: false
     });
 
     return message;
@@ -319,19 +307,13 @@ export async function createPendingMediaMessage(orderId, actor, file, replyTo = 
 
     if (typeof onOptimistic === "function") onOptimistic(message);
 
-    await runTransaction(db, async transaction => {
-        const snapshot = await transaction.get(orderRef);
-        if (!snapshot.exists()) throw new Error("order-not-found");
-        const order = snapshot.data();
-        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
-        transaction.update(orderRef, {
-            chatEnabled: true,
-            chatMessages: [...current.slice(-(MAX_CHAT_MESSAGES - 1)), message],
-            chatLastMessage: label,
-            chatLastSender: actor,
-            chatUpdatedAt: serverTimestamp(),
-            [`chatTyping.${actor}`]: false
-        });
+    await updateDoc(orderRef, {
+        chatEnabled: true,
+        chatMessages: arrayUnion(message),
+        chatLastMessage: label,
+        chatLastSender: actor,
+        chatUpdatedAt: serverTimestamp(),
+        [`chatTyping.${actor}`]: false
     });
     return message;
 }
