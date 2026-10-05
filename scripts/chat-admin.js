@@ -1142,12 +1142,8 @@ function notifyAdmin(message) {
         oscillator.start();
         oscillator.stop(context.currentTime + .2);
     } catch { /* اختياري */ }
-    if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-        new Notification(`رسالة جديدة من ${message.order.name || "مستفيد"}`, {
-            body: String(message.text || "رسالة جديدة").slice(0, 150),
-            icon: "../icons/chat-app-192.png"
-        });
-    }
+    // إشعار النظام يتولاه FCM/عامل الخدمة؛ نتجنب new Notification لأنه
+    // غير مدعوم بصورة موثوقة على متصفحات Android وقد يسبب إشعارًا مكررًا.
 }
 
 window.addEventListener("beforeinstallprompt", event => {

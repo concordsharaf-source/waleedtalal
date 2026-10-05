@@ -1,51 +1,49 @@
-const CACHE_NAME = "waleedtalal-pwa-v42";
+const CACHE_NAME = "waleedtalal-pwa-v43";
 
-/* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
-let firebaseMessaging = null;
-try {
-  importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-  importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
-  firebase.initializeApp({
-    apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
-    authDomain: "sparepartswebsite1.firebaseapp.com",
-    projectId: "sparepartswebsite1",
-    storageBucket: "sparepartswebsite1.firebasestorage.app",
-    messagingSenderId: "1063114847735",
-    appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
+/*
+ * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
+ * Firebase داخل عامل الخدمة كان نقطة الفشل المشتركة على الأجهزة: يقبل FCM
+ * الرسالة، لكن تعطل تحميل المكتبة يمنع عرضها. المستمع الخام يعمل حتى عند
+ * إغلاق التطبيق ويعرض كل رسالة من بيانات FCM بنفسه.
+ */
+function showIncomingPush(payload = {}) {
+  const data = payload.data || payload || {};
+  if (data.type && data.type !== "chat-message") return Promise.resolve();
+  const notification = payload.notification || {};
+  const title = data.title || notification.title || "رسالة جديدة من مؤسسة الوليد";
+  const notificationId = data.notificationId || data.messageId || Date.now();
+  return self.registration.showNotification(title, {
+    body: data.body || notification.body || "لديك رسالة جديدة في المحادثة.",
+    icon: "/icons/chat-app-192.png",
+    badge: "/icons/chat-app-192.png",
+    dir: "rtl",
+    lang: "ar",
+    tag: data.orderId ? `chat-${data.orderId}-${notificationId}` : `waleed-chat-${notificationId}`,
+    renotify: true,
+    silent: false,
+    vibrate: [180, 90, 180],
+    timestamp: Date.now(),
+    data: {
+      url: data.url || "/pages/chat.html",
+      orderId: data.orderId || "",
+      messageId: data.messageId || "",
+      notificationId: String(notificationId)
+    },
+    actions: [
+      { action: "open-chat", title: "فتح المحادثة" }
+    ]
   });
-  firebaseMessaging = firebase.messaging();
-  firebaseMessaging.onBackgroundMessage(payload => {
-    // الخادم يرسل data-only حتى يتولى عامل الخدمة العرض بصورة موحدة
-    // في الخلفية وعند إغلاق التطبيق على Android وSamsung Internet/Chrome.
-    const data = payload.data || {};
-    const title = data.title || "رسالة جديدة من مؤسسة الوليد";
-    return self.registration.showNotification(title, {
-      body: data.body || "لديك رسالة جديدة في المحادثة.",
-      icon: "/icons/chat-app-192.png",
-      badge: "/icons/chat-app-192.png",
-      dir: "rtl",
-      lang: "ar",
-      tag: data.orderId
-        ? `chat-${data.orderId}-${data.notificationId || data.messageId || Date.now()}`
-        : `waleed-chat-${data.notificationId || data.messageId || Date.now()}`,
-      renotify: true,
-      silent: false,
-      vibrate: [180, 90, 180],
-      timestamp: Date.now(),
-      data: {
-        url: data.url || "/pages/chat.html",
-        orderId: data.orderId || "",
-        messageId: data.messageId || "",
-        notificationId: data.notificationId || ""
-      },
-      actions: [
-        { action: "open-chat", title: "فتح المحادثة" }
-      ]
-    });
-  });
-} catch (error) {
-  console.error("تعذر تهيئة إشعارات Firebase", error);
 }
+
+self.addEventListener("push", event => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (error) {
+    payload = { data: { body: event.data ? event.data.text() : "" } };
+  }
+  event.waitUntil(showIncomingPush(payload));
+});
 
 const APP_SHELL = [
   "./",

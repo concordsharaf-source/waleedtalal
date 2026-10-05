@@ -25,7 +25,9 @@ function ensureForegroundListener(messaging) {
     onMessage(messaging, payload => {
         const data = payload.data || {};
         window.dispatchEvent(new CustomEvent("waleed-chat-push", { detail: data }));
-        if (Notification.permission !== "granted" || document.visibilityState === "visible") return;
+        // اعرض إشعار نظام حتى لو كانت صفحة المحادثة في الواجهة؛ على الجوال
+        // لا يكفي التنبيه الداخلي وحده، والمستخدم طلب وصولًا واضحًا في كل الحالات.
+        if (Notification.permission !== "granted") return;
         navigator.serviceWorker.ready.then(registration => registration.showNotification(
             payload.notification?.title || data.title || "رسالة جديدة من مؤسسة الوليد",
             {

@@ -758,12 +758,8 @@ function notifyNewMessage(text) {
     if (!clientNotificationsEnabled()) return;
     playChime();
     showToast(`🔔 رسالة جديدة من الإدارة: ${String(text || "").slice(0, 80)}`);
-    if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-        new Notification("رسالة جديدة من إدارة المؤسسة", {
-            body: String(text || "رسالة جديدة").slice(0, 150),
-            icon: "../icons/chat-app-192.png"
-        });
-    }
+    // إشعار النظام يتولاه FCM/عامل الخدمة؛ new Notification غير موثوق
+    // على Android وقد يكرر الإشعار الذي يعرضه عامل الخدمة.
 }
 
 function playChime() {
