@@ -402,7 +402,9 @@ button { cursor: pointer; }
     font-size: .65rem;
     direction: ltr;
 }
-.message-checks.read { color: #53bdeb; }
+.message-checks.sent { color: #667781; }
+.message-checks.delivered { color: #667781; letter-spacing: -2px; }
+.message-checks.read { color: #53bdeb; letter-spacing: -2px; }
 
 .reply-quote {
     margin-bottom: 6px;

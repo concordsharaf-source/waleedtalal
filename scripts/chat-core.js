@@ -122,6 +122,7 @@ export function buildWelcomeMessage(order) {
         clientTime: new Date().toISOString(),
         messageType: "text",
         replyTo: null,
+        deliveredBy: [],
         readBy: [],
         deletedFor: [],
         deletedForAll: false,
@@ -203,6 +204,7 @@ export async function sendChatMessage(orderId, actor, text, replyTo = null, medi
             senderName: String(replyTo.senderName || ""),
             text: String(replyTo.text || "").slice(0, 180)
         } : null,
+        deliveredBy: [],
         readBy: [actor],
         deletedFor: [],
         deletedForAll: false,
@@ -241,6 +243,7 @@ export async function createPendingAudioMessage(orderId, actor, duration, mimeTy
             senderName: String(replyTo.senderName || ""),
             text: String(replyTo.text || "").slice(0, 180)
         } : null,
+        deliveredBy: [],
         readBy: [actor],
         deletedFor: [],
         deletedForAll: false,
@@ -299,6 +302,7 @@ export async function createPendingMediaMessage(orderId, actor, file, replyTo = 
             senderName: String(replyTo.senderName || ""),
             text: String(replyTo.text || "").slice(0, 180)
         } : null,
+        deliveredBy: [],
         readBy: [actor],
         deletedFor: [],
         deletedForAll: false,
@@ -325,6 +329,25 @@ export async function markChatMediaFailed(orderId, messageId) {
     });
 }
 
+export async function markMessagesDelivered(orderId, actor) {
+    const orderRef = doc(db, "orders", orderId);
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) return;
+        const order = snapshot.data();
+        const current = Array.isArray(order.chatMessages) ? order.chatMessages : [];
+        let changed = false;
+        const next = current.map(message => {
+            if (message.senderId === actor || message.deletedForAll) return message;
+            const deliveredBy = Array.isArray(message.deliveredBy) ? message.deliveredBy : [];
+            if (deliveredBy.includes(actor)) return message;
+            changed = true;
+            return { ...message, deliveredBy: [...deliveredBy, actor] };
+        });
+        if (changed) transaction.update(orderRef, { chatMessages: next });
+    });
+}
+
 export async function markMessagesRead(orderId, actor) {
     const orderRef = doc(db, "orders", orderId);
     await runTransaction(db, async transaction => {
@@ -335,10 +358,15 @@ export async function markMessagesRead(orderId, actor) {
         let changed = false;
         const next = current.map(message => {
             if (message.senderId === actor || message.deletedForAll) return message;
+            const deliveredBy = Array.isArray(message.deliveredBy) ? message.deliveredBy : [];
             const readBy = Array.isArray(message.readBy) ? message.readBy : [];
-            if (readBy.includes(actor)) return message;
+            if (readBy.includes(actor) && deliveredBy.includes(actor)) return message;
             changed = true;
-            return { ...message, readBy: [...readBy, actor] };
+            return {
+                ...message,
+                deliveredBy: deliveredBy.includes(actor) ? deliveredBy : [...deliveredBy, actor],
+                readBy: readBy.includes(actor) ? readBy : [...readBy, actor]
+            };
         });
         if (changed) transaction.update(orderRef, { chatMessages: next });
     });

@@ -12,6 +12,7 @@ import {
     markChatAudioFailed,
     createPendingMediaMessage,
     markChatMediaFailed,
+    markMessagesDelivered,
     markMessagesRead,
     toggleMessageStar,
     deleteMessageForMe,
@@ -98,11 +99,13 @@ let knownClientMessageIds = new Set();
 let toastTimer = null;
 let typingTimer = null;
 let longPressTimer = null;
-let markReadTimer = null;
+let messageAckRunning = false;
+let messageAckPending = false;
 let messageSearchQuery = "";
 let starredOnly = false;
 let adminPushToken = "";
 const optimisticMessages = new Map();
+const deliveryAckOrders = new Set();
 let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
 let deferredAdminInstallPrompt = null;
@@ -190,6 +193,25 @@ function unreadCount(order) {
     ).length;
 }
 
+function needsAdminDelivery(order) {
+    return sortMessages(order.chatMessages).some(message =>
+        message.senderId === CLIENT_ACTOR &&
+        !message.deletedForAll &&
+        !(Array.isArray(message.deliveredBy) && message.deliveredBy.includes(ADMIN_ACTOR)) &&
+        !(Array.isArray(message.readBy) && message.readBy.includes(ADMIN_ACTOR))
+    );
+}
+
+function acknowledgeListedDeliveries(orders) {
+    orders.forEach(order => {
+        if (currentOrder?.id === order.id || deliveryAckOrders.has(order.id) || !needsAdminDelivery(order)) return;
+        deliveryAckOrders.add(order.id);
+        markMessagesDelivered(order.id, ADMIN_ACTOR)
+            .catch(error => console.error("Message delivery acknowledgement failed", error))
+            .finally(() => deliveryAckOrders.delete(order.id));
+    });
+}
+
 function listenToConversations() {
     unsubscribeOrders = onSnapshot(collection(db, "orders"), snapshot => {
         const orders = snapshot.docs
@@ -206,6 +228,7 @@ function listenToConversations() {
 
         allConversations = orders;
         renderConversationList();
+        acknowledgeListedDeliveries(orders);
         if (adminPushToken) registerAdminTokenForConversations(adminPushToken).catch(console.error);
 
         if (!notificationOrderHandled) {
@@ -320,9 +343,6 @@ async function selectConversation(orderId) {
     renderCurrentConversation();
     await setChatPresence(order.id, ADMIN_ACTOR, true);
     if (adminPushToken) await registerChatPushToken(order.id, ADMIN_ACTOR, adminPushToken);
-    if (document.visibilityState === "visible" && document.hasFocus()) {
-        await markMessagesRead(order.id, ADMIN_ACTOR);
-    }
     messageInput.focus();
 }
 
@@ -343,11 +363,46 @@ function messageRenderSignature(messages) {
             message.media?.path,
             message.deletedForAll,
             message.replyTo?.id,
+            message.deliveredBy,
             message.readBy,
             message.starredBy,
             message.deletedFor
         ])
     ]);
+}
+
+async function acknowledgeIncomingMessages(order) {
+    if (!order?.id) return;
+    if (messageAckRunning) {
+        messageAckPending = true;
+        return;
+    }
+    const incoming = sortMessages(order.chatMessages).filter(message =>
+        message.senderId !== ADMIN_ACTOR && !message.deletedForAll
+    );
+    const isReadingNow = document.visibilityState === "visible" && document.hasFocus() &&
+        !adminChatApp.hidden && !adminComposerZone.hidden;
+    const needsRead = isReadingNow && incoming.some(message =>
+        !(Array.isArray(message.readBy) && message.readBy.includes(ADMIN_ACTOR))
+    );
+    const needsDelivery = incoming.some(message =>
+        !(Array.isArray(message.deliveredBy) && message.deliveredBy.includes(ADMIN_ACTOR))
+    );
+    if (!needsRead && !needsDelivery) return;
+
+    messageAckRunning = true;
+    try {
+        if (needsRead) await markMessagesRead(order.id, ADMIN_ACTOR);
+        else await markMessagesDelivered(order.id, ADMIN_ACTOR);
+    } catch (error) {
+        console.error("Message acknowledgement failed", error);
+    } finally {
+        messageAckRunning = false;
+        if (messageAckPending) {
+            messageAckPending = false;
+            if (currentOrder) queueMicrotask(() => acknowledgeIncomingMessages(currentOrder));
+        }
+    }
 }
 
 function renderCurrentConversation() {
@@ -387,12 +442,7 @@ function renderCurrentConversation() {
         renderedMessagesSignature = nextSignature;
     }
 
-    clearTimeout(markReadTimer);
-    const visibleOrderId = currentOrder.id;
-    markReadTimer = setTimeout(() => {
-        if (currentOrder?.id !== visibleOrderId || document.visibilityState !== "visible" || !document.hasFocus() || adminMessagesArea.hidden) return;
-        markMessagesRead(visibleOrderId, ADMIN_ACTOR).catch(console.error);
-    }, 250);
+    acknowledgeIncomingMessages(currentOrder);
 }
 
 function renderMessages(messages) {
@@ -468,9 +518,11 @@ function createMessageElement(message) {
     meta.appendChild(time);
     if (mine) {
         const read = Array.isArray(message.readBy) && message.readBy.includes(CLIENT_ACTOR);
+        const delivered = read || (Array.isArray(message.deliveredBy) && message.deliveredBy.includes(CLIENT_ACTOR));
         const checks = document.createElement("span");
-        checks.className = `message-checks${read ? " read" : ""}`;
-        checks.textContent = read ? "✓✓" : "✓";
+        checks.className = `message-checks${read ? " read" : delivered ? " delivered" : " sent"}`;
+        checks.textContent = delivered ? "✓✓" : "✓";
+        checks.title = read ? "تمت القراءة" : delivered ? "تم التسليم" : "تم الإرسال";
         meta.appendChild(checks);
     }
     bubble.append(content, meta);
@@ -651,11 +703,12 @@ async function handleMenuAction(action) {
 
 function showMessageInfo(message) {
     const read = Array.isArray(message.readBy) && message.readBy.includes(CLIENT_ACTOR);
+    const delivered = read || (Array.isArray(message.deliveredBy) && message.deliveredBy.includes(CLIENT_ACTOR));
     infoBody.textContent = "";
     [
         `المرسل: ${message.senderName || "غير محدد"}`,
         `وقت الإرسال: ${new Date(message.clientTime).toLocaleString("ar-SA")}`,
-        `حالة الرسالة: ${read ? "تمت القراءة" : "تم الإرسال"}`,
+        `حالة الرسالة: ${read ? "تمت القراءة" : delivered ? "تم التسليم" : "تم الإرسال"}`,
         `معرّف الرسالة: ${message.id}`
     ].forEach(line => {
         const paragraph = document.createElement("p");
@@ -926,16 +979,11 @@ infoModal.addEventListener("click", event => { if (event.target === infoModal) c
 
 document.addEventListener("visibilitychange", () => {
     if (!currentOrder) return;
-    const isVisible = document.visibilityState === "visible";
-    setChatPresence(currentOrder.id, ADMIN_ACTOR, isVisible);
-    if (isVisible && document.hasFocus() && !adminMessagesArea.hidden) {
-        markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error);
-    }
+    setChatPresence(currentOrder.id, ADMIN_ACTOR, document.visibilityState === "visible");
+    acknowledgeIncomingMessages(currentOrder);
 });
 window.addEventListener("focus", () => {
-    if (currentOrder && !adminMessagesArea.hidden) {
-        markMessagesRead(currentOrder.id, ADMIN_ACTOR).catch(console.error);
-    }
+    if (currentOrder) acknowledgeIncomingMessages(currentOrder);
 });
 window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, ADMIN_ACTOR, false);

@@ -15,6 +15,7 @@ import {
     markChatAudioFailed,
     createPendingMediaMessage,
     markChatMediaFailed,
+    markMessagesDelivered,
     markMessagesRead,
     toggleMessageStar,
     deleteMessageForMe,
@@ -92,7 +93,8 @@ let initializedMessages = false;
 let knownMessageIds = new Set();
 let typingTimer = null;
 let toastTimer = null;
-let markReadTimer = null;
+let messageAckRunning = false;
+let messageAckPending = false;
 let longPressTimer = null;
 let messageSearchQuery = "";
 let starredOnly = false;
@@ -226,11 +228,46 @@ function messageRenderSignature(messages) {
             message.media?.path,
             message.deletedForAll,
             message.replyTo?.id,
+            message.deliveredBy,
             message.readBy,
             message.starredBy,
             message.deletedFor
         ])
     ]);
+}
+
+async function acknowledgeIncomingMessages(order) {
+    if (!order?.id) return;
+    if (messageAckRunning) {
+        messageAckPending = true;
+        return;
+    }
+    const incoming = sortMessages(order.chatMessages).filter(message =>
+        message.senderId !== CLIENT_ACTOR && !message.deletedForAll
+    );
+    const isReadingNow = document.visibilityState === "visible" &&
+        document.hasFocus() && !chatView.hidden;
+    const needsRead = isReadingNow && incoming.some(message =>
+        !(Array.isArray(message.readBy) && message.readBy.includes(CLIENT_ACTOR))
+    );
+    const needsDelivery = incoming.some(message =>
+        !(Array.isArray(message.deliveredBy) && message.deliveredBy.includes(CLIENT_ACTOR))
+    );
+    if (!needsRead && !needsDelivery) return;
+
+    messageAckRunning = true;
+    try {
+        if (needsRead) await markMessagesRead(order.id, CLIENT_ACTOR);
+        else await markMessagesDelivered(order.id, CLIENT_ACTOR);
+    } catch (error) {
+        console.error("Message acknowledgement failed", error);
+    } finally {
+        messageAckRunning = false;
+        if (messageAckPending) {
+            messageAckPending = false;
+            if (currentOrder) queueMicrotask(() => acknowledgeIncomingMessages(currentOrder));
+        }
+    }
 }
 
 function renderOrder(order) {
@@ -268,10 +305,7 @@ function renderOrder(order) {
 
     knownMessageIds = new Set(allMessages.map(message => message.id));
     initializedMessages = true;
-    clearTimeout(markReadTimer);
-    markReadTimer = setTimeout(() => {
-        markMessagesRead(order.id, CLIENT_ACTOR).catch(console.error);
-    }, 250);
+    acknowledgeIncomingMessages(order);
 }
 
 function updateAdminStatus(order) {
@@ -376,8 +410,10 @@ function createMessageElement(message) {
     if (mine) {
         const checks = document.createElement("span");
         const isRead = Array.isArray(message.readBy) && message.readBy.includes(ADMIN_ACTOR);
-        checks.className = `message-checks${isRead ? " read" : ""}`;
-        checks.textContent = isRead ? "✓✓" : "✓";
+        const isDelivered = isRead || (Array.isArray(message.deliveredBy) && message.deliveredBy.includes(ADMIN_ACTOR));
+        checks.className = `message-checks${isRead ? " read" : isDelivered ? " delivered" : " sent"}`;
+        checks.textContent = isDelivered ? "✓✓" : "✓";
+        checks.title = isRead ? "تمت القراءة" : isDelivered ? "تم التسليم" : "تم الإرسال";
         meta.appendChild(checks);
     }
 
@@ -571,11 +607,12 @@ async function handleMenuAction(action) {
 
 function showMessageInfo(message) {
     const read = Array.isArray(message.readBy) && message.readBy.includes(ADMIN_ACTOR);
+    const delivered = read || (Array.isArray(message.deliveredBy) && message.deliveredBy.includes(ADMIN_ACTOR));
     infoBody.textContent = "";
     const lines = [
         `المرسل: ${message.senderName || "غير محدد"}`,
         `وقت الإرسال: ${new Date(message.clientTime).toLocaleString("ar-SA")}`,
-        `حالة الرسالة: ${read ? "تمت القراءة" : "تم الإرسال"}`,
+        `حالة الرسالة: ${read ? "تمت القراءة" : delivered ? "تم التسليم" : "تم الإرسال"}`,
         `معرّف الرسالة: ${message.id}`
     ];
     lines.forEach(line => {
@@ -886,6 +923,10 @@ if (isChatAppContext()) {
 document.addEventListener("visibilitychange", () => {
     if (!currentOrder) return;
     setChatPresence(currentOrder.id, CLIENT_ACTOR, document.visibilityState === "visible");
+    acknowledgeIncomingMessages(currentOrder);
+});
+window.addEventListener("focus", () => {
+    if (currentOrder) acknowledgeIncomingMessages(currentOrder);
 });
 window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, CLIENT_ACTOR, false);

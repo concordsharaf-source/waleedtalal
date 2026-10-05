@@ -152,6 +152,31 @@ module.exports = async function handler(request, response) {
             await orderRef.update({ [`chatPushTokens.${recipientRole}`]: cleaned });
         }
 
+        // نجاح FCM يعني أن الرسالة قُبلت لجهاز الطرف الآخر؛ نظهر عندها
+        // علامتي تسليم رماديتين فوراً، ثم يحولهما فتح المحادثة إلى أزرق.
+        if (result.successCount > 0) {
+            try {
+                await database.runTransaction(async transaction => {
+                    const latestSnapshot = await transaction.get(orderRef);
+                    if (!latestSnapshot.exists) return;
+                    let changed = false;
+                    const latestMessages = Array.isArray(latestSnapshot.data()?.chatMessages)
+                        ? latestSnapshot.data().chatMessages
+                        : [];
+                    const nextMessages = latestMessages.map(item => {
+                        if (!item || item.id !== messageId || item.senderId !== senderId) return item;
+                        const deliveredBy = Array.isArray(item.deliveredBy) ? item.deliveredBy : [];
+                        if (deliveredBy.includes(recipientRole)) return item;
+                        changed = true;
+                        return { ...item, deliveredBy: [...deliveredBy, recipientRole] };
+                    });
+                    if (changed) transaction.update(orderRef, { chatMessages: nextMessages });
+                });
+            } catch (deliveryError) {
+                console.warn('Delivery receipt update failed', deliveryError?.message || deliveryError);
+            }
+        }
+
         const requestId = crypto.randomBytes(6).toString('hex');
         return response.status(200).json({
             sent: result.successCount,
