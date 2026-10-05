@@ -106,12 +106,11 @@ module.exports = async function handler(request, response) {
             ? `https://waleedtalal.vercel.app/pages/chat.html?notification=${encodeURIComponent(messageId)}`
             : `https://waleedtalal.vercel.app/pages/admin-chat.html?order=${encodeURIComponent(orderId)}&notification=${encodeURIComponent(messageId)}`;
 
+        // نرسل بيانات فقط، ثم يعرض عامل الخدمة الإشعار بنفسه. هذا أكثر ثباتًا
+        // في Chrome وSamsung عند وجود التطبيق في الخلفية أو إغلاقه بالكامل،
+        // ويضمن أن كل جهاز مسجل يعرض كل رسالة بدل الاعتماد على العرض التلقائي.
         const result = await getMessaging().sendEachForMulticast({
             tokens,
-            notification: {
-                title,
-                body: bodyText
-            },
             data: {
                 type: 'chat-message',
                 title,
@@ -125,22 +124,7 @@ module.exports = async function handler(request, response) {
                 headers: {
                     Urgency: 'high',
                     TTL: '86400'
-                },
-                notification: {
-                    title,
-                    body: bodyText,
-                    icon: 'https://waleedtalal.vercel.app/icons/chat-app-192.png',
-                    badge: 'https://waleedtalal.vercel.app/icons/chat-app-192.png',
-                    dir: 'rtl',
-                    lang: 'ar',
-                    // معرّف فريد لكل رسالة حتى لا يستبدل إشعار جديد إشعارًا سابقًا
-                    // على أجهزة الإدارة المتعددة، مع إبقاء renotify للتنبيه في كل مرة.
-                    tag: `chat-${orderId}-${messageId}`,
-                    renotify: true,
-                    data: { url, orderId, messageId },
-                    actions: [{ action: 'open-chat', title: 'فتح المحادثة' }]
-                },
-                fcmOptions: { link: url }
+                }
             }
         });
 
@@ -194,6 +178,7 @@ module.exports = async function handler(request, response) {
 
         const requestId = crypto.randomBytes(6).toString('hex');
         return response.status(200).json({
+            targeted: tokens.length,
             sent: result.successCount,
             failed: result.failureCount,
             removedInvalidTokens: invalidTokens.size,

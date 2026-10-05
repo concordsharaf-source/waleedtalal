@@ -1145,7 +1145,7 @@ function notifyAdmin(message) {
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         new Notification(`رسالة جديدة من ${message.order.name || "مستفيد"}`, {
             body: String(message.text || "رسالة جديدة").slice(0, 150),
-            icon: "../icons/icon-192.png"
+            icon: "../icons/chat-app-192.png"
         });
     }
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v40";
+const CACHE_NAME = "waleedtalal-pwa-v41";
 
 /* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
 let firebaseMessaging = null;
@@ -15,9 +15,8 @@ try {
   });
   firebaseMessaging = firebase.messaging();
   firebaseMessaging.onBackgroundMessage(payload => {
-    // رسائل notification يعرضها FCM تلقائياً حتى عند إغلاق التطبيق.
-    // نعرض يدوياً فقط رسائل data القديمة لمنع ظهور إشعارين متطابقين.
-    if (payload.notification?.title || payload.notification?.body) return undefined;
+    // الخادم يرسل data-only حتى يتولى عامل الخدمة العرض بصورة موحدة
+    // في الخلفية وعند إغلاق التطبيق على Android وSamsung Internet/Chrome.
     const data = payload.data || {};
     const title = data.title || "رسالة جديدة من مؤسسة الوليد";
     return self.registration.showNotification(title, {
@@ -30,6 +29,9 @@ try {
         ? `chat-${data.orderId}-${data.messageId || Date.now()}`
         : `waleed-chat-${data.messageId || Date.now()}`,
       renotify: true,
+      silent: false,
+      vibrate: [180, 90, 180],
+      timestamp: Date.now(),
       data: {
         url: data.url || "/pages/chat.html",
         orderId: data.orderId || "",

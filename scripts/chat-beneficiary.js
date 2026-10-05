@@ -761,7 +761,7 @@ function notifyNewMessage(text) {
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         new Notification("رسالة جديدة من إدارة المؤسسة", {
             body: String(text || "رسالة جديدة").slice(0, 150),
-            icon: "../icons/icon-192.png"
+            icon: "../icons/chat-app-192.png"
         });
     }
 }
