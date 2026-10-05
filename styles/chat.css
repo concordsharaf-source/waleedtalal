@@ -270,6 +270,69 @@ button { cursor: pointer; }
     background: rgba(255,255,255,.17);
 }
 
+.notification-toggle {
+    position: relative;
+    overflow: visible;
+    isolation: isolate;
+}
+.notification-bell-icon {
+    position: relative;
+    z-index: 1;
+    display: block;
+    transform-origin: 50% 12%;
+    font-family: Arial, sans-serif;
+    line-height: 1;
+}
+.notification-toggle.is-enabled {
+    color: #fff;
+    background: rgba(255,255,255,.12);
+}
+.notification-toggle.is-enabled::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    width: 27px;
+    height: 3px;
+    border: 1px solid rgba(5,76,72,.55);
+    border-radius: 999px;
+    background: #ffd166;
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+    transform: translate(-50%, -50%) rotate(-48deg);
+    pointer-events: none;
+}
+.notification-toggle.needs-attention {
+    color: #fff;
+    background: rgba(255,209,102,.2);
+}
+.notification-toggle.needs-attention::before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 4px;
+    border: 2px solid rgba(255,225,145,.82);
+    border-radius: 50%;
+    animation: notification-ring-pulse 1.35s ease-out infinite;
+    pointer-events: none;
+}
+.notification-toggle.needs-attention .notification-bell-icon {
+    animation: notification-bell-ring 1.35s ease-in-out infinite;
+}
+.notification-toggle:disabled { opacity: .58; cursor: wait; }
+
+@keyframes notification-bell-ring {
+    0%, 36%, 100% { transform: rotate(0deg) scale(1); }
+    8% { transform: rotate(17deg) scale(1.08); }
+    16% { transform: rotate(-15deg) scale(1.08); }
+    24% { transform: rotate(11deg) scale(1.05); }
+    30% { transform: rotate(-8deg) scale(1.03); }
+}
+@keyframes notification-ring-pulse {
+    0% { opacity: .9; transform: scale(.76); }
+    58%, 100% { opacity: 0; transform: scale(1.32); }
+}
+
 .chat-search-bar {
     display: flex;
     align-items: center;
@@ -1263,7 +1326,9 @@ button { cursor: pointer; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .install-chat-button { animation: none; }
+    .install-chat-button,
+    .notification-toggle.needs-attention::before,
+    .notification-toggle.needs-attention .notification-bell-icon { animation: none; }
 }
 
 /* صفحة إدارة المحادثات */

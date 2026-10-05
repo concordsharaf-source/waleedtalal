@@ -15,7 +15,7 @@
     <link rel="manifest" href="../chat-manifest.json?v=1">
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../styles/chat.css?v=38">
+    <link rel="stylesheet" href="../styles/chat.css?v=39">
     <script src="../scripts/pwa.js" defer></script>
 </head>
 <body>
@@ -50,7 +50,7 @@
                 <div class="header-actions">
                     <button id="messageSearchButton" class="icon-button" type="button" aria-label="البحث في المحادثة" title="بحث">🔍</button>
                     <button id="starredMessagesButton" class="icon-button" type="button" aria-label="الرسائل المميزة" title="الرسائل المميزة">☆</button>
-                    <button id="notificationButton" class="icon-button" type="button" aria-label="تفعيل الإشعارات" title="تفعيل الإشعارات">🔔</button>
+                    <button id="notificationButton" class="icon-button notification-toggle needs-attention" type="button" aria-label="تفعيل الإشعارات" aria-pressed="false" title="تفعيل الإشعارات"><span class="notification-bell-icon" aria-hidden="true">🔔</span></button>
                     <button id="logoutButton" class="icon-button" type="button" aria-label="تسجيل الخروج" title="تسجيل الخروج">⇥</button>
                 </div>
             </header>
@@ -152,8 +152,23 @@
         </div>
     </section>
 
+    <section id="notificationConfirmModal" class="modal-overlay" hidden aria-labelledby="notificationConfirmTitle">
+        <div class="modal-card confirm-modal-card" role="dialog" aria-modal="true">
+            <header class="modal-head">
+                <h2 id="notificationConfirmTitle">تأكيد تعطيل الإشعارات</h2>
+            </header>
+            <div class="modal-body">
+                <p id="notificationConfirmMessage"></p>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelNotificationConfirm" class="secondary-button" type="button">إلغاء</button>
+                <button id="acceptNotificationConfirm" class="danger-button" type="button">متابعة</button>
+            </div>
+        </div>
+    </section>
+
     <div id="toast" class="toast" role="status" hidden></div>
 
-    <script type="module" src="../scripts/chat-beneficiary.js?v=38"></script>
+    <script type="module" src="../scripts/chat-beneficiary.js?v=39"></script>
 </body>
 </html>

@@ -551,6 +551,36 @@ export async function registerChatPushToken(orderId, actor, token) {
     return true;
 }
 
+export async function unregisterChatPushToken(orderId, actor, token = "") {
+    if (!orderId || ![ADMIN_ACTOR, CLIENT_ACTOR].includes(actor)) return false;
+    const orderRef = doc(db, "orders", orderId);
+    const deviceId = getPushDeviceId();
+    const cleanToken = String(token || "");
+    let removed = false;
+
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(orderRef);
+        if (!snapshot.exists()) return;
+        const order = snapshot.data();
+        const existing = Array.isArray(order.chatPushTokens?.[actor])
+            ? order.chatPushTokens[actor]
+            : [];
+        const next = existing.filter(item => {
+            const record = typeof item === "string" ? { token: item } : item;
+            const matches = Boolean(record) && (
+                (cleanToken && record.token === cleanToken) ||
+                (record.deviceId && record.deviceId === deviceId)
+            );
+            if (matches) removed = true;
+            return !matches;
+        });
+        if (removed) transaction.update(orderRef, {
+            [`chatPushTokens.${actor}`]: next
+        });
+    });
+    return removed;
+}
+
 export async function setChatPresence(orderId, actor, online) {
     if (!orderId) return;
     const changes = {

@@ -21,6 +21,7 @@ import {
     deleteMessageForMe,
     deleteMessageForEveryone,
     registerChatPushToken,
+    unregisterChatPushToken,
     setChatPresence,
     setChatTyping
 } from "./chat-core.js";
@@ -42,6 +43,7 @@ import {
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const CHAT_INSTALL_KEY = "waleed_chat_app_installed";
+const CLIENT_NOTIFICATIONS_DISABLED_KEY = "waleed_chat_client_notifications_disabled";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
 const loginView = document.getElementById("loginView");
@@ -79,6 +81,10 @@ const messageSearchInput = document.getElementById("messageSearchInput");
 const messageSearchCount = document.getElementById("messageSearchCount");
 const starredMessagesButton = document.getElementById("starredMessagesButton");
 const notificationButton = document.getElementById("notificationButton");
+const notificationConfirmModal = document.getElementById("notificationConfirmModal");
+const notificationConfirmTitle = document.getElementById("notificationConfirmTitle");
+const notificationConfirmMessage = document.getElementById("notificationConfirmMessage");
+const notificationConfirmAccept = document.getElementById("acceptNotificationConfirm");
 const messageMenu = document.getElementById("messageMenu");
 const infoModal = document.getElementById("messageInfoModal");
 const infoBody = document.getElementById("messageInfoBody");
@@ -100,6 +106,8 @@ let messageSearchQuery = "";
 let starredOnly = false;
 let deferredInstallPrompt = null;
 let clientPushToken = "";
+let notificationConfirmResolver = null;
+let clientNotificationToggleBusy = false;
 const optimisticMessages = new Map();
 let voiceRecorder = null;
 let renderedMessagesSignature = "";
@@ -121,24 +129,117 @@ if (composerZone && "ResizeObserver" in window) {
 }
 window.addEventListener("resize", updateFloatingActionsOffset);
 
-async function enableClientPush({ requestPermission = false, quiet = false } = {}) {
+function clientNotificationsOptedOut() {
+    return localStorage.getItem(CLIENT_NOTIFICATIONS_DISABLED_KEY) === "yes";
+}
+
+function clientNotificationsEnabled() {
+    return Boolean(clientPushToken) && !clientNotificationsOptedOut() &&
+        "Notification" in window && Notification.permission === "granted";
+}
+
+function renderClientNotificationButton() {
+    if (!notificationButton) return;
+    const enabled = clientNotificationsEnabled();
+    notificationButton.classList.toggle("is-enabled", enabled);
+    notificationButton.classList.toggle("needs-attention", !enabled);
+    notificationButton.setAttribute("aria-pressed", String(enabled));
+    notificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات المستفيد" : "تفعيل إشعارات المستفيد");
+    notificationButton.title = enabled ? "الإشعارات مفعلة — اضغط لتعطيلها" : "الإشعارات معطلة — اضغط لتفعيلها";
+    notificationButton.disabled = clientNotificationToggleBusy;
+}
+
+function requestClientNotificationConfirmation({ title, message, acceptText }) {
+    if (notificationConfirmResolver) notificationConfirmResolver(false);
+    notificationConfirmTitle.textContent = title;
+    notificationConfirmMessage.textContent = message;
+    notificationConfirmAccept.textContent = acceptText;
+    notificationConfirmModal.hidden = false;
+    requestAnimationFrame(() => notificationConfirmAccept.focus());
+    return new Promise(resolve => { notificationConfirmResolver = resolve; });
+}
+
+function settleClientNotificationConfirmation(accepted) {
+    notificationConfirmModal.hidden = true;
+    const resolve = notificationConfirmResolver;
+    notificationConfirmResolver = null;
+    if (resolve) resolve(Boolean(accepted));
+}
+
+async function enableClientPush({ requestPermission = false, quiet = false, force = false } = {}) {
     if (!currentOrder) return null;
+    if (clientNotificationsOptedOut() && !force) {
+        renderClientNotificationButton();
+        return null;
+    }
+    if (force) localStorage.removeItem(CLIENT_NOTIFICATIONS_DISABLED_KEY);
     try {
         const token = await getBrowserPushToken({ requestPermission });
         if (!token) {
-            if (!quiet && requestPermission) showToast("لم يتم السماح بالإشعارات");
+            clientPushToken = "";
+            renderClientNotificationButton();
+            if (!quiet && requestPermission) {
+                showToast("فعّل الإشعارات من إعدادات المتصفح ثم حاول مجددًا");
+            }
+            return null;
+        }
+        if (clientNotificationsOptedOut() && !force) {
+            await unregisterChatPushToken(currentOrder.id, CLIENT_ACTOR, token).catch(console.error);
+            renderClientNotificationButton();
             return null;
         }
         if (token !== clientPushToken) {
             await registerChatPushToken(currentOrder.id, CLIENT_ACTOR, token);
+            if (clientNotificationsOptedOut() && !force) {
+                await unregisterChatPushToken(currentOrder.id, CLIENT_ACTOR, token).catch(console.error);
+                renderClientNotificationButton();
+                return null;
+            }
             clientPushToken = token;
         }
-        if (!quiet) showToast("تم تفعيل إشعارات المحادثة");
+        renderClientNotificationButton();
+        if (!quiet) showToast("تم تفعيل إشعارات المستفيد");
         return token;
     } catch (error) {
         console.error("Push registration failed", error);
+        clientPushToken = "";
+        renderClientNotificationButton();
         if (!quiet) showToast("تعذر تفعيل الإشعارات الآن");
         return null;
+    }
+}
+
+async function disableClientPush() {
+    const firstConfirmation = await requestClientNotificationConfirmation({
+        title: "تعطيل الإشعارات؟",
+        message: "هل تريد بالفعل إلغاء إشعارات المحادثة على هذا الجهاز؟",
+        acceptText: "متابعة"
+    });
+    if (!firstConfirmation) return false;
+
+    const finalConfirmation = await requestClientNotificationConfirmation({
+        title: "تحذير قبل التعطيل",
+        message: "بعد التعطيل لن تظهر للمستفيد تنبيهات الرسائل الجديدة من الإدارة على هذا الجهاز حتى يعيد تشغيلها.",
+        acceptText: "تعطيل الإشعارات"
+    });
+    if (!finalConfirmation) return false;
+
+    const orderId = currentOrder?.id;
+    const token = clientPushToken;
+    localStorage.setItem(CLIENT_NOTIFICATIONS_DISABLED_KEY, "yes");
+    clientPushToken = "";
+    renderClientNotificationButton();
+    try {
+        if (orderId) await unregisterChatPushToken(orderId, CLIENT_ACTOR, token);
+        showToast("تم تعطيل إشعارات المستفيد");
+        return true;
+    } catch (error) {
+        console.error("Push unregistration failed", error);
+        localStorage.removeItem(CLIENT_NOTIFICATIONS_DISABLED_KEY);
+        clientPushToken = token;
+        renderClientNotificationButton();
+        showToast("تعذر تعطيل الإشعارات الآن");
+        return false;
     }
 }
 
@@ -200,7 +301,8 @@ async function startChat(session) {
     updateComposerAction();
 
     await setChatPresence(session.orderId, CLIENT_ACTOR, true);
-    if ("Notification" in window && Notification.permission === "granted") {
+    renderClientNotificationButton();
+    if ("Notification" in window && Notification.permission === "granted" && !clientNotificationsOptedOut()) {
         enableClientPush({ quiet: true });
     }
     unsubscribe = subscribeToOrder(session.orderId, order => {
@@ -651,6 +753,7 @@ function buildEmojiPanel() {
 }
 
 function notifyNewMessage(text) {
+    if (!clientNotificationsEnabled()) return;
     playChime();
     showToast(`🔔 رسالة جديدة من الإدارة: ${String(text || "").slice(0, 80)}`);
     if (document.hidden && "Notification" in window && Notification.permission === "granted") {
@@ -837,11 +940,19 @@ starredMessagesButton.addEventListener("click", () => {
 });
 
 notificationButton?.addEventListener("click", async () => {
-    if (!currentOrder) {
-        showToast("افتح المحادثة أولًا لتفعيل الإشعارات");
+    if (!currentOrder || clientNotificationToggleBusy) {
+        if (!currentOrder) showToast("افتح المحادثة أولًا لتفعيل الإشعارات");
         return;
     }
-    await enableClientPush({ requestPermission: true });
+    clientNotificationToggleBusy = true;
+    renderClientNotificationButton();
+    try {
+        if (clientNotificationsEnabled()) await disableClientPush();
+        else await enableClientPush({ requestPermission: true, force: true });
+    } finally {
+        clientNotificationToggleBusy = false;
+        renderClientNotificationButton();
+    }
 });
 
 messageMenu.addEventListener("click", event => {
@@ -859,6 +970,16 @@ document.addEventListener("click", event => {
 document.getElementById("closeInfoButton").addEventListener("click", closeInfo);
 document.getElementById("closeInfoAction").addEventListener("click", closeInfo);
 infoModal.addEventListener("click", event => { if (event.target === infoModal) closeInfo(); });
+document.getElementById("cancelNotificationConfirm").addEventListener("click", () => settleClientNotificationConfirmation(false));
+notificationConfirmAccept.addEventListener("click", () => settleClientNotificationConfirmation(true));
+notificationConfirmModal.addEventListener("click", event => {
+    if (event.target === notificationConfirmModal) settleClientNotificationConfirmation(false);
+});
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !notificationConfirmModal.hidden) {
+        settleClientNotificationConfirmation(false);
+    }
+});
 
 function isChatAppContext() {
     return window.matchMedia("(display-mode: standalone)").matches ||
@@ -926,7 +1047,17 @@ document.addEventListener("visibilitychange", () => {
     acknowledgeIncomingMessages(currentOrder);
 });
 window.addEventListener("focus", () => {
-    if (currentOrder) acknowledgeIncomingMessages(currentOrder);
+    if (currentOrder) {
+        acknowledgeIncomingMessages(currentOrder);
+        if ("Notification" in window && Notification.permission === "granted" &&
+            !clientNotificationsOptedOut() && !clientPushToken) {
+            enableClientPush({ quiet: true });
+        } else {
+            renderClientNotificationButton();
+        }
+    } else {
+        renderClientNotificationButton();
+    }
 });
 window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, CLIENT_ACTOR, false);
@@ -950,6 +1081,7 @@ voiceRecorder = createVoiceRecorder({
 });
 updateComposerAction();
 buildEmojiPanel();
+renderClientNotificationButton();
 const session = loadSession();
 if (session) {
     transactionInput.value = session.transactionId;

@@ -1,4 +1,4 @@
-import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
     db,
     ADMIN_ACTOR,
@@ -24,6 +24,7 @@ import {
     deleteMessagesForEveryone,
     clearConversationMessages,
     registerChatPushToken,
+    unregisterChatPushToken,
     setChatPresence,
     setChatTyping,
     normalizeDigits
@@ -46,6 +47,7 @@ import {
 
 const ADMIN_PASSWORD = "232167";
 const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
+const ADMIN_NOTIFICATIONS_DISABLED_KEY = "waleed_chat_admin_notifications_disabled";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
 const adminLock = document.getElementById("adminLock");
@@ -56,6 +58,7 @@ const loginError = document.getElementById("adminLoginError");
 const conversationList = document.getElementById("conversationList");
 const conversationSearch = document.getElementById("conversationSearch");
 const conversationCount = document.getElementById("conversationCount");
+const adminNotificationButton = document.getElementById("adminNotificationButton");
 const adminConversation = document.getElementById("adminConversation");
 const adminEmpty = document.getElementById("adminEmpty");
 const adminChatTop = document.getElementById("adminChatTop");
@@ -127,6 +130,7 @@ let messageAckPending = false;
 let messageSearchQuery = "";
 let starredOnly = false;
 let adminPushToken = "";
+let adminNotificationToggleBusy = false;
 const optimisticMessages = new Map();
 const deliveryAckOrders = new Set();
 let adminTokenRegistrationRunning = false;
@@ -159,45 +163,144 @@ function orderHasPushToken(order, token) {
     return records.some(item => (typeof item === "string" ? item : item?.token) === token);
 }
 
+function adminNotificationsOptedOut() {
+    return localStorage.getItem(ADMIN_NOTIFICATIONS_DISABLED_KEY) === "yes";
+}
+
+function adminNotificationsEnabled() {
+    return Boolean(adminPushToken) && !adminNotificationsOptedOut() &&
+        "Notification" in window && Notification.permission === "granted";
+}
+
+function renderAdminNotificationButton() {
+    const enabled = adminNotificationsEnabled();
+    adminNotificationButton.classList.toggle("is-enabled", enabled);
+    adminNotificationButton.classList.toggle("needs-attention", !enabled);
+    adminNotificationButton.setAttribute("aria-pressed", String(enabled));
+    adminNotificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات الإدارة" : "تفعيل إشعارات الإدارة");
+    adminNotificationButton.title = enabled ? "الإشعارات مفعلة — اضغط لتعطيلها" : "الإشعارات معطلة — اضغط لتفعيلها";
+    adminNotificationButton.disabled = adminNotificationToggleBusy;
+}
+
 async function registerAdminTokenForConversations(token) {
-    if (!token || adminTokenRegistrationRunning) return;
+    if (!token || adminTokenRegistrationRunning || adminNotificationsOptedOut()) return;
     adminTokenRegistrationRunning = true;
     try {
         const pending = allConversations.filter(order => !orderHasPushToken(order, token));
         for (let index = 0; index < pending.length; index += 5) {
+            if (adminNotificationsOptedOut()) break;
             const group = pending.slice(index, index + 5);
             await Promise.allSettled(group.map(order =>
                 registerChatPushToken(order.id, ADMIN_ACTOR, token)
             ));
+            if (adminNotificationsOptedOut()) {
+                await Promise.allSettled(group.map(order =>
+                    unregisterChatPushToken(order.id, ADMIN_ACTOR, token)
+                ));
+                break;
+            }
         }
     } finally {
         adminTokenRegistrationRunning = false;
     }
 }
 
-async function enableAdminPush({ requestPermission = false, quiet = false } = {}) {
+async function unregisterAdminTokenFromAllOrders(token) {
+    const snapshot = await getDocs(collection(db, "orders"));
+    const targets = snapshot.docs
+        .map(item => ({ id: item.id, ...item.data() }))
+        .filter(order => Array.isArray(order.chatPushTokens?.[ADMIN_ACTOR]) &&
+            order.chatPushTokens[ADMIN_ACTOR].length > 0);
+    for (let index = 0; index < targets.length; index += 5) {
+        const results = await Promise.allSettled(targets.slice(index, index + 5).map(order =>
+            unregisterChatPushToken(order.id, ADMIN_ACTOR, token)
+        ));
+        if (results.some(result => result.status === "rejected")) {
+            throw new Error("push-unregistration-failed");
+        }
+    }
+}
+
+async function enableAdminPush({ requestPermission = false, quiet = false, force = false } = {}) {
+    if (adminNotificationsOptedOut() && !force) {
+        renderAdminNotificationButton();
+        return null;
+    }
+    if (force) localStorage.removeItem(ADMIN_NOTIFICATIONS_DISABLED_KEY);
     try {
         const token = await getBrowserPushToken({ requestPermission });
         if (!token) {
-            if (!quiet && requestPermission) showToast("لم يتم السماح بالإشعارات");
+            adminPushToken = "";
+            renderAdminNotificationButton();
+            if (!quiet && requestPermission) {
+                showToast("فعّل الإشعارات من إعدادات المتصفح ثم حاول مجددًا");
+            }
+            return null;
+        }
+        if (adminNotificationsOptedOut() && !force) {
+            await unregisterAdminTokenFromAllOrders(token).catch(console.error);
+            renderAdminNotificationButton();
             return null;
         }
         adminPushToken = token;
         await registerAdminTokenForConversations(token);
+        if (adminNotificationsOptedOut() && !force) {
+            adminPushToken = "";
+            await unregisterAdminTokenFromAllOrders(token).catch(console.error);
+            renderAdminNotificationButton();
+            return null;
+        }
+        renderAdminNotificationButton();
         if (!quiet) showToast("تم تفعيل إشعارات الإدارة");
         return token;
     } catch (error) {
         console.error("Admin push registration failed", error);
+        adminPushToken = "";
+        renderAdminNotificationButton();
         if (!quiet) showToast("تعذر تفعيل الإشعارات الآن");
         return null;
+    }
+}
+
+async function disableAdminPush() {
+    const firstConfirmation = await requestAdminConfirmation({
+        title: "تعطيل الإشعارات؟",
+        message: "هل تريد بالفعل إلغاء إشعارات الإدارة على هذا الجهاز؟",
+        acceptText: "متابعة"
+    });
+    if (!firstConfirmation) return false;
+
+    const finalConfirmation = await requestAdminConfirmation({
+        title: "تحذير قبل التعطيل",
+        message: "بعد التعطيل لن تظهر للإدارة تنبيهات رسائل المستفيدين الجديدة على هذا الجهاز حتى تعيد تشغيلها.",
+        acceptText: "تعطيل الإشعارات"
+    });
+    if (!finalConfirmation) return false;
+
+    const token = adminPushToken;
+    localStorage.setItem(ADMIN_NOTIFICATIONS_DISABLED_KEY, "yes");
+    adminPushToken = "";
+    renderAdminNotificationButton();
+    try {
+        await unregisterAdminTokenFromAllOrders(token);
+        showToast("تم تعطيل إشعارات الإدارة");
+        return true;
+    } catch (error) {
+        console.error("Admin push unregistration failed", error);
+        localStorage.removeItem(ADMIN_NOTIFICATIONS_DISABLED_KEY);
+        adminPushToken = token;
+        renderAdminNotificationButton();
+        showToast("تعذر تعطيل الإشعارات الآن");
+        return false;
     }
 }
 
 function unlockAdmin() {
     adminLock.hidden = true;
     adminChatApp.hidden = false;
+    renderAdminNotificationButton();
     if (!unsubscribeOrders) listenToConversations();
-    if ("Notification" in window && Notification.permission === "granted") {
+    if ("Notification" in window && Notification.permission === "granted" && !adminNotificationsOptedOut()) {
         enableAdminPush({ quiet: true });
     }
 }
@@ -1024,6 +1127,7 @@ function buildEmojiPanel() {
 }
 
 function notifyAdmin(message) {
+    if (!adminNotificationsEnabled()) return;
     showToast(`🔔 رسالة جديدة من ${message.order.name || "مستفيد"}: ${String(message.text || "").slice(0, 70)}`);
     try {
         const context = new (window.AudioContext || window.webkitAudioContext)();
@@ -1109,8 +1213,17 @@ document.getElementById("adminLogoutButton").addEventListener("click", async () 
     location.reload();
 });
 
-document.getElementById("adminNotificationButton").addEventListener("click", async () => {
-    await enableAdminPush({ requestPermission: true });
+adminNotificationButton.addEventListener("click", async () => {
+    if (adminNotificationToggleBusy) return;
+    adminNotificationToggleBusy = true;
+    renderAdminNotificationButton();
+    try {
+        if (adminNotificationsEnabled()) await disableAdminPush();
+        else await enableAdminPush({ requestPermission: true, force: true });
+    } finally {
+        adminNotificationToggleBusy = false;
+        renderAdminNotificationButton();
+    }
 });
 
 document.getElementById("adminMessageSearchButton").addEventListener("click", () => {
@@ -1382,6 +1495,12 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("focus", () => {
     if (currentOrder) acknowledgeIncomingMessages(currentOrder);
+    if (!adminChatApp.hidden && "Notification" in window && Notification.permission === "granted" &&
+        !adminNotificationsOptedOut() && !adminPushToken) {
+        enableAdminPush({ quiet: true });
+    } else {
+        renderAdminNotificationButton();
+    }
 });
 window.addEventListener("pagehide", () => {
     if (currentOrder) setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
@@ -1405,4 +1524,5 @@ voiceRecorder = createVoiceRecorder({
 });
 updateComposerAction();
 buildEmojiPanel();
+renderAdminNotificationButton();
 if (localStorage.getItem("adminLogin") === "yes") unlockAdmin();
