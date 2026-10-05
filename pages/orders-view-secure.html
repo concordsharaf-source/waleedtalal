@@ -178,7 +178,7 @@
         .summary {
             margin-top: 16px;
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
             gap: 11px;
         }
 
@@ -257,6 +257,20 @@
         .detail-value { display: block; margin-top: 4px; overflow-wrap: anywhere; color: var(--ink); font-size: .82rem; font-weight: 800; white-space: pre-wrap; }
         .detail-value.ltr { direction: ltr; unicode-bidi: isolate; text-align: right; }
 
+        .access-detail { padding: 13px; background: #f0f8f3; border: 1px solid #d2e8d9; }
+        .access-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; padding: 5px 9px; border-radius: 999px; color: #12643a; background: #dff5e7; font-size: .76rem; }
+        .access-status.no { color: #68756d; background: #e9efeb; }
+        .access-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }
+        .access-stat { padding: 8px; border-radius: 9px; background: rgba(255,255,255,.78); }
+        .access-stat span { display: block; color: var(--muted); font-size: .63rem; }
+        .access-stat strong { display: block; margin-top: 3px; color: var(--green-900); font-size: .8rem; }
+        .access-log-title { display: block; margin-top: 12px; color: #345442; font-size: .7rem; font-weight: 900; }
+        .access-log-list { display: grid; gap: 6px; margin: 7px 0 0; padding: 0; list-style: none; }
+        .access-log-item { padding: 8px 9px; border-right: 3px solid #22a05d; border-radius: 8px; background: rgba(255,255,255,.8); }
+        .access-log-item.failed { border-right-color: #c7792b; }
+        .access-log-head { display: flex; justify-content: space-between; gap: 8px; color: #244b34; font-size: .68rem; font-weight: 900; }
+        .access-log-meta { margin-top: 3px; color: #65776b; font-size: .65rem; line-height: 1.7; }
+
         .empty, .loading, .error {
             grid-column: 1 / -1;
             padding: 34px 18px;
@@ -286,6 +300,7 @@
         @media (max-width: 420px) {
             .details-grid { grid-template-columns: 1fr; }
             .detail.wide { grid-column: auto; }
+            .access-stats { grid-template-columns: 1fr; }
             .logout-button { padding: 7px 10px; font-size: .75rem; }
             .brand strong { font-size: .85rem; }
         }
@@ -325,6 +340,7 @@
                 <article class="summary-card"><span>قيد المراجعة</span><strong id="reviewCount">—</strong></article>
                 <article class="summary-card"><span>معتمدة</span><strong id="approvedCount">—</strong></article>
                 <article class="summary-card"><span>مكتملة</span><strong id="doneCount">—</strong></article>
+                <article class="summary-card"><span>دخل أصحابها للمراجعة</span><strong id="visitedCount">—</strong></article>
             </section>
 
             <section class="toolbar" aria-label="البحث والترتيب">
@@ -426,6 +442,76 @@
                 minute: "2-digit"
             }).format(date);
         }
+        function trackingLogsFor(order) {
+            return (Array.isArray(order.trackingLogs) ? [...order.trackingLogs] : [])
+                .sort((a, b) => (parseDate(b.clientTime)?.getTime() || 0) - (parseDate(a.clientTime)?.getTime() || 0));
+        }
+        function trackingSummary(order) {
+            const logs = trackingLogsFor(order);
+            const successfulLogs = logs.filter(log => log?.result === "success").length;
+            const failedLogs = logs.filter(log => log?.result !== "success").length;
+            const successful = Number.isFinite(Number(order.trackingSuccessCount))
+                ? Number(order.trackingSuccessCount) : successfulLogs;
+            const failed = Number.isFinite(Number(order.trackingFailedCount))
+                ? Number(order.trackingFailedCount) : failedLogs;
+            const total = Number.isFinite(Number(order.trackingAttemptCount))
+                ? Number(order.trackingAttemptCount) : successful + failed;
+            return { logs, successful, failed, total };
+        }
+        function appendTrackingDetails(grid, order) {
+            const { logs, successful, failed, total } = trackingSummary(order);
+            const detail = document.createElement("div");
+            detail.className = "detail wide access-detail";
+            const label = document.createElement("span");
+            label.className = "detail-label";
+            label.textContent = "دخول صاحب الطلب لمراجعة الطلب";
+            const status = document.createElement("strong");
+            status.className = `access-status${successful ? "" : " no"}`;
+            status.textContent = successful ? "✅ دخل صاحب الطلب" : "لم يدخل صاحب الطلب بعد";
+            detail.append(label, status);
+
+            const stats = document.createElement("div");
+            stats.className = "access-stats";
+            [["الدخول الناجح", successful], ["إجمالي المحاولات", total], ["المحاولات الفاشلة", failed]].forEach(([title, value]) => {
+                const stat = document.createElement("div");
+                stat.className = "access-stat";
+                const statLabel = document.createElement("span");
+                statLabel.textContent = title;
+                const statValue = document.createElement("strong");
+                statValue.textContent = Number(value || 0).toLocaleString("ar");
+                stat.append(statLabel, statValue);
+                stats.appendChild(stat);
+            });
+            detail.appendChild(stats);
+
+            if (logs.length) {
+                const logTitle = document.createElement("span");
+                logTitle.className = "access-log-title";
+                logTitle.textContent = `تفاصيل الدخول والمحاولات (${logs.length.toLocaleString("ar")})`;
+                const list = document.createElement("ol");
+                list.className = "access-log-list";
+                logs.forEach(log => {
+                    const success = log?.result === "success";
+                    const item = document.createElement("li");
+                    item.className = `access-log-item${success ? "" : " failed"}`;
+                    const head = document.createElement("div");
+                    head.className = "access-log-head";
+                    const result = document.createElement("span");
+                    result.textContent = success ? "✅ دخول ناجح" : "⚠️ محاولة فاشلة";
+                    const date = document.createElement("span");
+                    date.textContent = formatDate(log.clientTime);
+                    head.append(result, date);
+                    const meta = document.createElement("div");
+                    meta.className = "access-log-meta";
+                    meta.textContent = [log.device || "جهاز غير معروف", log.browser || "متصفح غير معروف", log.os || "نظام غير معروف", log.language ? `اللغة: ${log.language}` : "", log.screen ? `الشاشة: ${log.screen}` : ""]
+                        .filter(Boolean).join(" • ");
+                    item.append(head, meta);
+                    list.appendChild(item);
+                });
+                detail.append(logTitle, list);
+            }
+            grid.appendChild(detail);
+        }
 
         function appendDetail(grid, label, value, options = {}) {
             const item = document.createElement("div");
@@ -487,6 +573,7 @@
             appendDetail(grid, "مبلغ المنحة", order.grantAmount);
             appendDetail(grid, "الحالة", order.status || "قيد المراجعة");
             appendDetail(grid, "تفاصيل الطلب", order.notes, { wide: true });
+            appendTrackingDetails(grid, order);
 
             card.append(head, grid);
             return card;
@@ -526,11 +613,13 @@
                 const status = String(order.status ?? "");
                 return status.includes("تسليم") || status.includes("مكتمل");
             }).length;
+            const visited = allOrders.filter(order => trackingSummary(order).successful > 0).length;
 
             document.getElementById("totalCount").textContent = allOrders.length.toLocaleString("ar");
             document.getElementById("reviewCount").textContent = review.toLocaleString("ar");
             document.getElementById("approvedCount").textContent = approved.toLocaleString("ar");
             document.getElementById("doneCount").textContent = done.toLocaleString("ar");
+            document.getElementById("visitedCount").textContent = visited.toLocaleString("ar");
         }
 
         function renderOrders() {
@@ -583,7 +672,7 @@
             allOrders = [];
             ordersElement.textContent = "";
             resultsCount.textContent = "سجّل الدخول لتحميل المعاملات";
-            ["totalCount", "reviewCount", "approvedCount", "doneCount"].forEach(id => {
+            ["totalCount", "reviewCount", "approvedCount", "doneCount", "visitedCount"].forEach(id => {
                 document.getElementById(id).textContent = "—";
             });
 
