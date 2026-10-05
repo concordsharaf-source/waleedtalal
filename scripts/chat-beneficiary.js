@@ -77,6 +77,7 @@ const messageSearchBar = document.getElementById("messageSearchBar");
 const messageSearchInput = document.getElementById("messageSearchInput");
 const messageSearchCount = document.getElementById("messageSearchCount");
 const starredMessagesButton = document.getElementById("starredMessagesButton");
+const notificationButton = document.getElementById("notificationButton");
 const messageMenu = document.getElementById("messageMenu");
 const infoModal = document.getElementById("messageInfoModal");
 const infoBody = document.getElementById("messageInfoBody");
@@ -435,6 +436,7 @@ function updateComposerAction() {
 async function sendRecordedVoice(blob, { duration, mimeType }) {
     if (!currentOrder) throw new Error("order-not-found");
     const orderId = currentOrder.id;
+    await enableClientPush({ requestPermission: true, quiet: true });
     const pending = await createPendingAudioMessage(
         orderId,
         CLIENT_ACTOR,
@@ -478,6 +480,7 @@ function removeOptimisticMediaMessage(messageId) {
 async function sendSelectedMedia(files) {
     if (!currentOrder || !files?.length) return;
     attachmentSheet.hidden = true;
+    await enableClientPush({ requestPermission: true, quiet: true });
     const selected = [...files].slice(0, 5);
     if (files.length > 5) showToast("يمكن إرسال 5 ملفات في المرة الواحدة");
 
@@ -783,6 +786,14 @@ starredMessagesButton.addEventListener("click", () => {
     starredMessagesButton.classList.toggle("active", starredOnly);
     starredMessagesButton.textContent = starredOnly ? "★" : "☆";
     if (currentOrder) renderOrder(currentOrder);
+});
+
+notificationButton?.addEventListener("click", async () => {
+    if (!currentOrder) {
+        showToast("افتح المحادثة أولًا لتفعيل الإشعارات");
+        return;
+    }
+    await enableClientPush({ requestPermission: true });
 });
 
 messageMenu.addEventListener("click", event => {

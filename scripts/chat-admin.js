@@ -519,6 +519,7 @@ function updateComposerAction() {
 async function sendRecordedVoice(blob, { duration, mimeType }) {
     if (!currentOrder) throw new Error("order-not-found");
     const orderId = currentOrder.id;
+    await enableAdminPush({ requestPermission: true, quiet: true });
     const pending = await createPendingAudioMessage(
         orderId,
         ADMIN_ACTOR,
@@ -562,6 +563,7 @@ function removeOptimisticMediaMessage(messageId) {
 async function sendSelectedMedia(files) {
     if (!currentOrder || !files?.length) return;
     attachmentSheet.hidden = true;
+    await enableAdminPush({ requestPermission: true, quiet: true });
     const selected = [...files].slice(0, 5);
     if (files.length > 5) showToast("يمكن إرسال 5 ملفات في المرة الواحدة");
 
@@ -751,6 +753,7 @@ loginForm.addEventListener("submit", event => {
     if (adminPassword.value === ADMIN_PASSWORD) {
         localStorage.setItem("adminLogin", "yes");
         loginError.textContent = "";
+        enableAdminPush({ requestPermission: true, quiet: true }).catch(console.error);
         unlockAdmin();
     } else {
         loginError.textContent = "كلمة المرور غير صحيحة";
