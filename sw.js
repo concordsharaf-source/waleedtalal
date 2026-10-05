@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v41";
+const CACHE_NAME = "waleedtalal-pwa-v42";
 
 /* Firebase Cloud Messaging لإظهار رسائل المحادثة عند إغلاق التطبيق. */
 let firebaseMessaging = null;
@@ -26,8 +26,8 @@ try {
       dir: "rtl",
       lang: "ar",
       tag: data.orderId
-        ? `chat-${data.orderId}-${data.messageId || Date.now()}`
-        : `waleed-chat-${data.messageId || Date.now()}`,
+        ? `chat-${data.orderId}-${data.notificationId || data.messageId || Date.now()}`
+        : `waleed-chat-${data.notificationId || data.messageId || Date.now()}`,
       renotify: true,
       silent: false,
       vibrate: [180, 90, 180],
@@ -35,7 +35,8 @@ try {
       data: {
         url: data.url || "/pages/chat.html",
         orderId: data.orderId || "",
-        messageId: data.messageId || ""
+        messageId: data.messageId || "",
+        notificationId: data.notificationId || ""
       },
       actions: [
         { action: "open-chat", title: "فتح المحادثة" }

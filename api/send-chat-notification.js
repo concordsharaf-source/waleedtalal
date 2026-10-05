@@ -109,6 +109,7 @@ module.exports = async function handler(request, response) {
         // نرسل بيانات فقط، ثم يعرض عامل الخدمة الإشعار بنفسه. هذا أكثر ثباتًا
         // في Chrome وSamsung عند وجود التطبيق في الخلفية أو إغلاقه بالكامل،
         // ويضمن أن كل جهاز مسجل يعرض كل رسالة بدل الاعتماد على العرض التلقائي.
+        const notificationId = `${messageId}-${Date.now().toString(36)}`;
         const result = await getMessaging().sendEachForMulticast({
             tokens,
             data: {
@@ -118,6 +119,7 @@ module.exports = async function handler(request, response) {
                 url,
                 orderId,
                 messageId,
+                notificationId,
                 senderId
             },
             webpush: {

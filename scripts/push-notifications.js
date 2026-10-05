@@ -35,8 +35,8 @@ function ensureForegroundListener(messaging) {
                 dir: "rtl",
                 lang: "ar",
                 tag: data.orderId
-                    ? `chat-${data.orderId}-${data.messageId || Date.now()}`
-                    : `waleed-chat-${data.messageId || Date.now()}`,
+                    ? `chat-${data.orderId}-${data.notificationId || data.messageId || Date.now()}`
+                    : `waleed-chat-${data.notificationId || data.messageId || Date.now()}`,
                 renotify: true,
                 silent: false,
                 vibrate: [180, 90, 180],
@@ -44,7 +44,8 @@ function ensureForegroundListener(messaging) {
                 data: {
                     url: data.url || "/pages/chat.html",
                     orderId: data.orderId || "",
-                    messageId: data.messageId || ""
+                    messageId: data.messageId || "",
+                    notificationId: data.notificationId || ""
                 }
             }
         )).catch(error => console.warn("Foreground notification failed", error));
