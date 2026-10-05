@@ -27,6 +27,7 @@ export const db = getFirestore(app);
 export const ADMIN_ACTOR = "admin";
 export const CLIENT_ACTOR = "client";
 export const MAX_CHAT_MESSAGES = 100;
+export const MAX_PUSH_DEVICES_PER_ACTOR = 100;
 
 export function normalizeDigits(value) {
     return String(value ?? "")
@@ -538,7 +539,7 @@ export async function registerChatPushToken(orderId, actor, token) {
         const normalized = existing
             .map(item => typeof item === "string" ? { token: item } : item)
             .filter(item => item && item.token && item.token !== token && item.deviceId !== deviceId)
-            .slice(-4);
+            .slice(-(MAX_PUSH_DEVICES_PER_ACTOR - 1));
         normalized.push({
             token: String(token).slice(0, 500),
             deviceId,

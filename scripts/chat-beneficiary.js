@@ -144,8 +144,10 @@ function renderClientNotificationButton() {
     notificationButton.classList.toggle("is-enabled", enabled);
     notificationButton.classList.toggle("needs-attention", !enabled);
     notificationButton.setAttribute("aria-pressed", String(enabled));
-    notificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات المستفيد" : "تفعيل إشعارات المستفيد");
-    notificationButton.title = enabled ? "الإشعارات مفعلة — اضغط لتعطيلها" : "الإشعارات معطلة — اضغط لتفعيلها";
+    notificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات المستفيد على هذا الجهاز" : "تفعيل إشعارات المستفيد على هذا الجهاز");
+    notificationButton.title = enabled
+        ? "الإشعارات مفعلة على هذا الجهاز — اضغط لتعطيلها"
+        : "الإشعارات معطلة على هذا الجهاز — اضغط لتفعيلها";
     notificationButton.disabled = clientNotificationToggleBusy;
 }
 
@@ -219,8 +221,8 @@ async function disableClientPush() {
 
     const finalConfirmation = await requestClientNotificationConfirmation({
         title: "تحذير قبل التعطيل",
-        message: "بعد التعطيل لن تظهر للمستفيد تنبيهات الرسائل الجديدة من الإدارة على هذا الجهاز حتى يعيد تشغيلها.",
-        acceptText: "تعطيل الإشعارات"
+        message: "بعد التعطيل لن تظهر للمستفيد تنبيهات الرسائل الجديدة من الإدارة على هذا الجهاز حتى يعيد تشغيلها، وستستمر الإشعارات بصورة مستقلة على أجهزته الأخرى.",
+        acceptText: "تعطيل على هذا الجهاز"
     });
     if (!finalConfirmation) return false;
 
@@ -231,7 +233,7 @@ async function disableClientPush() {
     renderClientNotificationButton();
     try {
         if (orderId) await unregisterChatPushToken(orderId, CLIENT_ACTOR, token);
-        showToast("تم تعطيل إشعارات المستفيد");
+        showToast("تم تعطيل إشعارات هذا الجهاز فقط");
         return true;
     } catch (error) {
         console.error("Push unregistration failed", error);

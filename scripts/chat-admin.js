@@ -177,8 +177,10 @@ function renderAdminNotificationButton() {
     adminNotificationButton.classList.toggle("is-enabled", enabled);
     adminNotificationButton.classList.toggle("needs-attention", !enabled);
     adminNotificationButton.setAttribute("aria-pressed", String(enabled));
-    adminNotificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات الإدارة" : "تفعيل إشعارات الإدارة");
-    adminNotificationButton.title = enabled ? "الإشعارات مفعلة — اضغط لتعطيلها" : "الإشعارات معطلة — اضغط لتفعيلها";
+    adminNotificationButton.setAttribute("aria-label", enabled ? "تعطيل إشعارات الإدارة على هذا الجهاز" : "تفعيل إشعارات الإدارة على هذا الجهاز");
+    adminNotificationButton.title = enabled
+        ? "الإشعارات مفعلة على هذا الجهاز — اضغط لتعطيلها"
+        : "الإشعارات معطلة على هذا الجهاز — اضغط لتفعيلها";
     adminNotificationButton.disabled = adminNotificationToggleBusy;
 }
 
@@ -272,8 +274,8 @@ async function disableAdminPush() {
 
     const finalConfirmation = await requestAdminConfirmation({
         title: "تحذير قبل التعطيل",
-        message: "بعد التعطيل لن تظهر للإدارة تنبيهات رسائل المستفيدين الجديدة على هذا الجهاز حتى تعيد تشغيلها.",
-        acceptText: "تعطيل الإشعارات"
+        message: "بعد التعطيل لن تظهر للإدارة تنبيهات رسائل المستفيدين الجديدة على هذا الجهاز حتى تعيد تشغيلها، وستستمر الإشعارات بصورة مستقلة على أجهزة الإدارة الأخرى.",
+        acceptText: "تعطيل على هذا الجهاز"
     });
     if (!finalConfirmation) return false;
 
@@ -283,7 +285,7 @@ async function disableAdminPush() {
     renderAdminNotificationButton();
     try {
         await unregisterAdminTokenFromAllOrders(token);
-        showToast("تم تعطيل إشعارات الإدارة");
+        showToast("تم تعطيل إشعارات هذا الجهاز فقط");
         return true;
     } catch (error) {
         console.error("Admin push unregistration failed", error);

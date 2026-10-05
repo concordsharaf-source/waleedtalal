@@ -133,7 +133,9 @@ module.exports = async function handler(request, response) {
                     badge: 'https://waleedtalal.vercel.app/icons/chat-app-192.png',
                     dir: 'rtl',
                     lang: 'ar',
-                    tag: `chat-${orderId}`,
+                    // معرّف فريد لكل رسالة حتى لا يستبدل إشعار جديد إشعارًا سابقًا
+                    // على أجهزة الإدارة المتعددة، مع إبقاء renotify للتنبيه في كل مرة.
+                    tag: `chat-${orderId}-${messageId}`,
                     renotify: true,
                     data: { url, orderId, messageId },
                     actions: [{ action: 'open-chat', title: 'فتح المحادثة' }]
@@ -148,8 +150,21 @@ module.exports = async function handler(request, response) {
         });
 
         if (invalidTokens.size) {
-            const cleaned = records.filter(item => !invalidTokens.has(item.token));
-            await orderRef.update({ [`chatPushTokens.${recipientRole}`]: cleaned });
+            // نظّف الرموز التالفة من أحدث نسخة للطلب داخل معاملة؛ بهذه الطريقة
+            // لا يمكن لتنظيف رمز قديم أن يمسح جهازًا جديدًا سُجّل أثناء الإرسال.
+            try {
+                await database.runTransaction(async transaction => {
+                    const latestSnapshot = await transaction.get(orderRef);
+                    if (!latestSnapshot.exists) return;
+                    const latestRecords = tokenRecords(latestSnapshot.data()?.chatPushTokens?.[recipientRole]);
+                    const cleaned = latestRecords.filter(item => !invalidTokens.has(item.token));
+                    if (cleaned.length !== latestRecords.length) {
+                        transaction.update(orderRef, { [`chatPushTokens.${recipientRole}`]: cleaned });
+                    }
+                });
+            } catch (cleanupError) {
+                console.warn('Invalid token cleanup failed', cleanupError?.message || cleanupError);
+            }
         }
 
         // نجاح FCM يعني أن الرسالة قُبلت لجهاز الطرف الآخر؛ نظهر عندها

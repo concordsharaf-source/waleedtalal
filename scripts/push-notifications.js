@@ -34,7 +34,9 @@ function ensureForegroundListener(messaging) {
                 badge: "/icons/chat-app-192.png",
                 dir: "rtl",
                 lang: "ar",
-                tag: data.orderId ? `chat-${data.orderId}` : "waleed-chat",
+                tag: data.orderId
+                    ? `chat-${data.orderId}-${data.messageId || Date.now()}`
+                    : `waleed-chat-${data.messageId || Date.now()}`,
                 renotify: true,
                 data: { url: data.url || "/pages/chat.html" }
             }
