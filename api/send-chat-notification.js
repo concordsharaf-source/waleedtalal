@@ -104,7 +104,7 @@ module.exports = async function handler(request, response) {
         const bodyText = String(message.text || 'رسالة جديدة').replace(/\s+/g, ' ').trim().slice(0, 180);
         const url = senderId === 'admin'
             ? `https://waleedtalal.vercel.app/pages/chat.html?notification=${encodeURIComponent(messageId)}`
-            : `https://waleedtalal.vercel.app/pages/admin-chat.html?order=${encodeURIComponent(orderId)}&notification=${encodeURIComponent(messageId)}`;
+            : `https://waleedtalal.vercel.app/pages/admin-chat.html?source=admin-chat-pwa&order=${encodeURIComponent(orderId)}&notification=${encodeURIComponent(messageId)}`;
 
         // نرسل بيانات فقط، ثم يعرض عامل الخدمة الإشعار بنفسه. هذا أكثر ثباتًا
         // في Chrome وSamsung عند وجود التطبيق في الخلفية أو إغلاقه بالكامل،

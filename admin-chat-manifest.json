@@ -1,19 +1,22 @@
 {
-  "id": "/admin-chat-app",
-  "name": "إدارة محادثات مؤسسة الوليد",
-  "short_name": "إدارة المحادثات",
-  "description": "تطبيق إدارة محادثات المستفيدين في مؤسسة الوليد",
+  "id": "/admin-chat-app-v2",
+  "name": "محادثات إدارة مؤسسة الوليد",
+  "short_name": "محادثات الإدارة",
+  "description": "تطبيق مستقل لإدارة محادثات المستفيدين في مؤسسة الوليد",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/pages/admin-chat.html?source=admin-chat-pwa",
-  "scope": "/",
+  "scope": "/pages/admin-chat.html",
   "display": "standalone",
   "display_override": [
     "standalone",
     "minimal-ui"
   ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "orientation": "any",
-  "background_color": "#f7f9fa",
+  "background_color": "#045652",
   "theme_color": "#045652",
   "categories": [
     "business",
@@ -23,19 +26,19 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/icon-192-v2.png",
+      "src": "/icons/admin-chat-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512-v2.png",
+      "src": "/icons/admin-chat-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-maskable-512-v2.png",
+      "src": "/icons/admin-chat-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

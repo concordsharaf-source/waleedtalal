@@ -46,7 +46,10 @@ import {
 } from "./chat-media.js";
 
 const ADMIN_PASSWORD = "232167";
-const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed";
+const ADMIN_SESSION_KEY = "waleed_admin_chat_session";
+const LEGACY_ADMIN_SESSION_KEY = "adminLogin";
+const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed_v2";
+const ADMIN_PWA_WINDOW_KEY = "waleed_admin_chat_pwa_window";
 const ADMIN_NOTIFICATIONS_DISABLED_KEY = "waleed_chat_admin_notifications_disabled";
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
@@ -59,6 +62,7 @@ const conversationList = document.getElementById("conversationList");
 const conversationSearch = document.getElementById("conversationSearch");
 const conversationCount = document.getElementById("conversationCount");
 const adminNotificationButton = document.getElementById("adminNotificationButton");
+const adminLogoutButton = document.getElementById("adminLogoutButton");
 const adminConversation = document.getElementById("adminConversation");
 const adminEmpty = document.getElementById("adminEmpty");
 const adminChatTop = document.getElementById("adminChatTop");
@@ -131,6 +135,7 @@ let messageSearchQuery = "";
 let starredOnly = false;
 let adminPushToken = "";
 let adminNotificationToggleBusy = false;
+let adminLogoutInProgress = false;
 const optimisticMessages = new Map();
 const deliveryAckOrders = new Set();
 let adminTokenRegistrationRunning = false;
@@ -146,16 +151,64 @@ function showToast(message) {
     toastTimer = setTimeout(() => { toast.hidden = true; }, 3000);
 }
 
-function isAdminAppContext() {
+function isStandaloneDisplay() {
     return window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true ||
-        new URLSearchParams(location.search).get("source") === "admin-chat-pwa";
+        window.navigator.standalone === true;
+}
+
+function isAdminAppContext() {
+    const source = new URLSearchParams(location.search).get("source");
+    if (isStandaloneDisplay() && source === "admin-chat-pwa") {
+        sessionStorage.setItem(ADMIN_PWA_WINDOW_KEY, "yes");
+    }
+    // لا نعدّ تطبيق الموقع العام تطبيقًا للإدارة لمجرد أنه standalone.
+    return isStandaloneDisplay() && (
+        source === "admin-chat-pwa" ||
+        sessionStorage.getItem(ADMIN_PWA_WINDOW_KEY) === "yes"
+    );
 }
 
 function markAdminAppInstalled() {
     localStorage.setItem(ADMIN_INSTALL_KEY, "yes");
     deferredAdminInstallPrompt = null;
     installAdminChatAppButton.hidden = true;
+}
+
+function saveAdminSession() {
+    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+        authenticated: true,
+        createdAt: new Date().toISOString(),
+        expiresAt: null
+    }));
+    // نبقي المفتاح القديم للتوافق مع النسخ السابقة، ولا يوجد أي انتهاء تلقائي.
+    localStorage.setItem(LEGACY_ADMIN_SESSION_KEY, "yes");
+}
+
+function hasAdminSession() {
+    try {
+        const session = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || "null");
+        if (session?.authenticated === true) return true;
+    } catch { /* انتقل إلى ترحيل الجلسة القديمة */ }
+    if (localStorage.getItem(LEGACY_ADMIN_SESSION_KEY) === "yes") {
+        saveAdminSession();
+        return true;
+    }
+    return false;
+}
+
+function clearAdminSession() {
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+    localStorage.removeItem(LEGACY_ADMIN_SESSION_KEY);
+}
+
+async function requestPersistentAdminStorage() {
+    try {
+        if (!navigator.storage?.persist) return false;
+        if (await navigator.storage.persisted?.()) return true;
+        return await navigator.storage.persist();
+    } catch {
+        return false;
+    }
 }
 
 function orderHasPushToken(order, token) {
@@ -1173,15 +1226,19 @@ installAdminChatAppButton.addEventListener("click", async () => {
         return;
     }
 
+    if (isStandaloneDisplay() && !isAdminAppContext()) {
+        showToast("افتح صفحة الإدارة في Chrome ثم اضغط تثبيت لإنشاء تطبيق مستقل عن تطبيق الموقع");
+        return;
+    }
     showToast(/iphone|ipad|ipod/i.test(navigator.userAgent)
-        ? "من زر المشاركة اختر: إضافة إلى الشاشة الرئيسية"
-        : "من قائمة المتصفح اختر: تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية");
+        ? "من زر المشاركة اختر إضافة إلى الشاشة الرئيسية لتثبيت محادثات الإدارة"
+        : "من قائمة المتصفح اختر تثبيت التطبيق لإنشاء تطبيق محادثات إدارة مستقل");
 });
 
 const adminDisplayModeQuery = window.matchMedia("(display-mode: standalone)");
 if (typeof adminDisplayModeQuery.addEventListener === "function") {
-    adminDisplayModeQuery.addEventListener("change", event => {
-        if (event.matches) markAdminAppInstalled();
+    adminDisplayModeQuery.addEventListener("change", () => {
+        if (isAdminAppContext()) markAdminAppInstalled();
     });
 }
 
@@ -1195,7 +1252,9 @@ if (isAdminAppContext()) {
 loginForm.addEventListener("submit", event => {
     event.preventDefault();
     if (adminPassword.value === ADMIN_PASSWORD) {
-        localStorage.setItem("adminLogin", "yes");
+        saveAdminSession();
+        requestPersistentAdminStorage().catch(() => {});
+        adminPassword.value = "";
         loginError.textContent = "";
         enableAdminPush({ requestPermission: true, quiet: true }).catch(console.error);
         unlockAdmin();
@@ -1204,11 +1263,40 @@ loginForm.addEventListener("submit", event => {
     }
 });
 
-document.getElementById("adminLogoutButton").addEventListener("click", async () => {
-    voiceRecorder?.cancel();
-    if (currentOrder) await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
-    localStorage.removeItem("adminLogin");
-    location.reload();
+adminLogoutButton.addEventListener("click", async () => {
+    if (adminLogoutInProgress) return;
+    adminLogoutInProgress = true;
+    adminLogoutButton.disabled = true;
+    try {
+        const firstConfirmation = await requestAdminConfirmation({
+            title: "تسجيل الخروج من الإدارة؟",
+            message: "جلستك محفوظة بصورة دائمة على هذا الجهاز. هل تريد المتابعة إلى تسجيل الخروج؟",
+            acceptText: "متابعة"
+        });
+        if (!firstConfirmation) return;
+
+        const finalConfirmation = await requestAdminConfirmation({
+            title: "تأكيد نهائي لتسجيل الخروج",
+            message: "سيتم حذف جلسة الإدارة المحفوظة من هذا الجهاز وإيقاف إشعاراته، وستحتاج إلى إدخال كلمة المرور عند الدخول مرة أخرى.",
+            acceptText: "تسجيل الخروج"
+        });
+        if (!finalConfirmation) return;
+
+        voiceRecorder?.cancel();
+        const orderId = currentOrder?.id || "";
+        const token = adminPushToken;
+        adminPushToken = "";
+        clearAdminSession();
+        showToast("جاري تسجيل الخروج...");
+        await Promise.allSettled([
+            orderId ? setChatPresence(orderId, ADMIN_ACTOR, false) : Promise.resolve(),
+            unregisterAdminTokenFromAllOrders(token)
+        ]);
+        location.reload();
+    } finally {
+        adminLogoutInProgress = false;
+        adminLogoutButton.disabled = false;
+    }
 });
 
 adminNotificationButton.addEventListener("click", async () => {
@@ -1523,4 +1611,7 @@ voiceRecorder = createVoiceRecorder({
 updateComposerAction();
 buildEmojiPanel();
 renderAdminNotificationButton();
-if (localStorage.getItem("adminLogin") === "yes") unlockAdmin();
+if (hasAdminSession()) {
+    requestPersistentAdminStorage().catch(() => {});
+    unlockAdmin();
+}

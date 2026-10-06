@@ -6,16 +6,16 @@
     <title>محادثات المستفيدين | الإدارة</title>
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta name="theme-color" content="#045652">
-    <link rel="icon" type="image/png" sizes="64x64" href="../icons/favicon-64.png">
-    <link rel="apple-touch-icon" href="../icons/apple-touch-icon-v2.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../icons/admin-chat-192.png">
+    <link rel="apple-touch-icon" href="../icons/admin-chat-192.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="إدارة المحادثات">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="../admin-chat-manifest.json?v=1">
+    <link rel="manifest" href="../admin-chat-manifest.json?v=2">
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../styles/chat.css?v=43">
+    <link rel="stylesheet" href="../styles/chat.css?v=44">
     <script src="../scripts/pwa.js" defer></script>
 </head>
 <body>
@@ -46,9 +46,12 @@
                 </div>
             </header>
             <div class="admin-search">
-                <button id="installAdminChatAppButton" class="install-chat-button admin-install-button" type="button" aria-label="تثبيت تطبيق إدارة المحادثات" title="تثبيت تطبيق إدارة المحادثات" data-page-install-button hidden>
+                <button id="installAdminChatAppButton" class="install-chat-button admin-install-button" type="button" aria-label="تثبيت محادثات الإدارة كتطبيق مستقل" title="تثبيت محادثات الإدارة كتطبيق مستقل عن تطبيق الموقع" data-page-install-button hidden>
                     <span class="install-app-icon" aria-hidden="true">↓</span>
-                    <span class="install-app-label">تثبيت تطبيق الإدارة</span>
+                    <span class="admin-install-copy">
+                        <strong>تثبيت محادثات الإدارة</strong>
+                        <small>تطبيق مستقل عن تطبيق الموقع العام</small>
+                    </span>
                 </button>
                 <input id="conversationSearch" type="search" autocomplete="off" placeholder="بحث بالاسم أو رقم المعاملة أو الجوال">
             </div>
@@ -206,6 +209,6 @@
 
     <div id="adminToast" class="toast" role="status" hidden></div>
 
-    <script type="module" src="../scripts/chat-admin.js?v=43"></script>
+    <script type="module" src="../scripts/chat-admin.js?v=44"></script>
 </body>
 </html>

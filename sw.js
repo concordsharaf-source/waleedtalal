@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v43";
+const CACHE_NAME = "waleedtalal-pwa-v44";
 
 /*
  * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
@@ -73,6 +73,9 @@ const APP_SHELL = [
   "./icons/whatsapp.svg",
   "./icons/chat-app-192.png",
   "./icons/chat-app-512.png",
+  "./icons/admin-chat-192.png",
+  "./icons/admin-chat-512.png",
+  "./icons/admin-chat-maskable-512.png",
   "./images/ad.png",
   "./images/chat-foundation-avatar.jpg",
   "./images/aa.jpg",
@@ -130,7 +133,12 @@ self.addEventListener("notificationclick", event => {
   const targetUrl = new URL(event.notification.data?.url || "/pages/chat.html", self.location.origin).href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const target = new URL(targetUrl);
     for (const client of windows) {
+      const current = new URL(client.url);
+      // لا ننقل تطبيق المستفيد أو الموقع العام إلى واجهة الإدارة؛ نعيد استخدام
+      // نافذة التطبيق المطابقة فقط، وإلا نفتح تطبيق/نافذة الإدارة مستقلة.
+      if (current.pathname !== target.pathname) continue;
       if ("navigate" in client) await client.navigate(targetUrl);
       if ("focus" in client) return client.focus();
     }

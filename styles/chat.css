@@ -1367,8 +1367,13 @@ button { cursor: pointer; }
 .admin-install-button {
     width: 100%;
     margin-bottom: 9px;
-    min-height: 50px;
+    min-height: 58px;
+    justify-content: flex-start;
+    text-align: right;
 }
+.admin-install-copy { min-width: 0; display: grid; gap: 3px; line-height: 1.25; }
+.admin-install-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .86rem; }
+.admin-install-copy small { color: rgba(255,255,255,.82); font-size: .66rem; font-weight: 600; }
 .admin-search input { width: 100%; min-height: 42px; border: 0; border-radius: 9px; padding: 9px 13px; outline: none; background: white; }
 
 .conversation-list { overflow-y: auto; }
