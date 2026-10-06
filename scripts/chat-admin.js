@@ -198,6 +198,17 @@ function adminConversationUrl(orderId) {
 
 function initializeAdminNavigationHistory() {
     if (startupAdminNavigation?.view === "conversation" && startupRequestedOrderId) {
+        // بعض أجهزة Android تستعيد آخر شاشة للتطبيق بلا الاحتفاظ بالمكدس السابق.
+        // نعيد إنشاء شاشة القائمة خلف المحادثة كي لا يغلق زر النظام التطبيق.
+        if (history.length <= 1) {
+            history.replaceState(adminNavigationState("list"), "", adminListUrl());
+            history.pushState(
+                adminNavigationState("conversation", startupRequestedOrderId),
+                "",
+                adminConversationUrl(startupRequestedOrderId)
+            );
+            return;
+        }
         history.replaceState(
             adminNavigationState("conversation", startupRequestedOrderId),
             "",
