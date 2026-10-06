@@ -50,7 +50,11 @@ const ADMIN_SESSION_KEY = "waleed_admin_chat_session";
 const LEGACY_ADMIN_SESSION_KEY = "adminLogin";
 const ADMIN_INSTALL_KEY = "waleed_admin_chat_app_installed_v2";
 const ADMIN_PWA_WINDOW_KEY = "waleed_admin_chat_pwa_window";
+const ADMIN_HISTORY_STATE_KEY = "waleedAdminChatNavigation";
 const ADMIN_NOTIFICATIONS_DISABLED_KEY = "waleed_chat_admin_notifications_disabled";
+const startupAdminNavigation = history.state?.[ADMIN_HISTORY_STATE_KEY] || null;
+const startupRequestedOrderId = new URLSearchParams(location.search).get("order") ||
+    (startupAdminNavigation?.view === "conversation" ? String(startupAdminNavigation.orderId || "") : "");
 const EMOJIS = ["😀","😊","😂","😍","🥰","😄","😢","😭","😮","😔","👍","👎","👏","🙏","🤲","❤️","💚","💙","✨","🎉","✅","📌","📄","📞","🏦","🇸🇦","🌹","💬","🤝","🌟","💯"];
 
 const adminLock = document.getElementById("adminLock");
@@ -140,6 +144,8 @@ const optimisticMessages = new Map();
 const deliveryAckOrders = new Set();
 let adminTokenRegistrationRunning = false;
 let notificationOrderHandled = false;
+let pendingHistoryOrderId = "";
+let conversationSelectionSequence = 0;
 let deferredAdminInstallPrompt = null;
 let voiceRecorder = null;
 let renderedMessagesSignature = "";
@@ -166,6 +172,53 @@ function isAdminAppContext() {
         source === "admin-chat-pwa" ||
         sessionStorage.getItem(ADMIN_PWA_WINDOW_KEY) === "yes"
     );
+}
+
+function adminNavigationState(view, orderId = "") {
+    const existing = history.state && typeof history.state === "object" ? history.state : {};
+    return {
+        ...existing,
+        [ADMIN_HISTORY_STATE_KEY]: { view, orderId: String(orderId || "") }
+    };
+}
+
+function adminListUrl() {
+    const url = new URL(location.href);
+    url.searchParams.delete("order");
+    url.searchParams.delete("notification");
+    return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function adminConversationUrl(orderId) {
+    const url = new URL(location.href);
+    url.searchParams.set("order", String(orderId));
+    url.searchParams.delete("notification");
+    return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function initializeAdminNavigationHistory() {
+    if (startupAdminNavigation?.view === "conversation" && startupRequestedOrderId) {
+        history.replaceState(
+            adminNavigationState("conversation", startupRequestedOrderId),
+            "",
+            adminConversationUrl(startupRequestedOrderId)
+        );
+        return;
+    }
+    history.replaceState(adminNavigationState("list"), "", adminListUrl());
+}
+
+function syncConversationHistory(orderId, mode = "auto") {
+    if (mode === "none") return;
+    const currentView = history.state?.[ADMIN_HISTORY_STATE_KEY]?.view;
+    const method = mode === "replace" || (mode === "auto" && currentView === "conversation")
+        ? "replaceState"
+        : "pushState";
+    history[method](adminNavigationState("conversation", orderId), "", adminConversationUrl(orderId));
+}
+
+function replaceHistoryWithConversationList() {
+    history.replaceState(adminNavigationState("list"), "", adminListUrl());
 }
 
 function markAdminAppInstalled() {
@@ -416,12 +469,18 @@ function listenToConversations() {
         acknowledgeListedDeliveries(orders);
         if (adminPushToken) registerAdminTokenForConversations(adminPushToken).catch(console.error);
 
-        if (!notificationOrderHandled) {
-            const requestedOrderId = new URLSearchParams(location.search).get("order");
-            if (requestedOrderId && orders.some(order => order.id === requestedOrderId)) {
-                notificationOrderHandled = true;
-                selectConversation(requestedOrderId);
-            }
+        if (pendingHistoryOrderId && orders.some(order => order.id === pendingHistoryOrderId)) {
+            const requestedOrderId = pendingHistoryOrderId;
+            pendingHistoryOrderId = "";
+            selectConversation(requestedOrderId, { historyMode: "none", focusComposer: false });
+        } else if (!notificationOrderHandled && startupRequestedOrderId &&
+            orders.some(order => order.id === startupRequestedOrderId)) {
+            notificationOrderHandled = true;
+            const alreadyHasConversationHistory = startupAdminNavigation?.view === "conversation";
+            selectConversation(startupRequestedOrderId, {
+                historyMode: alreadyHasConversationHistory ? "none" : "push",
+                focusComposer: false
+            });
         }
 
         if (currentOrder) {
@@ -512,15 +571,18 @@ function renderConversationList() {
     conversationList.appendChild(fragment);
 }
 
-async function selectConversation(orderId) {
+async function selectConversation(orderId, { historyMode = "auto", focusComposer = true } = {}) {
+    const selectionSequence = ++conversationSelectionSequence;
     voiceRecorder?.cancel();
     const order = allConversations.find(item => item.id === orderId);
     if (!order) return;
     if (currentOrder && currentOrder.id !== order.id) {
         await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
+        if (selectionSequence !== conversationSelectionSequence) return;
     }
     exitSelectionMode(false);
     currentOrder = order;
+    syncConversationHistory(order.id, historyMode);
     renderedMessagesSignature = "";
     replyTarget = null;
     replyPreview.hidden = true;
@@ -538,8 +600,14 @@ async function selectConversation(orderId) {
     renderConversationList();
     renderCurrentConversation();
     await setChatPresence(order.id, ADMIN_ACTOR, true);
+    if (selectionSequence !== conversationSelectionSequence || currentOrder?.id !== order.id) {
+        setChatPresence(order.id, ADMIN_ACTOR, false).catch(() => {});
+        return;
+    }
     if (adminPushToken) await registerChatPushToken(order.id, ADMIN_ACTOR, adminPushToken);
-    messageInput.focus();
+    if (selectionSequence === conversationSelectionSequence && currentOrder?.id === order.id && focusComposer) {
+        messageInput.focus();
+    }
 }
 
 function messageRenderSignature(messages) {
@@ -746,10 +814,17 @@ function settleAdminConfirmation(accepted) {
     if (resolve) resolve(Boolean(accepted));
 }
 
-function resetAdminConversationView() {
+function resetAdminConversationView({ syncHistory = true } = {}) {
+    conversationSelectionSequence += 1;
     voiceRecorder?.cancel();
     exitSelectionMode(false);
+    const closingOrderId = currentOrder?.id || "";
     currentOrder = null;
+    if (closingOrderId) {
+        setChatPresence(closingOrderId, ADMIN_ACTOR, false)
+            .catch(error => console.warn("Admin presence cleanup failed", error));
+    }
+    if (syncHistory) replaceHistoryWithConversationList();
     activeMessage = null;
     renderedMessagesSignature = "";
     clearReply();
@@ -1446,19 +1521,28 @@ confirmModal.addEventListener("click", event => {
     if (event.target === confirmModal) settleAdminConfirmation(false);
 });
 
-document.getElementById("adminMobileBack").addEventListener("click", async () => {
-    voiceRecorder?.cancel();
-    exitSelectionMode(false);
-    adminChatApp.classList.remove("conversation-open");
-    if (window.innerWidth > 720 && currentOrder) {
-        await setChatPresence(currentOrder.id, ADMIN_ACTOR, false);
-        currentOrder = null;
-        adminChatTop.hidden = true;
-        adminMessagesArea.hidden = true;
-        adminComposerZone.hidden = true;
-        adminEmpty.hidden = false;
-        renderConversationList();
+document.getElementById("adminMobileBack").addEventListener("click", () => {
+    const currentView = history.state?.[ADMIN_HISTORY_STATE_KEY]?.view;
+    if (currentView === "conversation" && history.length > 1) {
+        history.back();
+        return;
     }
+    resetAdminConversationView();
+});
+
+window.addEventListener("popstate", event => {
+    const navigation = event.state?.[ADMIN_HISTORY_STATE_KEY];
+    if (navigation?.view === "conversation" && navigation.orderId) {
+        const orderId = String(navigation.orderId);
+        if (allConversations.some(order => order.id === orderId)) {
+            selectConversation(orderId, { historyMode: "none", focusComposer: false });
+        } else {
+            pendingHistoryOrderId = orderId;
+        }
+        return;
+    }
+    pendingHistoryOrderId = "";
+    resetAdminConversationView({ syncHistory: false });
 });
 
 conversationSearch.addEventListener("input", renderConversationList);
@@ -1611,6 +1695,7 @@ voiceRecorder = createVoiceRecorder({
 updateComposerAction();
 buildEmojiPanel();
 renderAdminNotificationButton();
+initializeAdminNavigationHistory();
 if (hasAdminSession()) {
     requestPersistentAdminStorage().catch(() => {});
     unlockAdmin();
