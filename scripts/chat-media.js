@@ -369,29 +369,10 @@ export function createMediaMessageContent(message, orderId) {
 
     // نجهّز الروابط فور ظهور الرسالة، حتى يكون فتح الملف سريعًا ولا يحجبه
     // متصفح الهاتف باعتباره نافذة منبثقة متأخرة.
-    let openUrlPromise = null;
-    let downloadUrlPromise = null;
-    const getOpenUrl = () => {
-        if (!openUrlPromise) {
-            openUrlPromise = mediaUrl().catch(error => {
-                openUrlPromise = null;
-                throw error;
-            });
-        }
-        return openUrlPromise;
-    };
-    const getDownloadUrl = () => {
-        if (!downloadUrlPromise) {
-            const request = legacyPath || message.mediaPath
-                ? resolveMessageMediaUrl(orderId, message.id, "original", { download: true })
-                : getOpenUrl();
-            downloadUrlPromise = request.catch(error => {
-                downloadUrlPromise = null;
-                throw error;
-            });
-        }
-        return downloadUrlPromise;
-    };
+    const getOpenUrl = () => mediaUrl();
+    const getDownloadUrl = () => legacyPath || message.mediaPath
+        ? resolveMessageMediaUrl(orderId, message.id, "original", { download: true })
+        : getOpenUrl();
     Promise.all([getOpenUrl(), getDownloadUrl()]).then(() => {
         fileCard.classList.add("ready");
         status.textContent = "ملف فعلي جاهز للفتح والتنزيل";
