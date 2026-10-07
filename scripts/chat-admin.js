@@ -1615,13 +1615,6 @@ messageInput.addEventListener("input", () => {
     typingTimer = setTimeout(() => setChatTyping(currentOrder.id, ADMIN_ACTOR, false), 1300);
 });
 
-messageInput.addEventListener("keydown", event => {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        messageForm.requestSubmit();
-    }
-});
-
 document.getElementById("adminEmojiButton").addEventListener("click", () => {
     emojiPanel.hidden = !emojiPanel.hidden;
     attachmentSheet.hidden = true;
