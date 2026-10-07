@@ -516,7 +516,8 @@ function listenToConversations() {
     });
 }
 
-function renderConversationList() {
+function renderConversationList({ preserveScroll = true } = {}) {
+    const previousScrollTop = preserveScroll ? conversationList.scrollTop : 0;
     const queryText = normalizeDigits(conversationSearch.value).trim().toLowerCase();
     const visible = queryText
         ? allConversations.filter(order => [order.name, order.transactionId, order.phone, order.chatLastMessage]
@@ -531,6 +532,7 @@ function renderConversationList() {
         empty.className = "loading-chat";
         empty.textContent = "لا توجد محادثات مطابقة.";
         conversationList.appendChild(empty);
+        conversationList.scrollTop = 0;
         return;
     }
 
@@ -580,6 +582,9 @@ function renderConversationList() {
         fragment.appendChild(button);
     });
     conversationList.appendChild(fragment);
+    // تحديثات الحضور والقراءة تصل باستمرار من Firestore؛ لا نسمح لها بإرجاع
+    // القائمة إلى الأعلى أثناء تمرير المسؤول إلى المحادثات الأقدم.
+    conversationList.scrollTop = previousScrollTop;
 }
 
 async function selectConversation(orderId, { historyMode = "auto", focusComposer = true } = {}) {
@@ -1558,7 +1563,7 @@ window.addEventListener("popstate", event => {
     resetAdminConversationView({ syncHistory: false });
 });
 
-conversationSearch.addEventListener("input", renderConversationList);
+conversationSearch.addEventListener("input", () => renderConversationList({ preserveScroll: false }));
 
 messageForm.addEventListener("submit", async event => {
     event.preventDefault();
