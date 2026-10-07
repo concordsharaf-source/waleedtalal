@@ -95,9 +95,10 @@ export function formatMediaSize(bytes) {
     return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export async function resolveMessageMediaUrl(orderId, messageId, variant = "original") {
+export async function resolveMessageMediaUrl(orderId, messageId, variant = "original", options = {}) {
     const normalizedVariant = variant === "preview" ? "preview" : "original";
-    const key = `${orderId}:${messageId}:${normalizedVariant}`;
+    const disposition = options?.download === true ? "download" : "inline";
+    const key = `${orderId}:${messageId}:${normalizedVariant}:${disposition}`;
     const cached = mediaUrlCache.get(key);
     if (cached && cached.expiresAt > Date.now() + 60_000) return cached.url;
     if (mediaUrlPending.has(key)) return mediaUrlPending.get(key);
@@ -106,7 +107,7 @@ export async function resolveMessageMediaUrl(orderId, messageId, variant = "orig
         const response = await fetch("/api/chat-media-url", {
             method: "POST",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({ orderId, messageId, variant: normalizedVariant })
+            body: JSON.stringify({ orderId, messageId, variant: normalizedVariant, disposition })
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.url) throw new Error(result.error || "media-url-failed");
@@ -328,30 +329,132 @@ export function createMediaMessageContent(message, orderId) {
         return wrapper;
     }
 
-    const fileButton = document.createElement("button");
-    fileButton.type = "button";
-    fileButton.className = "media-file-button";
+    const mediaMime = String(message.mediaMime || legacyMedia.type || "application/octet-stream").toLowerCase();
+    const isPdf = mediaMime === "application/pdf" || /\.pdf$/i.test(mediaName);
+    const fileCard = document.createElement("div");
+    fileCard.className = `media-file-card${isPdf ? " pdf" : ""}`;
+
+    const summary = document.createElement("div");
+    summary.className = "media-file-summary";
     const icon = document.createElement("span");
     icon.className = "media-file-icon";
-    icon.textContent = "▤";
+    icon.textContent = isPdf ? "PDF" : "DOC";
     const details = document.createElement("span");
     details.className = "media-file-details";
     const name = document.createElement("strong");
     name.textContent = mediaName || "ملف مرفق";
+    name.title = mediaName || "ملف مرفق";
     const size = document.createElement("small");
-    size.textContent = formatMediaSize(mediaBytes);
+    size.textContent = `${isPdf ? "ملف PDF" : "ملف مرفق"} • ${formatMediaSize(mediaBytes)}`;
     details.append(name, size);
-    fileButton.append(icon, details);
-    fileButton.addEventListener("click", async event => {
+    summary.append(icon, details);
+
+    const actions = document.createElement("div");
+    actions.className = "media-file-actions";
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "media-file-action open";
+    openButton.textContent = "فتح الملف";
+    const downloadButton = document.createElement("button");
+    downloadButton.type = "button";
+    downloadButton.className = "media-file-action download";
+    downloadButton.textContent = "تنزيل";
+    actions.append(openButton, downloadButton);
+
+    const status = document.createElement("small");
+    status.className = "media-file-status";
+    status.textContent = "جارٍ تجهيز الملف الفعلي...";
+    fileCard.append(summary, actions, status);
+    wrapper.appendChild(fileCard);
+
+    // نجهّز الروابط فور ظهور الرسالة، حتى يكون فتح الملف سريعًا ولا يحجبه
+    // متصفح الهاتف باعتباره نافذة منبثقة متأخرة.
+    let openUrlPromise = null;
+    let downloadUrlPromise = null;
+    const getOpenUrl = () => {
+        if (!openUrlPromise) {
+            openUrlPromise = mediaUrl().catch(error => {
+                openUrlPromise = null;
+                throw error;
+            });
+        }
+        return openUrlPromise;
+    };
+    const getDownloadUrl = () => {
+        if (!downloadUrlPromise) {
+            const request = legacyPath || message.mediaPath
+                ? resolveMessageMediaUrl(orderId, message.id, "original", { download: true })
+                : getOpenUrl();
+            downloadUrlPromise = request.catch(error => {
+                downloadUrlPromise = null;
+                throw error;
+            });
+        }
+        return downloadUrlPromise;
+    };
+    Promise.all([getOpenUrl(), getDownloadUrl()]).then(() => {
+        fileCard.classList.add("ready");
+        status.textContent = "ملف فعلي جاهز للفتح والتنزيل";
+    }).catch(() => {
+        fileCard.classList.add("failed");
+        status.textContent = "تعذر تجهيز الملف، اضغط للمحاولة مرة أخرى";
+    });
+
+    openButton.addEventListener("click", async event => {
         event.stopPropagation();
-        fileButton.disabled = true;
+        const popup = window.open("about:blank", "_blank");
+        if (popup) {
+            try {
+                popup.opener = null;
+                popup.document.title = "جارٍ فتح الملف";
+                popup.document.body.dir = "rtl";
+                popup.document.body.textContent = "جارٍ فتح الملف الفعلي...";
+            } catch { /* قد يمنع المتصفح الوصول إلى النافذة الجديدة */ }
+        }
+        openButton.disabled = true;
+        status.textContent = "جارٍ فتح الملف الفعلي...";
         try {
-            const url = await mediaUrl();
-            window.open(url, "_blank", "noopener");
+            const url = await getOpenUrl();
+            if (popup && !popup.closed) popup.location.replace(url);
+            else {
+                const link = document.createElement("a");
+                link.href = url;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+            status.textContent = "تم فتح الملف";
+        } catch {
+            if (popup && !popup.closed) popup.close();
+            fileCard.classList.add("failed");
+            status.textContent = "تعذر فتح الملف، حاول مرة أخرى";
         } finally {
-            fileButton.disabled = false;
+            openButton.disabled = false;
         }
     });
-    wrapper.appendChild(fileButton);
+
+    downloadButton.addEventListener("click", async event => {
+        event.stopPropagation();
+        downloadButton.disabled = true;
+        status.textContent = "جارٍ تنزيل الملف الفعلي...";
+        try {
+            const url = await getDownloadUrl();
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = mediaName || "attachment";
+            link.rel = "noopener noreferrer";
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            status.textContent = "بدأ تنزيل الملف";
+        } catch {
+            fileCard.classList.add("failed");
+            status.textContent = "تعذر تنزيل الملف، حاول مرة أخرى";
+        } finally {
+            downloadButton.disabled = false;
+        }
+    });
     return wrapper;
 }

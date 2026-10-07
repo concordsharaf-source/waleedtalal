@@ -43,7 +43,7 @@ import {
     createMediaMessageContent,
     primeLocalMediaPreview,
     releaseLocalMediaPreview
-} from "./chat-media.js";
+} from "./chat-media.js?v=46";
 
 const ADMIN_PASSWORD = "232167";
 const ADMIN_SESSION_KEY = "waleed_admin_chat_session";
@@ -962,7 +962,9 @@ function createMessageElement(message) {
         pin.textContent = "📌";
         content.prepend(pin);
     }
-    if (!isAudio && !isMedia) content.appendChild(document.createTextNode(message.text || ""));
+    if (!isAudio && !isMedia) {
+        content.appendChild(document.createTextNode(message.deletedForAll ? "تم حذف هذه الرسالة" : (message.text || "")));
+    }
 
     const meta = document.createElement("div");
     meta.className = "message-meta";

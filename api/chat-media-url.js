@@ -25,6 +25,16 @@ function parseBody(request) {
     try { return JSON.parse(String(request.body || '{}')); } catch { return {}; }
 }
 
+function safeDownloadName(name, fallback = 'attachment') {
+    const normalized = String(name || fallback)
+        .normalize('NFKC')
+        .replace(/[\\/\r\n"<>:|?*]+/g, '-')
+        .replace(/^\.+|\.+$/g, '')
+        .trim()
+        .slice(0, 160);
+    return normalized || fallback;
+}
+
 module.exports = async function handler(request, response) {
     response.setHeader('Cache-Control', 'private, no-store, max-age=0');
     if (request.method !== 'POST') {
@@ -36,6 +46,7 @@ module.exports = async function handler(request, response) {
     const orderId = String(body.orderId || '').trim();
     const messageId = String(body.messageId || '').trim();
     const variant = body.variant === 'preview' ? 'preview' : 'original';
+    const disposition = body.disposition === 'download' ? 'download' : 'inline';
     if (!/^[A-Za-z0-9_-]{1,1500}$/.test(orderId) || !/^[A-Za-z0-9_-]{1,100}$/.test(messageId)) {
         return response.status(400).json({ error: 'invalid-request' });
     }
@@ -53,7 +64,12 @@ module.exports = async function handler(request, response) {
         if (message.mediaProvider === 'vercel-blob' || (!message.mediaProvider && message.audioUrl)) {
             const url = String(message.mediaUrl || message.audioUrl || '');
             if (!url.startsWith('https://')) return response.status(404).json({ error: 'media-not-found' });
-            return response.status(200).json({ url, expiresIn: 0 });
+            return response.status(200).json({
+                url,
+                expiresIn: 0,
+                disposition,
+                fileName: safeDownloadName(message.mediaName || 'attachment')
+            });
         }
 
         const originalPath = String(message.mediaPath || message.audioPathname || message.media?.path || '');
@@ -61,9 +77,20 @@ module.exports = async function handler(request, response) {
         const path = variant === 'preview' && previewPath ? previewPath : originalPath;
         if (!path) return response.status(404).json({ error: 'media-not-found' });
         const storage = await resolveSupabaseStorage();
-        const { data, error } = await storage.client.storage.from(storage.bucket).createSignedUrl(path, 60 * 60);
+        const fileName = safeDownloadName(message.mediaName || path.split('/').pop() || 'attachment');
+        const signedOptions = disposition === 'download' ? { download: fileName } : undefined;
+        const { data, error } = await storage.client.storage
+            .from(storage.bucket)
+            .createSignedUrl(path, 60 * 60, signedOptions);
         if (error || !data?.signedUrl) throw new Error(error?.message || 'signed-url-failed');
-        return response.status(200).json({ url: data.signedUrl, expiresIn: 3600 });
+        return response.status(200).json({
+            url: data.signedUrl,
+            expiresIn: 3600,
+            disposition,
+            fileName,
+            mimeType: String(message.mediaMime || 'application/octet-stream'),
+            fileSize: Math.max(0, Number(message.mediaBytes) || 0)
+        });
     } catch (error) {
         console.error('Chat media URL error', error?.message || error);
         return response.status(500).json({ error: 'media-url-failed' });

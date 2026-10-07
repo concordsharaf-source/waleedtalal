@@ -1105,35 +1105,80 @@ button { cursor: pointer; }
     font-size: .68rem;
 }
 .media-preview-link:hover .media-open-badge { background: rgba(0,113,188,.88); }
-.media-file-button {
+.media-file-card {
     width: 100%;
-    min-height: 62px;
+    display: grid;
+    gap: 8px;
+    border: 1px solid rgba(84,101,111,.2);
+    border-radius: 11px;
+    padding: 10px;
+    color: #203038;
+    background: rgba(255,255,255,.72);
+}
+.media-file-card.failed { border-color: rgba(179,38,30,.45); }
+.media-file-summary {
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 10px;
-    border: 0;
-    border-radius: 10px;
-    padding: 9px 11px;
-    color: #203038;
-    background: rgba(255,255,255,.58);
-    text-align: right;
 }
 .media-file-icon {
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
+    width: 46px;
+    height: 52px;
+    flex: 0 0 46px;
     display: grid;
     place-items: center;
-    border-radius: 50%;
+    border-radius: 7px;
     color: #fff;
     background: #7656d8;
-    font-size: 1.2rem;
+    box-shadow: 0 2px 7px rgba(0,0,0,.15);
+    font-family: Arial, sans-serif;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .3px;
 }
+.media-file-card.pdf .media-file-icon { background: #d93025; }
 .media-file-details { min-width: 0; flex: 1; }
 .media-file-details strong,
 .media-file-details small { display: block; }
-.media-file-details strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.media-file-details small { margin-top: 2px; color: #667781; direction: ltr; text-align: right; font-size: .68rem; }
+.media-file-details strong {
+    overflow: hidden;
+    color: #17262d;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .78rem;
+}
+.media-file-details small {
+    margin-top: 3px;
+    color: #667781;
+    direction: rtl;
+    text-align: right;
+    font-size: .65rem;
+}
+.media-file-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.media-file-action {
+    min-height: 39px;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 8px;
+    color: #fff;
+    font-family: "Cairo", sans-serif;
+    font-size: .7rem;
+    font-weight: 800;
+}
+.media-file-action.open { background: #057a72; }
+.media-file-action.download { background: #0b73c9; }
+.media-file-action:disabled { opacity: .62; cursor: wait; }
+.media-file-status {
+    display: block;
+    min-height: 17px;
+    color: #52636c;
+    text-align: center;
+    font-size: .61rem;
+    line-height: 1.45;
+}
+.media-file-card.ready .media-file-status { color: #08786f; }
+.media-file-card.failed .media-file-status { color: #b3261e; }
 
 
 @media (prefers-reduced-motion: reduce) {

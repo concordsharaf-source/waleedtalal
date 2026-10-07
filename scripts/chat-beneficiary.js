@@ -39,7 +39,7 @@ import {
     createMediaMessageContent,
     primeLocalMediaPreview,
     releaseLocalMediaPreview
-} from "./chat-media.js";
+} from "./chat-media.js?v=46";
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const CHAT_INSTALL_KEY = "waleed_chat_app_installed";
@@ -504,7 +504,9 @@ function createMessageElement(message) {
         star.textContent = "★";
         content.prepend(star);
     }
-    if (!isAudio && !isMedia) content.appendChild(document.createTextNode(message.text || ""));
+    if (!isAudio && !isMedia) {
+        content.appendChild(document.createTextNode(message.deletedForAll ? "تم حذف هذه الرسالة" : (message.text || "")));
+    }
 
     const meta = document.createElement("div");
     meta.className = "message-meta";

@@ -27,6 +27,7 @@ function parseBody(request) {
 }
 
 function messageLabel(message) {
+    if (message.deletedForAll) return 'تم حذف هذه الرسالة';
     if (message.messageType === 'image') return '📷 صورة';
     if (message.messageType === 'video') return '🎬 فيديو';
     return `📎 ${String(message.mediaName || 'ملف').slice(0, 120)}`;
