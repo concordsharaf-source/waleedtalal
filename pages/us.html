@@ -417,6 +417,19 @@ button#sendBtn:disabled{
 .success-chat-button{background:linear-gradient(135deg,#087973,#045652);}
 .success-whatsapp-button{background:#25d366;}
 .success-home-button{background:#718096;}
+.rejection-check{background:#c62828;}
+.request-rejected-card h2{color:#a61b1b;}
+.rejection-details{
+    margin:18px 0;
+    padding:14px;
+    border:1px solid #efb2b2;
+    border-radius:13px;
+    color:#8f1d1d;
+    background:#fff3f3;
+    line-height:1.9;
+    font-weight:700;
+}
+.rejection-close-button{width:100%;background:#718096;}
 
 /* --- الفوتر الملكي الفاخر --- */
 .main-footer {
@@ -666,6 +679,18 @@ button#sendBtn:disabled{
     </div>
 </section>
 
+<section id="requestRejectedModal" class="request-success-overlay" hidden aria-labelledby="requestRejectedTitle">
+    <div class="request-success-card request-rejected-card" role="dialog" aria-modal="true">
+        <div class="success-check rejection-check">!</div>
+        <h2 id="requestRejectedTitle">تم رفض تسجيل الطلب</h2>
+        <p>لا يمكن تسجيل المستفيد أكثر من مرة.</p>
+        <div id="requestRejectedMessage" class="rejection-details"></div>
+        <div class="success-actions">
+            <button id="closeRejectedModal" class="rejection-close-button" type="button">العودة إلى النموذج</button>
+        </div>
+    </div>
+</section>
+
 <!-- الفوتر الموحد -->
 <footer class="main-footer">
     <div class="footer-container">
@@ -730,30 +755,6 @@ button#sendBtn:disabled{
 
 <script type="module">
 
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { 
-getFirestore,
-collection,
-addDoc,
-serverTimestamp
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// إعدادات Firebase
-const firebaseConfig = {
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
-authDomain: "sparepartswebsite1.firebaseapp.com",
-projectId: "sparepartswebsite1",
-storageBucket: "sparepartswebsite1.firebasestorage.app",
-messagingSenderId: "1063114847735",
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
 /* حفظ أرقام الجوال بصيغة إنجليزية موحدة لتسهيل البحث لاحقاً. */
 function normalizePhone(value){
 let phone=String(value ?? "")
@@ -769,6 +770,39 @@ return phone.startsWith("00") ? phone.slice(2) : phone;
 
 const sendBtn = document.getElementById("sendBtn");
 const btnText = document.getElementById("btnText");
+const requestRejectedModal = document.getElementById("requestRejectedModal");
+const requestRejectedMessage = document.getElementById("requestRejectedMessage");
+const duplicateFieldLabels = {
+    name:"الاسم الثلاثي",
+    phone:"رقم الجوال",
+    idNumber:"رقم الهوية",
+    bankAccount:"رقم الحساب البنكي أو الآيبان"
+};
+const duplicateFieldInputs = {
+    name:"name",
+    phone:"phone",
+    idNumber:"idNumber",
+    bankAccount:"partNumber"
+};
+let rejectedFieldToFocus = "name";
+
+function showDuplicateRejection(fields){
+    const uniqueFields = [...new Set(Array.isArray(fields) ? fields : [])]
+        .filter(field => duplicateFieldLabels[field]);
+    const labels = uniqueFields.map(field => duplicateFieldLabels[field]);
+    rejectedFieldToFocus = duplicateFieldInputs[uniqueFields[0]] || "name";
+    requestRejectedMessage.textContent = labels.length
+        ? `المستفيد مسجل مسبقًا، ووجدنا تطابقًا في: ${labels.join("، ")}.`
+        : "المستفيد مسجل مسبقًا في النظام، لذلك لا يمكن إنشاء طلب جديد.";
+    requestRejectedModal.hidden = false;
+    document.body.style.overflow = "hidden";
+}
+
+document.getElementById("closeRejectedModal").addEventListener("click", () => {
+    requestRejectedModal.hidden = true;
+    document.body.style.overflow = "";
+    document.getElementById(rejectedFieldToFocus)?.focus();
+});
 
 sendBtn.onclick = async function(){
 
@@ -794,67 +828,40 @@ if(!name || !phone || !country || !type){
 sendBtn.disabled = true;
 btnText.innerText = "جاري حفظ وإرسال الطلب...";
 
-// رقم معاملة 4 أرقام
-const transactionId = Math.floor(1000 + Math.random()*9000);
-
 try{
 
-const welcomeText =
-"📋 تفاصيل الطلب المقدم (#"+transactionId+"):\n"+
-"👤 المستفيد: "+name+"\n"+
-"🆔 رقم الهوية: "+(idNumber || "غير محدد")+"\n"+
-"🌍 الدولة: "+country+"\n"+
-"📞 رقم الهاتف: "+phone+"\n"+
-"✉️ البريد الإلكتروني: "+(email || "غير محدد")+"\n"+
-"🏦 اسم البنك: "+(bankName || "غير محدد")+"\n"+
-"💳 رقم الحساب/الآيبان: "+(partNumber || "غير محدد")+"\n"+
-"📂 نوع الطلب: "+type+"\n"+
-"📝 شرح الاحتياج: "+(notes || "غير محدد")+"\n"+
-"📍 حالة الطلب: قيد المراجعة\n"+
-"✅ حالة الاعتماد: غير معتمد\n"+
-"💰 مبلغ المنحة: غير محدد\n"+
-"🗓️ تاريخ تقديم الطلب: "+new Date().toLocaleString("ar-SA-u-ca-gregory")+"\n\n"+
-"مرحباً بك عزيزي المستفيد، تم استلام طلبك بنجاح. يمكنك التواصل المباشر مع إدارة المؤسسة هنا لمتابعة تفاصيل وإجراءات طلبك.";
-
-const welcomeMessage = {
-id:(globalThis.crypto?.randomUUID?.() || (Date.now()+"-"+Math.random())).slice(0,80),
-senderId:"admin",
-senderName:"إدارة المؤسسة",
-text:welcomeText,
-clientTime:new Date().toISOString(),
-messageType:"text",
-replyTo:null,
-readBy:[],
-deletedFor:[],
-deletedForAll:false,
-starredBy:[]
-};
-
-const orderRef = await addDoc(collection(db,"orders"),{
-transactionId:String(transactionId),
-name:name,
-phone:phone,
-email:email,
-idNumber:idNumber,
-partNumber:partNumber,
-bankName:bankName,
-country:country,
-type:type,
-notes:notes,
-status:"قيد المراجعة",
-approved:false,
-createdAt:serverTimestamp(),
-chatEnabled:true,
-chatMessages:[welcomeMessage],
-chatLastMessage:welcomeText,
-chatLastSender:"admin",
-chatUpdatedAt:serverTimestamp(),
-chatOnline:{admin:false,client:false},
-chatTyping:{admin:false,client:false}
+const registrationResponse = await fetch("/api/register-order",{
+    method:"POST",
+    headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify({
+        name,phone,email,idNumber,partNumber,bankName,country,type,notes
+    })
 });
+const registration = await registrationResponse.json().catch(()=>({}));
+
+if(registrationResponse.status === 409 && registration.error === "beneficiary-already-registered"){
+    showDuplicateRejection(registration.duplicateFields);
+    return;
+}
+if(!registrationResponse.ok){
+    if(registration.error === "full-name-required"){
+        alert("يرجى إدخال الاسم الثلاثي على الأقل كما هو مسجل في الهوية.");
+        document.getElementById("name").focus();
+        return;
+    }
+    if(registration.error === "invalid-phone"){
+        alert("يرجى إدخال رقم جوال صحيح.");
+        document.getElementById("phone").focus();
+        return;
+    }
+    throw new Error(registration.error || "order-registration-failed");
+}
+
+const transactionId = String(registration.transactionId);
+const orderId = String(registration.orderId);
 
 localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
-orderId:orderRef.id,
+orderId:orderId,
 transactionId:String(transactionId),
 phone:phone,
 name:name
@@ -869,13 +876,12 @@ document.getElementById("successTransactionId").textContent=transactionId;
 document.getElementById("requestSuccessModal").hidden=false;
 document.body.style.overflow="hidden";
 
-sendBtn.disabled = false;
-btnText.innerText = "إرسال الطلب";
-
 }
 catch(error){
 console.log(error);
 alert("حدث خطأ أثناء حفظ الطلب، يرجى المحاولة مرة أخرى.");
+}
+finally{
 sendBtn.disabled = false;
 btnText.innerText = "إرسال الطلب";
 }
