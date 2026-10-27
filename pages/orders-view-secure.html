@@ -370,6 +370,7 @@
             browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { formatAmount } from "../scripts/amount-format.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
@@ -570,7 +571,7 @@
             appendDetail(grid, "نوع الطلب", order.type);
             appendDetail(grid, "اسم البنك", order.bankName);
             appendDetail(grid, "رقم الحساب / الآيبان", order.partNumber, { ltr: true });
-            appendDetail(grid, "مبلغ المنحة", order.grantAmount);
+            appendDetail(grid, "مبلغ المنحة", formatAmount(order.grantAmount));
             appendDetail(grid, "الحالة", order.status || "قيد المراجعة");
             appendDetail(grid, "تفاصيل الطلب", order.notes, { wide: true });
             appendTrackingDetails(grid, order);

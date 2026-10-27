@@ -543,6 +543,10 @@ placeholder="بحث برقم المعاملة أو الجوال">
 <input id="editGrantAmount"
 placeholder="مثال: 650,000.00 ر.س">
 
+<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.7;">
+تُضاف الفاصلة تلقائياً بعد كل 3 أرقام — مثال: 1000000 ⟵ 1,000,000
+</div>
+
 
 <label>
 حالة الاعتماد
@@ -728,6 +732,10 @@ deleteDoc,
 onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { formatAmount, attachAmountFormatting } from "../scripts/amount-format.js";
+
+attachAmountFormatting(document.getElementById("editGrantAmount"));
 
 
 const firebaseConfig = {
@@ -1064,7 +1072,7 @@ ordersDiv.innerHTML += `
 
 <div class="field">
 <div class="label">المنحة</div>
-<div class="value">${esc(data.grantAmount) || "غير محدد"}</div>
+<div class="value">${esc(formatAmount(data.grantAmount)) || "غير محدد"}</div>
 </div>
 
 
@@ -1141,7 +1149,7 @@ setEditableStatus(order.status);
 
 editNotes.value=order.notes || "";
 
-editGrantAmount.value=order.grantAmount || "";
+editGrantAmount.value=formatAmount(order.grantAmount || "");
 
 editApproved.value=String(order.approved || false);
 
@@ -1255,7 +1263,7 @@ notes:editNotes.value,
 
 
 grantAmount:
-editGrantAmount.value,
+formatAmount(editGrantAmount.value),
 
 
 approved:

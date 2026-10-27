@@ -1003,6 +1003,8 @@ getDocs
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { formatAmount } from "../scripts/amount-format.js";
+
 const firebaseConfig = {
 
 apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
@@ -1219,9 +1221,9 @@ setDetailValue("type",order.type || "-");
 
 document.getElementById("grantBox").classList.add("show");
 
-document.getElementById("grantAmount").innerHTML=
+document.getElementById("grantAmount").textContent=
 
-order.grantAmount || "650,000.00 ر.س";
+formatAmount(order.grantAmount || "650,000.00 ر.س");
 
 document.getElementById("notes").innerHTML=
 
