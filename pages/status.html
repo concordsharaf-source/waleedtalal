@@ -329,97 +329,45 @@ margin-bottom:15px;
 
 }
 
+/* كل خانة في سطر مستقل لعرض بيانات المستخدم كاملة دون قصّ أو تمرير. */
 .details-grid{
-
 display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:12px;
-
+grid-template-columns:1fr;
+gap:10px;
 }
 
 .detail-card{
-
 background:rgba(255,255,255,.9);
-
-padding:12px;
-
+padding:13px 15px;
 border-radius:12px;
-
-overflow:hidden;
-
+border:1px solid rgba(8,121,115,.14);
+overflow:visible;
 }
 
 .detail-label{
-
 font-size:12px;
-
 color:#555;
-
 font-weight:bold;
-
 }
 
 .detail-value{
-
-font-size:13px;
-
+font-size:14px;
 color:#06140e;
-
 font-weight:800;
-
-margin-top:5px;
-
-white-space:nowrap;
-
-overflow:hidden;
-
-text-overflow:ellipsis;
-
-}
-
-/* القيم الطويلة تتحرك ببطء من اليمين إلى اليسار والعكس داخل خانتها فقط. */
-.detail-value.is-overflowing{
-text-align:left;
-direction:ltr;
+margin-top:6px;
+line-height:1.8;
+white-space:normal;
+overflow:visible;
 text-overflow:clip;
+overflow-wrap:anywhere;
+word-break:break-word;
 }
 
-.detail-value .marquee-content{
-display:inline-block;
-min-width:max-content;
-max-width:none;
-}
-
-.detail-value.is-overflowing .marquee-content{
-display:block;
-width:max-content;
-margin:0;
-will-change:transform;
-animation:detailValueMarquee var(--marquee-duration, 14s) linear infinite alternate;
-}
-
-@keyframes detailValueMarquee{
-from{
-transform:translate3d(var(--marquee-start, 0px),0,0);
-}
-to{
-transform:translate3d(var(--marquee-end, 0px),0,0);
-}
-}
-
-/* رقم الحساب يبقى مختصراً وثابتاً ولا يدخل في حركة التمرير. */
+/* رقم الحساب يظهر بوضوح داخل سطره الخاص. */
 #partNumber{
 direction:ltr;
 unicode-bidi:isolate;
-text-align:center;
-}
-
-@media (prefers-reduced-motion:reduce){
-.detail-value.is-overflowing .marquee-content{
-animation:none;
-}
+text-align:right;
 }
 
 .order-box{
@@ -447,29 +395,18 @@ display:block;
 }
 
 .transaction-number{
-
 display:inline-block;
-
 max-width:100%;
-
 padding:10px 20px;
-
 background:#0008;
-
 border-radius:10px;
-
 color:var(--gold-light);
-
 font-size:22px;
-
 font-weight:bold;
-
-overflow:hidden;
-
-text-overflow:ellipsis;
-
-white-space:nowrap;
-
+overflow:visible;
+text-overflow:clip;
+white-space:normal;
+overflow-wrap:anywhere;
 }
 
 .note{
@@ -1146,59 +1083,14 @@ const visibleLength=Math.min(10,compact.length-4);
 return compact.substring(0,visibleLength)+"***";
 }
 
-/*
- * نضيف الحركة فقط عندما يكون النص أعرض فعلياً من الخانة.
- * التحريك Transform فقط، لذلك لا يغيّر ارتفاع الصفحة أو يسبب اهتزازاً.
- */
-function setDetailValue(id,value,allowScroll=true){
+/* كل قيمة تظهر كاملة في سطرها، دون قصّ (ellipsis) ودون حركة تمرير. */
+function setDetailValue(id,value){
 const element=document.getElementById(id);
 if(!element)return;
-
 const text=String(value ?? "-");
-element.classList.remove("is-overflowing");
-element.style.removeProperty("--marquee-start");
-element.style.removeProperty("--marquee-end");
-element.style.removeProperty("--marquee-duration");
 element.dataset.fullValue=text;
-element.textContent="";
-
-const content=document.createElement("span");
-content.className="marquee-content";
-content.dir="auto";
-content.textContent=text;
-element.appendChild(content);
-
-if(!allowScroll)return;
-
-requestAnimationFrame(function(){
-const distance=Math.ceil(content.scrollWidth-element.clientWidth);
-if(distance<=3)return;
-
-/* يبدأ النص العربي من يمين الخانة، بينما يبدأ النص اللاتيني من اليسار. */
-const isRtl=/[\u0590-\u08FF]/.test(text);
-const start=isRtl ? -distance : 0;
-const end=isRtl ? 0 : -distance;
-
-/* سرعة هادئة تقارب 12 بكسل في الثانية لكل اتجاه. */
-const duration=Math.max(10,Math.min(32,distance/12));
-element.style.setProperty("--marquee-start",start+"px");
-element.style.setProperty("--marquee-end",end+"px");
-element.style.setProperty("--marquee-duration",duration+"s");
-element.classList.add("is-overflowing");
-});
+element.textContent=text;
 }
-
-let detailResizeFrame=0;
-window.addEventListener("resize",function(){
-if(detailResizeFrame)return;
-detailResizeFrame=requestAnimationFrame(function(){
-detailResizeFrame=0;
-document.querySelectorAll(".detail-value").forEach(function(element){
-const value=element.dataset.fullValue ?? element.textContent;
-setDetailValue(element.id,value,element.id!=="partNumber");
-});
-});
-},{passive:true});
 
 async function loadOrder(){
 
