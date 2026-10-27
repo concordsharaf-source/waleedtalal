@@ -438,24 +438,25 @@ button#sendBtn:disabled{
     align-items:center;
     justify-content:center;
     gap:9px;
-    border:1px solid rgba(255,255,255,.4);
+    border:1px solid rgba(8,121,115,.26);
     border-radius:15px;
     padding:12px 18px;
-    color:#fff;
+    color:#0b4b45;
     text-decoration:none;
     font-size:.96rem;
     font-weight:800;
     cursor:pointer;
-    background:rgba(255,255,255,.16);
+    background:linear-gradient(135deg, rgba(255,255,255,.72), rgba(255,255,255,.38));
     -webkit-backdrop-filter:blur(14px) saturate(155%);
     backdrop-filter:blur(14px) saturate(155%);
-    box-shadow:0 10px 24px rgba(6,60,52,.13), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -1px 0 rgba(0,0,0,.05);
+    box-shadow:0 8px 22px rgba(6,60,52,.1), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(0,0,0,.04);
     transition:transform .22s ease, box-shadow .22s ease, filter .22s ease, border-color .22s ease;
 }
 .success-actions > a:hover,.success-actions > button:hover{
     transform:translateY(-2px);
-    filter:brightness(1.06);
-    box-shadow:0 14px 30px rgba(6,60,52,.2), inset 0 1px 0 rgba(255,255,255,.55);
+    filter:brightness(1.02);
+    border-color:rgba(8,121,115,.42);
+    box-shadow:0 12px 28px rgba(6,60,52,.16), inset 0 1px 0 rgba(255,255,255,.85);
 }
 .success-actions > a:active,.success-actions > button:active{transform:translateY(0) scale(.99);}
 /* لمعة علوية خفيفة لبقية الأزرار */
@@ -465,21 +466,32 @@ button#sendBtn:disabled{
     top:1px;left:1px;right:1px;
     height:46%;
     border-radius:14px 14px 40% 40%;
-    background:linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
+    background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0));
     pointer-events:none;
 }
-.success-whatsapp-button{
-    background:linear-gradient(135deg, rgba(37,211,102,.9), rgba(15,138,79,.78));
-    border-color:rgba(255,255,255,.55);
+/* نفس الشكل الزجاجي الفاتح لكل الأزرار مع نص غامق واضح.
+   الشكل "> .class" هنا مقصود: أولويته أعلى من قاعدة ".success-actions > a" التي كانت تلغي الألوان. */
+.success-actions > .success-whatsapp-button{
+    background:linear-gradient(135deg, rgba(37,211,102,.3), rgba(37,211,102,.12));
+    border-color:rgba(16,150,80,.48);
+    color:#075e35;
     animation:waSoftPulse 3.6s ease-in-out infinite;
 }
-.success-chat-button{background:linear-gradient(135deg, rgba(8,121,115,.86), rgba(4,86,82,.76));}
-.success-home-button{
-    background:linear-gradient(135deg, rgba(255,255,255,.42), rgba(226,242,239,.3));
+.success-actions > .success-chat-button{
+    background:linear-gradient(135deg, rgba(8,121,115,.16), rgba(8,121,115,.06));
+    border-color:rgba(8,121,115,.34);
     color:#045652;
-    border-color:rgba(255,255,255,.72);
 }
-.rejection-close-button{background:linear-gradient(135deg, rgba(113,128,150,.75), rgba(82,96,116,.65));}
+.success-actions > .success-home-button{
+    background:linear-gradient(135deg, rgba(255,255,255,.86), rgba(238,249,246,.66));
+    border-color:rgba(8,121,115,.34);
+    color:#045652;
+}
+.success-actions > .rejection-close-button{
+    background:linear-gradient(135deg, rgba(113,128,150,.88), rgba(82,96,116,.8));
+    border-color:rgba(255,255,255,.4);
+    color:#fff;
+}
 
 /* نبض خفيف جداً لزر الواتساب */
 @keyframes waSoftPulse{
@@ -497,11 +509,11 @@ button#sendBtn:disabled{
     border-radius:inherit;
     padding:1.5px;
     background:conic-gradient(from var(--wa-edge-angle),
-        rgba(255,255,255,0) 0deg,
-        rgba(255,255,255,0) 272deg,
-        rgba(255,255,255,.28) 306deg,
-        rgba(255,255,255,.95) 336deg,
-        rgba(255,255,255,0) 360deg);
+        rgba(16,185,129,0) 0deg,
+        rgba(16,185,129,0) 272deg,
+        rgba(16,185,129,.3) 306deg,
+        rgba(255,255,255,.98) 340deg,
+        rgba(16,185,129,0) 360deg);
     -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite:xor;
     mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -788,7 +800,6 @@ button#sendBtn:disabled{
         <div class="success-actions">
             <a id="optionalWhatsappLink" class="success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">📲 استمرار إلى واتساب</a>
             <a class="success-chat-button" href="chat.html">💬 تواصل مع فريق الدعم</a>
-            <button id="copyOrderFormButton" class="success-home-button" type="button">📋 نسخ نص النموذج</button>
             <a class="success-home-button" href="../index.html">🏠 العودة إلى الرئيسية</a>
         </div>
     </div>
@@ -870,7 +881,6 @@ button#sendBtn:disabled{
 
 <script type="module">
 import {
-    buildOrderFormText,
     buildWhatsappUrl,
     saveOrderForm
 } from "../scripts/order-form.js";
@@ -1018,24 +1028,6 @@ btnText.innerText = "إرسال الطلب";
 }
 
 };
-
-/* نسخ نص النموذج كبديل إذا لم يكن واتساب متاحاً على الجهاز. */
-document.getElementById("copyOrderFormButton").addEventListener("click", async () => {
-const button = document.getElementById("copyOrderFormButton");
-const form = JSON.parse(localStorage.getItem("waleed_last_order_form") || "null");
-if(!form){ alert("لا يوجد نموذج مسجل بعد."); return; }
-const text = buildOrderFormText(form);
-try{
-    await navigator.clipboard.writeText(text);
-    button.textContent = "✅ تم نسخ النموذج";
-}catch{
-    const area = document.createElement("textarea");
-    area.value = text; document.body.appendChild(area);
-    area.select(); document.execCommand("copy"); area.remove();
-    button.textContent = "✅ تم نسخ النموذج";
-}
-setTimeout(() => { button.textContent = "📋 نسخ نص النموذج"; }, 2500);
-});
 
 /* نسخ رقم المعاملة من الزر الصغير بجانب الرقم. */
 document.getElementById("copyTransactionButton").addEventListener("click", async () => {
