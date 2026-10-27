@@ -371,7 +371,12 @@ button#sendBtn:disabled{
     padding:30px;
     border:1px solid rgba(255,255,255,.15);
     border-radius:22px;
-    background:#fff;
+    background:
+        radial-gradient(700px 260px at 8% -8%, rgba(37,211,102,.16), transparent 62%),
+        radial-gradient(650px 280px at 100% 108%, rgba(8,121,115,.14), transparent 62%),
+        linear-gradient(160deg, rgba(255,255,255,.97), rgba(242,251,248,.93));
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    backdrop-filter:blur(18px) saturate(140%);
     color:#1e293b;
     text-align:center;
     box-shadow:0 24px 75px rgba(0,0,0,.38);
@@ -391,32 +396,138 @@ button#sendBtn:disabled{
 .request-success-card h2{margin:0 0 8px;color:#045652;}
 .request-success-card p{color:#64748b;line-height:1.8;}
 .success-transaction{
-    margin:18px 0;
-    padding:14px;
-    border:1px dashed #087973;
-    border-radius:13px;
+    margin:18px 0 16px;
+    padding:14px 16px;
+    border:1px solid rgba(8,121,115,.28);
+    border-radius:16px;
     color:#045652;
-    background:#edf8f6;
+    background:linear-gradient(180deg, rgba(237,248,246,.9), rgba(255,255,255,.55));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85), 0 6px 18px rgba(4,85,82,.07);
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
 }
-.success-transaction strong{display:block;font-size:1.65rem;letter-spacing:2px;}
+.success-transaction > span{display:block;font-size:.82rem;font-weight:700;opacity:.8;}
+.transaction-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:4px;}
+.success-transaction strong{display:block;font-size:1.65rem;letter-spacing:2px;direction:ltr;}
+.copy-transaction-button{
+    display:inline-flex;align-items:center;justify-content:center;gap:5px;
+    min-height:34px;padding:6px 12px;
+    border:1px solid rgba(255,255,255,.75);
+    border-radius:10px;
+    background:rgba(255,255,255,.42);
+    color:#045652;
+    font-size:.78rem;font-weight:800;
+    cursor:pointer;
+    -webkit-backdrop-filter:blur(10px) saturate(140%);
+    backdrop-filter:blur(10px) saturate(140%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 12px rgba(4,85,82,.1);
+    transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.copy-transaction-button:hover{transform:translateY(-2px);background:rgba(255,255,255,.72);}
+.copy-transaction-button.copied{background:rgba(37,211,102,.22);border-color:rgba(37,211,102,.45);}
+
+/* --- أزرار زجاجية حديثة (Glassmorphism) --- */
 .success-actions{display:grid;gap:10px;}
-.success-actions a,.success-actions button{
-    min-height:49px;
+.success-actions > a,.success-actions > button{
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    width:100%;
+    min-height:52px;
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:8px;
-    border:0;
-    border-radius:12px;
-    padding:11px 15px;
-    color:white;
+    gap:9px;
+    border:1px solid rgba(255,255,255,.4);
+    border-radius:15px;
+    padding:12px 18px;
+    color:#fff;
     text-decoration:none;
+    font-size:.96rem;
     font-weight:800;
     cursor:pointer;
+    background:rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(14px) saturate(155%);
+    backdrop-filter:blur(14px) saturate(155%);
+    box-shadow:0 10px 24px rgba(6,60,52,.13), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -1px 0 rgba(0,0,0,.05);
+    transition:transform .22s ease, box-shadow .22s ease, filter .22s ease, border-color .22s ease;
 }
-.success-chat-button{background:linear-gradient(135deg,#087973,#045652);}
-.success-whatsapp-button{background:#25d366;}
-.success-home-button{background:#718096;}
+.success-actions > a:hover,.success-actions > button:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.06);
+    box-shadow:0 14px 30px rgba(6,60,52,.2), inset 0 1px 0 rgba(255,255,255,.55);
+}
+.success-actions > a:active,.success-actions > button:active{transform:translateY(0) scale(.99);}
+/* لمعة علوية خفيفة لبقية الأزرار */
+.success-actions > :not(.success-whatsapp-button)::before{
+    content:"";
+    position:absolute;
+    top:1px;left:1px;right:1px;
+    height:46%;
+    border-radius:14px 14px 40% 40%;
+    background:linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
+    pointer-events:none;
+}
+.success-whatsapp-button{
+    background:linear-gradient(135deg, rgba(37,211,102,.9), rgba(15,138,79,.78));
+    border-color:rgba(255,255,255,.55);
+    animation:waSoftPulse 3.6s ease-in-out infinite;
+}
+.success-chat-button{background:linear-gradient(135deg, rgba(8,121,115,.86), rgba(4,86,82,.76));}
+.success-home-button{
+    background:linear-gradient(135deg, rgba(255,255,255,.42), rgba(226,242,239,.3));
+    color:#045652;
+    border-color:rgba(255,255,255,.72);
+}
+.rejection-close-button{background:linear-gradient(135deg, rgba(113,128,150,.75), rgba(82,96,116,.65));}
+
+/* نبض خفيف جداً لزر الواتساب */
+@keyframes waSoftPulse{
+    0%,100%{box-shadow:0 10px 24px rgba(37,211,102,.2), inset 0 1px 0 rgba(255,255,255,.45), 0 0 0 0 rgba(37,211,102,0);}
+    50%{box-shadow:0 12px 28px rgba(37,211,102,.32), inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 3px rgba(37,211,102,.06);}
+}
+
+/* لمعة خفيفة تمشي على حواف زر الواتساب */
+@property --wa-edge-angle{syntax:"<angle>";initial-value:0deg;inherits:false;}
+@keyframes waEdgeTravel{to{--wa-edge-angle:360deg;}}
+.success-whatsapp-button::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    padding:1.5px;
+    background:conic-gradient(from var(--wa-edge-angle),
+        rgba(255,255,255,0) 0deg,
+        rgba(255,255,255,0) 272deg,
+        rgba(255,255,255,.28) 306deg,
+        rgba(255,255,255,.95) 336deg,
+        rgba(255,255,255,0) 360deg);
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite:exclude;
+    animation:waEdgeTravel 6s linear infinite;
+    pointer-events:none;
+}
+@keyframes waSheen{
+    0%,58%{transform:translateX(-135%);}
+    86%,100%{transform:translateX(135%);}
+}
+.success-whatsapp-button::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(105deg, transparent 36%, rgba(255,255,255,.14) 47%, rgba(255,255,255,.26) 50%, transparent 62%);
+    transform:translateX(-135%);
+    animation:waSheen 6s ease-in-out infinite;
+    pointer-events:none;
+}
+@media (prefers-reduced-motion:reduce){
+    .success-whatsapp-button,
+    .success-whatsapp-button::before,
+    .success-whatsapp-button::after{animation:none;}
+    .success-actions > a:hover,.success-actions > button:hover{transform:none;}
+}
 .rejection-check{background:#c62828;}
 .request-rejected-card h2{color:#a61b1b;}
 .rejection-details{
@@ -429,7 +540,7 @@ button#sendBtn:disabled{
     line-height:1.9;
     font-weight:700;
 }
-.rejection-close-button{width:100%;background:#718096;}
+.rejection-close-button{width:100%;}
 
 /* --- الفوتر الملكي الفاخر --- */
 .main-footer {
@@ -666,15 +777,19 @@ button#sendBtn:disabled{
     <div class="request-success-card" role="dialog" aria-modal="true">
         <div class="success-check">✓</div>
         <h2 id="requestSuccessTitle">تم استلام طلبك بنجاح</h2>
-        <p>مرحباً <strong id="successApplicantName"></strong>، تم إنشاء محادثتك المباشرة مع الإدارة.</p>
+        <p>مرحباً <strong id="successApplicantName"></strong>، تم إنشاء محادثتك المباشرة مع الإدارة، وتم تجهيز نموذج ببياناتك لإرساله عبر واتساب.</p>
         <div class="success-transaction">
             <span>رقم معاملتك</span>
-            <strong id="successTransactionId">—</strong>
+            <div class="transaction-row">
+                <strong id="successTransactionId">—</strong>
+                <button id="copyTransactionButton" class="copy-transaction-button" type="button" aria-label="نسخ رقم المعاملة" title="نسخ رقم المعاملة">📋 نسخ</button>
+            </div>
         </div>
         <div class="success-actions">
-            <a class="success-chat-button" href="chat.html">💬 ابدأ المحادثة الآن</a>
-            <a id="optionalWhatsappLink" class="success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">◉ التواصل عبر واتساب — اختياري</a>
-            <a class="success-home-button" href="../index.html">العودة إلى الرئيسية</a>
+            <a id="optionalWhatsappLink" class="success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">📲 استمرار إلى واتساب</a>
+            <a class="success-chat-button" href="chat.html">💬 تواصل مع فريق الدعم</a>
+            <button id="copyOrderFormButton" class="success-home-button" type="button">📋 نسخ نص النموذج</button>
+            <a class="success-home-button" href="../index.html">🏠 العودة إلى الرئيسية</a>
         </div>
     </div>
 </section>
@@ -754,6 +869,11 @@ button#sendBtn:disabled{
 </script>
 
 <script type="module">
+import {
+    buildOrderFormText,
+    buildWhatsappUrl,
+    saveOrderForm
+} from "../scripts/order-form.js";
 
 /* حفظ أرقام الجوال بصيغة إنجليزية موحدة لتسهيل البحث لاحقاً. */
 function normalizePhone(value){
@@ -860,17 +980,28 @@ if(!registrationResponse.ok){
 const transactionId = String(registration.transactionId);
 const orderId = String(registration.orderId);
 
-localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
+/* البيانات المسجلة كما أدخلها المستفيد - تُستخدم في كل قنوات الإرسال. */
+const orderForm = {
 orderId:orderId,
 transactionId:String(transactionId),
+name:name,
 phone:phone,
-name:name
-}));
+email:email,
+idNumber:idNumber,
+partNumber:partNumber,
+bankName:bankName,
+country:country,
+type:type,
+notes:notes,
+status:"قيد المراجعة"
+};
 
-const whatsappMessage =
-"السلام عليكم، أحتاج المساعدة بخصوص المعاملة رقم "+transactionId;
-document.getElementById("optionalWhatsappLink").href =
-"https://wa.me/"+adminPhone+"?text="+encodeURIComponent(whatsappMessage);
+/* نحفظ النموذج كاملاً حتى تستخدمه صفحة المحادثة الداخلية أيضاً. */
+saveOrderForm(orderForm);
+localStorage.setItem("waleed_internal_chat_session",JSON.stringify(orderForm));
+
+/* بدلاً من رسالة الاستفسار القديمة: نرسل نموذجاً كاملاً بالبيانات المسجلة. */
+document.getElementById("optionalWhatsappLink").href = buildWhatsappUrl(orderForm, adminPhone);
 document.getElementById("successApplicantName").textContent=name;
 document.getElementById("successTransactionId").textContent=transactionId;
 document.getElementById("requestSuccessModal").hidden=false;
@@ -887,6 +1018,41 @@ btnText.innerText = "إرسال الطلب";
 }
 
 };
+
+/* نسخ نص النموذج كبديل إذا لم يكن واتساب متاحاً على الجهاز. */
+document.getElementById("copyOrderFormButton").addEventListener("click", async () => {
+const button = document.getElementById("copyOrderFormButton");
+const form = JSON.parse(localStorage.getItem("waleed_last_order_form") || "null");
+if(!form){ alert("لا يوجد نموذج مسجل بعد."); return; }
+const text = buildOrderFormText(form);
+try{
+    await navigator.clipboard.writeText(text);
+    button.textContent = "✅ تم نسخ النموذج";
+}catch{
+    const area = document.createElement("textarea");
+    area.value = text; document.body.appendChild(area);
+    area.select(); document.execCommand("copy"); area.remove();
+    button.textContent = "✅ تم نسخ النموذج";
+}
+setTimeout(() => { button.textContent = "📋 نسخ نص النموذج"; }, 2500);
+});
+
+/* نسخ رقم المعاملة من الزر الصغير بجانب الرقم. */
+document.getElementById("copyTransactionButton").addEventListener("click", async () => {
+const button = document.getElementById("copyTransactionButton");
+const transactionId = (document.getElementById("successTransactionId").textContent || "").trim();
+if(!transactionId || transactionId === "—"){ alert("رقم المعاملة غير متاح بعد."); return; }
+try{
+    await navigator.clipboard.writeText(transactionId);
+}catch{
+    const area = document.createElement("textarea");
+    area.value = transactionId; document.body.appendChild(area);
+    area.select(); document.execCommand("copy"); area.remove();
+}
+button.textContent = "✅ تم النسخ";
+button.classList.add("copied");
+setTimeout(() => { button.textContent = "📋 نسخ"; button.classList.remove("copied"); }, 2200);
+});
 
 </script>
 

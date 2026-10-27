@@ -40,6 +40,11 @@ import {
     primeLocalMediaPreview,
     releaseLocalMediaPreview
 } from "./chat-media.js?v=46";
+import {
+    buildWhatsappUrl,
+    saveOrderForm,
+    mergeOrderForm
+} from "./order-form.js?v=49";
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const CHAT_INSTALL_KEY = "waleed_chat_app_installed";
@@ -262,10 +267,14 @@ function clearSession() {
     localStorage.removeItem(SESSION_KEY);
 }
 
-function setWhatsappLinks(transactionId) {
-    const message = `السلام عليكم، أحتاج المساعدة بخصوص المعاملة رقم ${transactionId}`;
-    const url = `https://wa.me/966580272758?text=${encodeURIComponent(message)}`;
-    document.getElementById("floatingWhatsapp").href = url;
+/* كان الزر يرسل مجرد استفسار برقم المعاملة؛ الآن يرسل نموذج الطلب كاملاً
+   بنفس البيانات المسجلة والمعروضة في رسالة الترحيب داخل المحادثة. */
+function setWhatsappLinks(order) {
+    const link = document.getElementById("floatingWhatsapp");
+    if (!link) return;
+    link.href = buildWhatsappUrl(mergeOrderForm(order || currentOrder || {}));
+    link.setAttribute("aria-label", "إرسال نموذج الطلب عبر واتساب");
+    link.title = "إرسال نموذج الطلب عبر واتساب";
 }
 
 async function startChat(session) {
@@ -282,7 +291,7 @@ async function startChat(session) {
     }
 
     currentOrder = { id: session.orderId, transactionId: session.transactionId, phone: session.phone };
-    setWhatsappLinks(session.transactionId);
+    setWhatsappLinks({ ...session, ...currentOrder });
     chatOrderBadge.textContent = `#${session.transactionId}`;
     messageSearchQuery = "";
     messageSearchInput.value = "";
@@ -309,6 +318,7 @@ async function startChat(session) {
     }
     unsubscribe = subscribeToOrder(session.orderId, order => {
         currentOrder = order;
+        setWhatsappLinks(order);   /* البيانات الكاملة من قاعدة البيانات */
         renderOrder(order);
     }, error => {
         console.error(error);
@@ -789,6 +799,8 @@ loginForm.addEventListener("submit", async event => {
         const order = await findOrderByCredentials(transactionId, phone);
         if (!order) throw new Error("invalid-credentials");
         const session = { orderId: order.id, transactionId, phone, name: order.data.name || "المستفيد" };
+        /* نحفظ بيانات الطلب كاملة ليستخدمها زر واتساب حتى قبل وصول بيانات Firestore. */
+        saveOrderForm({ ...order.data, transactionId: order.data.transactionId || transactionId });
         saveSession(session);
         await startChat(session);
     } catch (error) {
