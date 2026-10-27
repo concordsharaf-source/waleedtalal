@@ -877,6 +877,51 @@ button#sendBtn:disabled{
     }
 
         // الهيدر ثابت على الجوال لمنع الاهتزاز أثناء التمرير.
+
+    /* عند فتح صفحة تسجيل الطلبات، ننتقل مباشرة إلى أول حقل (الاسم الكامل)
+       بدلاً من إبقاء المستخدم في رأس الصفحة. نترك هامشاً علوياً لأن الهيدر ثابت،
+       ونلغي التوجيه إذا بدأ المستخدم بالتمرير أو اللمس بنفسه. */
+    (function moveToFirstNameField() {
+        let cancelled = false;
+        const cancel = () => { cancelled = true; };
+        ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach(function (eventName) {
+            window.addEventListener(eventName, cancel, { once: true, passive: true });
+        });
+
+        function goToName() {
+            if (cancelled) return;
+            const nameInput = document.getElementById("name");
+            if (!nameInput || !nameInput.isConnected) return;
+            const group = nameInput.closest(".form-group") || nameInput;
+            const reduceMotion = window.matchMedia &&
+                window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            // الهامش يمنع الهيدر الثابت من تغطية عنوان الحقل.
+            group.style.scrollMarginTop = "96px";
+            try {
+                group.scrollIntoView({
+                    behavior: reduceMotion ? "auto" : "smooth",
+                    block: "start"
+                });
+            } catch (error) {
+                group.scrollIntoView();
+            }
+
+            // جعل الحقل جاهزاً للكتابة فوراً دون تمرير إضافي من المتصفح.
+            try {
+                nameInput.focus({ preventScroll: true });
+            } catch (error) {
+                nameInput.focus();
+            }
+        }
+
+        const schedule = () => window.setTimeout(goToName, 140);
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", schedule, { once: true });
+        } else {
+            schedule();
+        }
+    })();
 </script>
 
 <script type="module">
