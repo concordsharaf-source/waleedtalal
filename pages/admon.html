@@ -797,6 +797,39 @@ const noteInputs = {
 
 attachAmountFormatting(noteInputs.amount);
 
+/* عند لمس أي خانة من الخانات الثلاث يُحدَّد نصها كاملاً،
+   فيكفي كتابة القيمة الجديدة مباشرة دون تحديد وحذف يدوي.
+   نمنع المتصفح من إلغاء التحديد عند إفلات زر الفأرة،
+   ونترك النقرات التالية تعمل بشكل طبيعي لتعديل جزء من النص. */
+function attachSelectAllOnFocus(input) {
+    if (!input) return;
+    let pending = false;
+
+    input.addEventListener("focus", function () {
+        pending = true;
+        this.select();
+    });
+
+    input.addEventListener("mouseup", function (event) {
+        if (!pending) return;
+        event.preventDefault();
+        pending = false;
+        this.select();
+    });
+
+    input.addEventListener("touchend", function () {
+        if (!pending) return;
+        pending = false;
+        this.select();
+    });
+
+    input.addEventListener("blur", function () {
+        pending = false;
+    });
+}
+
+Object.values(noteInputs).forEach(attachSelectAllOnFocus);
+
 let noteState = { base: "", phone: "", amount: "", feeType: "" };
 
 /* نلتقط القيم الموجودة فعلياً في النص عند فتح النافذة أو تعديل النص يدوياً. */
