@@ -529,6 +529,19 @@ placeholder="بحث برقم المعاملة أو الجوال">
 </div>
 
 
+<div class="note-tools" id="noteTools">
+<div class="note-tools-title">تحديث سريع لمحتوى التفاصيل</div>
+
+<label for="noteContactPhone">رقم التواصل</label>
+<input id="noteContactPhone" type="text" placeholder="+966580272758" autocomplete="off">
+
+<label for="noteFeesAmount">مبلغ الرسوم</label>
+<input id="noteFeesAmount" type="text" placeholder="3,750" autocomplete="off">
+
+<label for="noteFeesType">نوع الرسوم</label>
+<input id="noteFeesType" type="text" placeholder="التحويل البنكي" autocomplete="off">
+</div>
+
 <label>
 تفاصيل الطلب (سجلها المستفيد)
 </label>
@@ -542,10 +555,6 @@ placeholder="بحث برقم المعاملة أو الجوال">
 
 <input id="editGrantAmount"
 placeholder="مثال: 650,000.00 ر.س">
-
-<div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.7;">
-تُضاف الفاصلة تلقائياً بعد كل 3 أرقام — مثال: 1000000 ⟵ 1,000,000
-</div>
 
 
 <label>
@@ -668,6 +677,44 @@ font-size:15px;
 }
 
 
+.note-tools{
+margin-bottom:16px;
+padding:14px;
+border:1px dashed #1a4332;
+border-radius:10px;
+background:linear-gradient(160deg,#f2f8f4,#e8f5ed);
+}
+
+.note-tools-title{
+font-weight:800;
+color:#045652;
+margin-bottom:6px;
+font-size:.9rem;
+}
+
+.note-tools label{
+margin-top:10px;
+margin-bottom:4px;
+font-size:.82rem;
+color:#0b4b45;
+}
+
+.note-tools input{
+direction:ltr;
+text-align:right;
+background:#fff;
+}
+
+#noteFeesType{
+direction:rtl;
+}
+
+#editNotes{
+height:170px;
+resize:vertical;
+line-height:1.8;
+}
+
 .custom-status-box{
 margin-top:12px;
 padding:12px;
@@ -734,8 +781,56 @@ onSnapshot
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { formatAmount, attachAmountFormatting } from "../scripts/amount-format.js";
+import { detectNoteValues, buildNoteText } from "../scripts/note-tools.js";
 
 attachAmountFormatting(document.getElementById("editGrantAmount"));
+
+/* ---------------- تحديث سريع لمحتوى «تفاصيل الطلب» ----------------
+ * ثلاثة حقول أعلى النص: رقم التواصل، مبلغ الرسوم، نوع الرسوم.
+ * أي تغيير فيها ينعكس فوراً داخل نص التفاصيل. */
+const notesField = document.getElementById("editNotes");
+const noteInputs = {
+    phone: document.getElementById("noteContactPhone"),
+    amount: document.getElementById("noteFeesAmount"),
+    feeType: document.getElementById("noteFeesType")
+};
+
+attachAmountFormatting(noteInputs.amount);
+
+let noteState = { base: "", phone: "", amount: "", feeType: "" };
+
+/* نلتقط القيم الموجودة فعلياً في النص عند فتح النافذة أو تعديل النص يدوياً. */
+function captureNoteState() {
+    const text = notesField.value;
+    const detected = detectNoteValues(text);
+    noteState = { base: text, ...detected };
+    noteInputs.phone.value = detected.phone;
+    noteInputs.amount.value = formatAmount(detected.amount);
+    noteInputs.feeType.value = detected.feeType;
+}
+
+function currentNoteValues() {
+    return {
+        phone: noteInputs.phone.value,
+        amount: formatAmount(noteInputs.amount.value),
+        feeType: noteInputs.feeType.value
+    };
+}
+
+/* نعيد بناء النص من الأساس في كل تغيير، فلا تتراكم القيم ولا تتكرر. */
+function refreshNoteText() {
+    const values = currentNoteValues();
+    if (noteInputs.amount.value !== values.amount) noteInputs.amount.value = values.amount;
+    notesField.value = buildNoteText(noteState.base, noteState, values);
+}
+
+Object.values(noteInputs).forEach(input => {
+    input.addEventListener("input", refreshNoteText);
+    input.addEventListener("blur", refreshNoteText);
+});
+
+/* التعديل اليدوي في النص يعيد ضبط الحقول الثلاثة لتطابقه. */
+notesField.addEventListener("input", captureNoteState);
 
 
 const firebaseConfig = {
@@ -1148,6 +1243,8 @@ editType.value=order.type || "";
 setEditableStatus(order.status);
 
 editNotes.value=order.notes || "";
+
+captureNoteState();
 
 editGrantAmount.value=formatAmount(order.grantAmount || "");
 
