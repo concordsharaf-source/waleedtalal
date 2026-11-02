@@ -65,21 +65,65 @@ background:white;
 padding:20px;
 border-radius:20px;
 box-shadow:0 5px 20px rgba(0,0,0,.1);
-margin-bottom:20px;
+margin-bottom:12px;
 display:flex;
+flex-wrap:wrap;
 gap:10px;
+}
+
+.search-field{
+flex:1 1 190px;
+min-width:0;
+position:relative;
+display:flex;
 }
 
 .search-box input{
 flex:1;
-padding:15px;
+padding:15px 45px 15px 15px;
 border-radius:12px;
 border:1px solid #ddd;
 font-family:inherit;
 font-size:16px;
+outline:none;
+transition:border-color .15s, box-shadow .15s;
+}
+
+.search-box input:focus{
+border-color:#25D366;
+box-shadow:0 0 0 3px rgba(37,211,102,.15);
+}
+
+.search-box .search-clear{
+position:absolute;
+top:50%;
+left:8px;
+transform:translateY(-50%);
+width:32px;
+height:32px;
+padding:0;
+border:none;
+border-radius:50%;
+background:#eef1f0;
+color:#555;
+font-size:18px;
+line-height:1;
+cursor:pointer;
+display:none;
+align-items:center;
+justify-content:center;
+}
+
+.search-box .search-clear.visible{
+display:flex;
+}
+
+.search-box .search-clear:hover{
+background:#e0e5e3;
 }
 
 .search-box button{
+flex:0 0 auto;
 padding:15px 25px;
 border:none;
 border-radius:12px;
@@ -87,6 +131,26 @@ background:#25D366;
 color:white;
 font-weight:bold;
 cursor:pointer;
+}
+
+.search-hint{
+margin:0 0 20px;
+padding:0 5px;
+font-size:14px;
+color:#5f6b66;
+min-height:20px;
+}
+
+.search-hint.active{
+color:#168347;
+font-weight:bold;
+}
+
+.search-hint mark{
+background:rgba(37,211,102,.25);
+color:inherit;
+border-radius:4px;
+padding:0 3px;
 }
 
 .sort-box{
@@ -134,6 +198,30 @@ font-weight:bold;
 .order-title{
 flex-wrap:wrap;
 gap:10px;
+}
+
+.match-badge{
+display:inline-block;
+margin:10px 0 0;
+padding:6px 12px;
+border-radius:999px;
+background:rgba(37,211,102,.14);
+color:#0f6b3a;
+font-size:13px;
+font-weight:700;
+border:1px solid rgba(37,211,102,.35);
+}
+
+.order-card mark{
+background:#fff2a8;
+color:inherit;
+border-radius:4px;
+padding:0 2px;
+font-weight:700;
+}
+
+.no-results{
+line-height:1.9;
 }
 
 .order-title .t-label{
@@ -382,14 +470,19 @@ font-weight:bold;
 
 <div class="search-box">
 
-<input id="searchInput"
-placeholder="بحث برقم المعاملة أو الجوال">
+<div class="search-field">
+<input id="searchInput" type="text" inputmode="search" autocomplete="off"
+placeholder="ابحث بالاسم أو رقم المعاملة أو رقم الجوال">
+<button type="button" id="searchClear" class="search-clear" title="مسح البحث" aria-label="مسح البحث">✕</button>
+</div>
 
-<button onclick="searchOrders()">
+<button type="button" onclick="searchOrders()">
 بحث
 </button>
 
 </div>
+
+<p id="searchHint" class="search-hint" role="status" aria-live="polite"></p>
 
 <div class="sort-box">
 
@@ -948,6 +1041,54 @@ let phone=normalizeNumber(value);
 return phone.startsWith("00") ? phone.slice(2) : phone;
 }
 
+/* مقارنة أرقام الجوال بغض النظر عن صيغة البداية:
+   +966580272758 / 00966580272758 / 0580272758  كلها تُطابق بعضها. */
+function phoneVariants(value){
+const raw=normalizePhone(value);
+if(!raw) return [];
+const variants=new Set([raw]);
+const stripLeadingZero=raw.replace(/^0+/,"");
+if(stripLeadingZero) variants.add(stripLeadingZero);
+const withoutCountry=stripLeadingZero.replace(/^(966|967|971|965|973|974|968|962|20|212|213|216|218|249|964|961|963|970|962)/,"");
+if(withoutCountry) variants.add(withoutCountry);
+return [...variants];
+}
+
+function phonesMatch(query, value){
+const queryVariants=phoneVariants(query);
+if(!queryVariants.length) return false;
+const valueVariants=phoneVariants(value);
+return queryVariants.some(q=>valueVariants.some(v=>v.includes(q) || q.includes(v)));
+}
+
+/* تطبيع نص البحث: توحيد الحروف العربية (أ/إ/آ ← ا، ى ← ي، ة ← ه)،
+   إزالة التشكيل والتطويل، وحذف علامات الترقيم والمسافات الزائدة. */
+function normalizeArabicText(value){
+return String(value ?? "")
+.replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"")
+.replace(/\u0640/g,"")
+.replace(/[أإآٱ]/g,"ا")
+.replace(/ى/g,"ي")
+.replace(/ة/g,"ه")
+.replace(/ؤ/g,"و")
+.replace(/ئ/g,"ي")
+.replace(/[^\p{L}\p{N}]+/gu," ")
+.replace(/\s+/g," ")
+.trim()
+.toLowerCase();
+}
+
+/* substring واحد لا يكفي: يمزّق صيغ الرقم الواحد.
+   هنا نقارَن «مقطع من رقم البحث» بعضو من أعضاء الرقم المسجّل. */
+function digitsMatch(queryDigits, valueDigits){
+const q=normalizeNumber(queryDigits);
+const v=normalizeNumber(valueDigits);
+if(!q) return false;
+if(v.includes(q)) return true;
+if(q.length < 4) return false;
+return v.split(/\s+/).some(part=>part && q.includes(part));
+}
+
 
 let allOrders=[];
 let ordersLoaded=false;
@@ -1101,16 +1242,22 @@ ordersDiv.innerHTML="حدث خطأ في تحميل الطلبات";
 }
 
 
-function displayOrders(list){
+function displayOrders(list, searchCtx){
 
+const ctx = searchCtx || {active:false};
 
 ordersDiv.innerHTML="";
 
 
 if(list.length===0){
 
-ordersDiv.innerHTML=
-"<div class='order-card'>لا توجد طلبات</div>";
+const query=(ctx && ctx.active) ? esc(ctx.raw) : "";
+ordersDiv.innerHTML =
+"<div class='order-card no-results' style='text-align:center;'>"+
+(query
+? "🔍 لا توجد طلبات مطابقة لـ «"+query+"».<br><span style='color:#6b7772;font-size:14px;font-weight:500;'>جرّب الاسم الأول فقط، أو رقم المعاملة، أو رقم الجوال بدون رمز الدولة.</span>"
+: "لا توجد طلبات")+
+"</div>";
 
 return;
 
@@ -1119,6 +1266,12 @@ return;
 
 
 list.forEach(data=>{
+
+const fields=matchedFieldLabels(data, ctx);
+const highlightQuery=(ctx && ctx.active) ? (ctx.raw || "") : "";
+const badgeHtml=fields.length
+? "<div class='match-badge'>✔ مطابق في: "+esc(fields.join(" • "))+"</div>"
+: "";
 
 
 ordersDiv.innerHTML += `
@@ -1130,7 +1283,7 @@ ordersDiv.innerHTML += `
 
 <div class="t-block">
 <div class="t-label">رقم المعاملة</div>
-<span>${esc(data.transactionId) || "-"}</span>
+<span>${highlightText(data.transactionId, highlightQuery) || "-"}</span>
 </div>
 
 <div class="t-block t-date">
@@ -1139,6 +1292,7 @@ ordersDiv.innerHTML += `
 </div>
 
 </div>
+${badgeHtml}
 
 
 <div class="grid">
@@ -1146,13 +1300,13 @@ ordersDiv.innerHTML += `
 
 <div class="field">
 <div class="label">الاسم</div>
-<div class="value">${esc(data.name) || "-"}</div>
+<div class="value">${highlightText(data.name, highlightQuery) || "-"}</div>
 </div>
 
 
 <div class="field">
 <div class="label">الجوال</div>
-<div class="value">${esc(data.phone) || "-"}</div>
+<div class="value">${highlightText(data.phone, highlightQuery) || "-"}</div>
 </div>
 
 
@@ -1330,11 +1484,7 @@ try{
 await deleteDoc(doc(db,"orders",id));
 allOrders=allOrders.filter(item=>item.id!==id);
 
-if(document.getElementById("searchInput").value.trim()){
-window.searchOrders();
-}else{
-displayOrders(allOrders);
-}
+rerenderCurrentOrders();
 
 alert("تم حذف المعاملة رقم "+transactionId+" بنجاح");
 
@@ -1428,58 +1578,176 @@ alert("حدث خطأ أثناء الحفظ");
 
 
 
-window.searchOrders=function(){
+const searchInputEl=document.getElementById("searchInput");
+const searchClearBtn=document.getElementById("searchClear");
+const searchHintEl=document.getElementById("searchHint");
 
+/* كل الحقول التي يُبحث فيها، مع اسم عربي يظهر داخل رسالة "تمت التصفية". */
+const SEARCH_FIELDS=[
+{key:"name", label:"الاسم", kind:"text"},
+{key:"transactionId", label:"رقم المعاملة", kind:"digits"},
+{key:"phone", label:"الجوال", kind:"phone"},
+{key:"email", label:"البريد الإلكتروني", kind:"text"},
+{key:"idNumber", label:"رقم الهوية", kind:"digits"},
+{key:"partNumber", label:"رقم الحساب / الآيبان", kind:"digits"},
+{key:"bankName", label:"اسم البنك", kind:"text"},
+{key:"country", label:"الدولة", kind:"text"},
+{key:"type", label:"نوع الطلب", kind:"text"},
+{key:"status", label:"الحالة", kind:"text"}
+];
 
-let text=searchInput.value.trim();
-
-
-
-if(text===""){
-
-displayOrders(allOrders);
-
-return;
-
+/* ---------- تظليل الجزء المطابق داخل النص ---------- */
+/* تطبيع «بطول ثابت» (كل حرف يبقى حرفاً واحداً) حتى تبقى مواضع التظليل صحيحة. */
+function foldText(value){
+return String(value ?? "")
+.replace(/[\u0660-\u0669]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d))
+.replace(/[\u06F0-\u06F9]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+.replace(/[أإآٱ]/g,"ا")
+.replace(/ى/g,"ي")
+.replace(/ة/g,"ه")
+.replace(/ؤ/g,"و")
+.replace(/ئ/g,"ي")
+.replace(/\u0640/g,"")
+.toLowerCase();
 }
 
+function highlightText(value, textQuery){
+const safe=esc(value);
+if(!textQuery) return safe;
+const raw=String(value ?? "");
+if(!raw) return safe;
+const hay=foldText(raw);
+if(hay.length!==raw.length) return safe;
+const q=foldText(textQuery).trim();
+if(!q) return safe;
+const idx=hay.indexOf(q);
+if(idx<0) return safe;
+return esc(raw.slice(0,idx))+
+"<mark>"+esc(raw.slice(idx,idx+q.length))+"</mark>"+
+esc(raw.slice(idx+q.length));
+}
 
+function orderMatchesQuery(item, ctx){
+if(!ctx.active) return true;
+const nameNorm=normalizeArabicText(item.name);
+const digits=ctx.digits;
 
-const normalizedText=text.toLowerCase();
-const numericText=normalizeNumber(text);
-const phoneText=normalizePhone(text);
-
-let result=allOrders.filter(item=>{
-
-const matchesNumbers = numericText !== "" && (
-normalizeNumber(item.transactionId).includes(numericText)
+const digitsReady = digits.length>=2;
+const matchesName = ctx.text && nameNorm.includes(ctx.text);
+const transactionRaw=String(item.transactionId ?? "").toLowerCase().replace(/\s+/g,"");
+const matchesTransaction = Boolean(
+(digitsReady && digitsMatch(digits, item.transactionId))
 ||
-(phoneText !== "" && normalizePhone(item.phone).includes(phoneText))
-||
-normalizeNumber(item.idNumber).includes(numericText)
-||
-normalizeNumber(item.partNumber).includes(numericText)
+(ctx.transactionText && transactionRaw.includes(ctx.transactionText))
 );
+const matchesPhone = ctx.phoneRaw && phonesMatch(ctx.phoneRaw, item.phone);
+const matchesEmail = ctx.text && String(item.email ?? "").toLowerCase().includes(ctx.text);
+const matchesIdNumber = digitsReady && digitsMatch(digits, item.idNumber);
+const matchesPartNumber = digitsReady && digitsMatch(digits, item.partNumber);
 
-const matchesText =
-String(item.name ?? "").toLowerCase().includes(normalizedText)
-||
-String(item.email ?? "").toLowerCase().includes(normalizedText)
-||
-String(item.bankName ?? "").toLowerCase().includes(normalizedText);
-
-return matchesNumbers || matchesText;
-
-
-});
-
-
-displayOrders(result);
-
-
+return Boolean(
+matchesName
+|| matchesTransaction
+|| matchesPhone
+|| matchesEmail
+|| matchesIdNumber
+|| matchesPartNumber
+);
 }
 
+function matchedFieldLabels(item, ctx){
+if(!ctx.active) return [];
+const hits=[];
+for(const field of SEARCH_FIELDS){
+  const value=item[field.key];
+  if(field.kind==="phone"){
+    if(ctx.phoneRaw && phonesMatch(ctx.phoneRaw, value)) hits.push(field.label);
+    continue;
+  }
+  if(field.kind==="digits"){
+    const codeHit = field.key==="transactionId" && ctx.transactionText
+      && String(value ?? "").toLowerCase().replace(/\s+/g,"").includes(ctx.transactionText);
+    if((ctx.digits.length>=2 && digitsMatch(ctx.digits, value)) || codeHit) hits.push(field.label);
+    continue;
+  }
+  if(ctx.text && normalizeArabicText(value).includes(ctx.text)) hits.push(field.label);
+}
+return hits;
+}
 
+function currentSearchContext(){
+const text=searchInputEl.value.trim();
+const normalized=normalizeArabicText(text);
+return {
+raw:text,
+text:normalized,
+digits:normalizeNumber(text),
+transactionText:String(text).toLowerCase().replace(/\s+/g,""),
+phoneRaw:normalizePhone(text),
+active: text !== "" || normalizeNumber(text) !== ""
+};
+}
+
+function updateSearchUi(result, ctx){
+searchClearBtn.classList.toggle("visible", searchInputEl.value !== "");
+if(!ordersLoaded || !ctx.active){
+  searchHintEl.textContent="";
+  searchHintEl.classList.remove("active");
+  return;
+}
+const total=allOrders.length;
+const totalLabel=total===1 ? "طلب واحد" : total+" طلبات";
+searchHintEl.classList.add("active");
+if(result.length===0){
+  searchHintEl.innerHTML="لا توجد نتائج مطابقة لـ «"+esc(ctx.raw)+"» من أصل "+totalLabel+".";
+}else if(result.length===total){
+  searchHintEl.innerHTML="جميع الطلبات ("+totalLabel+") تطابق «"+esc(ctx.raw)+"».";
+}else{
+  searchHintEl.innerHTML="النتائج: "+result.length+" من "+totalLabel+" تطابق «"+esc(ctx.raw)+"».";
+}
+}
+
+window.searchOrders=function(){
+const ctx=currentSearchContext();
+if(!ctx.active){
+  displayOrders(allOrders);
+  updateSearchUi(allOrders,ctx);
+  return;
+}
+const result=allOrders.filter(item=>orderMatchesQuery(item,ctx));
+displayOrders(result,ctx);
+updateSearchUi(result,ctx);
+return result;
+};
+
+/* البحث الفوري أثناء الكتابة (بعد مهلة قصيرة) */
+let searchTypingTimer=null;
+if(searchInputEl){
+  searchInputEl.addEventListener("input",()=>{
+    searchClearBtn.classList.toggle("visible", searchInputEl.value !== "");
+    clearTimeout(searchTypingTimer);
+    searchTypingTimer=setTimeout(()=>window.searchOrders(),200);
+  });
+  searchInputEl.addEventListener("keydown",event=>{
+    if(event.key==="Enter"){
+      event.preventDefault();
+      clearTimeout(searchTypingTimer);
+      window.searchOrders();
+    }
+    if(event.key==="Escape"){
+      searchInputEl.value="";
+      window.searchOrders();
+      searchInputEl.focus();
+    }
+  });
+}
+if(searchClearBtn){
+  searchClearBtn.addEventListener("click",()=>{
+    searchInputEl.value="";
+    window.searchOrders();
+    searchInputEl.focus();
+  });
+}
 
 
 
@@ -1516,7 +1784,7 @@ allOrders.sort((a,b)=>
 }
 
 
-displayOrders(allOrders);
+rerenderCurrentOrders();
 
 
 }

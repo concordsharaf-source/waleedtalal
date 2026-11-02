@@ -4,8 +4,21 @@ const crypto = require('crypto');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
-const REQUIRED_NAME_PARTS = 3;
-const NAME_CONNECTORS = new Set(['بن', 'ابن', 'بنت']);
+/* منطق منع التكرار: رفض فقط عند تطابق خانتين على الأقل (تطابق تام). */
+const {
+    REQUIRED_NAME_PARTS,
+    DUPLICATE_THRESHOLD,
+    FIELD_LABELS,
+    limitText,
+    normalizeDigits,
+    normalizeTripleName,
+    countMeaningfulNameParts,
+    normalizePhone,
+    normalizePhoneKey,
+    normalizeIdentifier,
+    collectDuplicateFields,
+    duplicateRejectionMessage
+} = require('../lib/registration-duplicate');
 
 function parseServiceAccount() {
     const rawValue = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
@@ -30,85 +43,37 @@ function parseBody(request) {
     try { return JSON.parse(String(request.body || '{}')); } catch { return {}; }
 }
 
-function limitText(value, maxLength) {
-    return String(value ?? '').normalize('NFKC').trim().slice(0, maxLength);
-}
-
-function normalizeDigits(value) {
-    return String(value ?? '')
-        .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
-        .replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)));
-}
-
-function normalizeArabicText(value) {
-    return limitText(value, 220)
-        .toLocaleLowerCase('ar')
-        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
-        .replace(/ـ/g, '')
-        .replace(/[أإآٱ]/g, 'ا')
-        .replace(/ى/g, 'ي')
-        .replace(/ة/g, 'ه')
-        .replace(/[^\p{L}\p{N}\s]/gu, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-function normalizeTripleName(value) {
-    const meaningfulParts = normalizeArabicText(value)
-        .split(' ')
-        .filter(part => part && !NAME_CONNECTORS.has(part));
-    return meaningfulParts.slice(0, REQUIRED_NAME_PARTS).join(' ');
-}
-
-function countMeaningfulNameParts(value) {
-    return normalizeArabicText(value)
-        .split(' ')
-        .filter(part => part && !NAME_CONNECTORS.has(part)).length;
-}
-
-function normalizePhone(value) {
-    const digits = normalizeDigits(value).replace(/[^0-9]/g, '');
-    return digits.startsWith('00') ? digits.slice(2) : digits;
-}
-
-function normalizePhoneKey(value) {
-    const phone = normalizePhone(value);
-    return phone.length >= 9 ? phone.slice(-9) : phone;
-}
-
-function normalizeIdentifier(value) {
-    return normalizeDigits(value)
-        .normalize('NFKC')
-        .toLocaleUpperCase('en')
-        .replace(/[^\p{L}\p{N}]/gu, '');
-}
-
 function keyHash(type, value) {
     return crypto.createHash('sha256').update(`${type}:${value}`).digest('hex');
 }
 
+/**
+ * مفاتيح القفل — تُحفظ في مجموعة orderRegistrationKeys بنفس الصيغة القديمة
+ * حتى يبقى التوافق مع السجلات السابقة.
+ *
+ * ملاحظة: بصمة الاسم كانت تُحفظ لأول **اسمين** في السجلات القديمة، لذلك
+ * نحسب لكل شكل من أشكال الاسم (الكامل / أول اسمين) ونستخدم أول اسمين في
+ * مفتاح القفل — بينما قرار الرفض نفسه يعتمد على التطابق التام للاسم.
+ */
 function registrationKeys(data) {
+    const nameWords = normalizeTripleName(data.name).split(' ').filter(Boolean);
+    const nameKey = nameWords.slice(0, Math.min(2, nameWords.length)).join(' ');
     return [
-        { field: 'name', type: 'name', value: normalizeTripleName(data.name) },
+        { field: 'name', type: 'name', value: nameKey },
         { field: 'phone', type: 'phone', value: normalizePhoneKey(data.phone) },
         { field: 'idNumber', type: 'id', value: normalizeIdentifier(data.idNumber) },
         { field: 'bankAccount', type: 'bank', value: normalizeIdentifier(data.partNumber) }
     ].filter(item => item.value);
 }
 
-function existingDuplicateFields(snapshot, incomingKeys) {
-    const duplicates = new Set();
-    snapshot.forEach(document => {
-        const data = document.data() || {};
-        for (const key of incomingKeys) {
-            const existingValue = key.type === 'name' ? normalizeTripleName(data.name)
-                : key.type === 'phone' ? normalizePhoneKey(data.phone)
-                    : key.type === 'id' ? normalizeIdentifier(data.idNumber)
-                        : normalizeIdentifier(data.partNumber);
-            if (existingValue && existingValue === key.value) duplicates.add(key.field);
-        }
-    });
-    return [...duplicates];
+/**
+ * رفض فقط عند تطابق خانتين على الأقل (الاسم / الجوال / الحساب / الهوية)
+ * مع نفس السجل — وتطابق تام بعد التوحيد.
+ */
+function existingDuplicateFields(snapshot, order) {
+    const orders = [];
+    snapshot.forEach(document => orders.push({ id: document.id, ...document.data() }));
+    return collectDuplicateFields(orders, order);
 }
 
 function makeWelcomeMessage(order, transactionId) {
@@ -184,12 +149,16 @@ module.exports = async function handler(request, response) {
         const keys = registrationKeys(order);
 
         // نفحص السجلات القديمة التي سبقت إنشاء فهرس منع التكرار.
+        // الرفض فقط عند تطابق خانتين على الأقل.
         const existingOrders = await orders.get();
-        const duplicateFields = existingDuplicateFields(existingOrders, keys);
-        if (duplicateFields.length) {
+        const duplicate = existingDuplicateFields(existingOrders, order);
+        if (duplicate.rejected) {
             return response.status(409).json({
                 error: 'beneficiary-already-registered',
-                duplicateFields
+                duplicateFields: duplicate.fields,
+                duplicateCount: duplicate.fields.length,
+                duplicateLabels: duplicate.fields.map(field => FIELD_LABELS[field] || field),
+                message: duplicateRejectionMessage(duplicate.fields)
             });
         }
 
@@ -207,7 +176,9 @@ module.exports = async function handler(request, response) {
             const lockedFields = lockSnapshots
                 .map((snapshot, index) => snapshot.exists ? lockEntries[index].field : '')
                 .filter(Boolean);
-            if (lockedFields.length) {
+
+            /* رفض فقط عند تطابق خانتين على الأقل — خانة واحدة ليست تكراراً. */
+            if (new Set(lockedFields).size >= DUPLICATE_THRESHOLD) {
                 const duplicate = new Error('beneficiary-already-registered');
                 duplicate.code = 'beneficiary-already-registered';
                 duplicate.duplicateFields = [...new Set(lockedFields)];
@@ -229,11 +200,13 @@ module.exports = async function handler(request, response) {
                 chatTyping: { admin: false, client: false },
                 registrationKeyHashes: Object.fromEntries(keys.map(key => [key.field, keyHash(key.type, key.value)]))
             });
-            lockEntries.forEach(entry => transaction.create(entry.ref, {
+            /* قفل الخانات: set+merge حتى لا يفشل الطلب إذا كان القفل موجوداً
+               بخانة واحدة فقط (وهي حالة مسموحة بالقاعدة الجديدة). */
+            lockEntries.forEach(entry => transaction.set(entry.ref, {
                 orderId: orderRef.id,
                 field: entry.field,
                 createdAt: FieldValue.serverTimestamp()
-            }));
+            }, { merge: true }));
         });
 
         return response.status(201).json({
@@ -245,9 +218,13 @@ module.exports = async function handler(request, response) {
         });
     } catch (error) {
         if (error?.code === 'beneficiary-already-registered') {
+            const fields = error.duplicateFields || [];
             return response.status(409).json({
                 error: 'beneficiary-already-registered',
-                duplicateFields: error.duplicateFields || []
+                duplicateFields: fields,
+                duplicateCount: fields.length,
+                duplicateLabels: fields.map(field => FIELD_LABELS[field] || field),
+                message: duplicateRejectionMessage(fields)
             });
         }
         console.error('Register order error', error?.message || error);

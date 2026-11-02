@@ -961,14 +961,16 @@ const duplicateFieldInputs = {
 };
 let rejectedFieldToFocus = "name";
 
-function showDuplicateRejection(fields){
+function showDuplicateRejection(fields, serverMessage){
     const uniqueFields = [...new Set(Array.isArray(fields) ? fields : [])]
         .filter(field => duplicateFieldLabels[field]);
     const labels = uniqueFields.map(field => duplicateFieldLabels[field]);
     rejectedFieldToFocus = duplicateFieldInputs[uniqueFields[0]] || "name";
-    requestRejectedMessage.textContent = labels.length
-        ? `المستفيد مسجل مسبقًا، ووجدنا تطابقًا في: ${labels.join("، ")}.`
-        : "المستفيد مسجل مسبقًا في النظام، لذلك لا يمكن إنشاء طلب جديد.";
+    /* الرسالة من الخادم تذكر الخانات المتطابقة بدقة (لا يُرفض الطلب إلا بخانتين). */
+    requestRejectedMessage.textContent = (serverMessage || "").trim()
+        || (labels.length
+            ? `المستفيد مسجل مسبقًا، ووُجد تطابق تام في: ${labels.join("، ")}. لا يمكن إنشاء طلب جديد.`
+            : "المستفيد مسجل مسبقًا في النظام، لذلك لا يمكن إنشاء طلب جديد.");
     requestRejectedModal.hidden = false;
     document.body.style.overflow = "hidden";
 }
@@ -1015,7 +1017,7 @@ const registrationResponse = await fetch("/api/register-order",{
 const registration = await registrationResponse.json().catch(()=>({}));
 
 if(registrationResponse.status === 409 && registration.error === "beneficiary-already-registered"){
-    showDuplicateRejection(registration.duplicateFields);
+    showDuplicateRejection(registration.duplicateFields, registration.message);
     return;
 }
 if(!registrationResponse.ok){
