@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { publishAdminNotification } = require('../server/admin-notifications');
 
 /* منطق منع التكرار: رفض فقط عند تطابق خانتين على الأقل (تطابق تام). */
 const {
@@ -208,6 +209,17 @@ module.exports = async function handler(request, response) {
                 createdAt: FieldValue.serverTimestamp()
             }, { merge: true }));
         });
+
+        await publishAdminNotification({
+            dedupeKey: `registration:${orderRef.id}`,
+            eventType: 'new-registration',
+            title: 'تسجيل مستفيد جديد',
+            body: `تم تسجيل طلب مساعدة جديد برقم المعاملة ${transactionId}.`,
+            url: `https://waleedtalal.vercel.app/pages/notifications.html?type=registration&order=${encodeURIComponent(orderRef.id)}`,
+            orderId: orderRef.id,
+            transactionId,
+            sourceId: orderRef.id
+        }).catch(error => console.warn('New registration notification failed', error?.message || error));
 
         return response.status(201).json({
             created: true,

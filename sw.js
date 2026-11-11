@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v49";
+const CACHE_NAME = "waleedtalal-pwa-v50";
 
 /*
  * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
@@ -8,29 +8,40 @@ const CACHE_NAME = "waleedtalal-pwa-v49";
  */
 function showIncomingPush(payload = {}) {
   const data = payload.data || payload || {};
-  if (data.type && data.type !== "chat-message") return Promise.resolve();
+  const messageType = data.type || "chat-message";
+  if (!["chat-message", "admin-event"].includes(messageType)) return Promise.resolve();
+  const isAdminEvent = messageType === "admin-event";
   const notification = payload.notification || {};
-  const title = data.title || notification.title || "رسالة جديدة من مؤسسة الوليد";
-  const notificationId = data.notificationId || data.messageId || Date.now();
+  const title = data.title || notification.title || (isAdminEvent
+    ? "إشعار جديد في إدارة الطلبات"
+    : "رسالة جديدة من مؤسسة الوليد");
+  const notificationId = data.notificationId || data.eventId || data.messageId || Date.now();
+  const targetUrl = data.url || (isAdminEvent ? "/pages/notifications.html" : "/pages/chat.html");
   return self.registration.showNotification(title, {
-    body: data.body || notification.body || "لديك رسالة جديدة في المحادثة.",
-    icon: "/icons/chat-app-192.png",
-    badge: "/icons/chat-app-192.png",
+    body: data.body || notification.body || (isAdminEvent
+      ? "يوجد نشاط جديد في مركز إشعارات الإدارة."
+      : "لديك رسالة جديدة في المحادثة."),
+    icon: isAdminEvent ? "/icons/admin-chat-192.png" : "/icons/chat-app-192.png",
+    badge: isAdminEvent ? "/icons/admin-chat-192.png" : "/icons/chat-app-192.png",
     dir: "rtl",
     lang: "ar",
-    tag: data.orderId ? `chat-${data.orderId}-${notificationId}` : `waleed-chat-${notificationId}`,
+    tag: isAdminEvent
+      ? `admin-event-${notificationId}`
+      : (data.orderId ? `chat-${data.orderId}-${notificationId}` : `waleed-chat-${notificationId}`),
     renotify: true,
     silent: false,
     vibrate: [180, 90, 180],
     timestamp: Date.now(),
     data: {
-      url: data.url || "/pages/chat.html",
+      type: messageType,
+      url: targetUrl,
       orderId: data.orderId || "",
       messageId: data.messageId || "",
+      eventId: data.eventId || "",
       notificationId: String(notificationId)
     },
     actions: [
-      { action: "open-chat", title: "فتح المحادثة" }
+      { action: isAdminEvent ? "open-notifications" : "open-chat", title: isAdminEvent ? "فتح الإشعارات" : "فتح المحادثة" }
     ]
   });
 }
@@ -84,6 +95,8 @@ const APP_SHELL = [
   "./pages/track.html",
   "./pages/chat.html",
   "./pages/admin-chat.html",
+  "./pages/admon.html",
+  "./pages/notifications.html",
   "./pages/list.html",
   "./pages/hmlat.html",
   "./pages/we.html",
@@ -130,7 +143,10 @@ self.addEventListener("message", event => {
 
 self.addEventListener("notificationclick", event => {
   event.notification.close();
-  const targetUrl = new URL(event.notification.data?.url || "/pages/chat.html", self.location.origin).href;
+  const fallbackUrl = event.notification.data?.type === "admin-event"
+    ? "/pages/notifications.html"
+    : "/pages/chat.html";
+  const targetUrl = new URL(event.notification.data?.url || fallbackUrl, self.location.origin).href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     const target = new URL(targetUrl);

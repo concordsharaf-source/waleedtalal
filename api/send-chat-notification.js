@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { publishAdminNotification } = require('../server/admin-notifications');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getMessaging } = require('firebase-admin/messaging');
@@ -94,6 +95,24 @@ module.exports = async function handler(request, response) {
         const recipientRole = senderId === 'admin' ? 'client' : 'admin';
         const records = tokenRecords(order.chatPushTokens?.[recipientRole]);
         const tokens = [...new Set(records.map(item => item.token))].slice(0, 500);
+
+        if (senderId === 'client') {
+            const senderName = String(order.name || message.senderName || 'المستفيد').replace(/\s+/g, ' ').trim().slice(0, 80) || 'المستفيد';
+            const messagePreview = String(message.text || message.fileName || 'مرفق جديد').replace(/\s+/g, ' ').trim().slice(0, 140) || 'رسالة جديدة';
+            await publishAdminNotification({
+                dedupeKey: `beneficiary-message:${orderId}:${messageId}`,
+                eventType: 'beneficiary-message',
+                title: 'رسالة داخلية جديدة',
+                body: `${senderName}: ${messagePreview}`,
+                url: `https://waleedtalal.vercel.app/pages/admin-chat.html?source=admin-chat-pwa&order=${encodeURIComponent(orderId)}&notification=${encodeURIComponent(messageId)}`,
+                orderId,
+                transactionId: String(order.transactionId || '').slice(0, 120),
+                conversationId: orderId,
+                sourceId: messageId,
+                excludedTokens: tokens
+            }).catch(error => console.warn('Owner chat feed notification failed', error?.message || error));
+        }
+
         if (!tokens.length) {
             return response.status(200).json({ sent: 0, failed: 0, reason: 'no-recipient-tokens' });
         }

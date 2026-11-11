@@ -28,26 +28,30 @@ function ensureForegroundListener(messaging) {
         // اعرض إشعار نظام حتى لو كانت صفحة المحادثة في الواجهة؛ على الجوال
         // لا يكفي التنبيه الداخلي وحده، والمستخدم طلب وصولًا واضحًا في كل الحالات.
         if (Notification.permission !== "granted") return;
+        const isAdminEvent = data.type === "admin-event";
+        const notificationId = data.notificationId || data.eventId || data.messageId || Date.now();
         navigator.serviceWorker.ready.then(registration => registration.showNotification(
-            payload.notification?.title || data.title || "رسالة جديدة من مؤسسة الوليد",
+            payload.notification?.title || data.title || (isAdminEvent ? "إشعار جديد في إدارة الطلبات" : "رسالة جديدة من مؤسسة الوليد"),
             {
-                body: payload.notification?.body || data.body || "لديك رسالة جديدة في المحادثة.",
-                icon: "/icons/chat-app-192.png",
-                badge: "/icons/chat-app-192.png",
+                body: payload.notification?.body || data.body || (isAdminEvent ? "يوجد نشاط جديد في مركز إشعارات الإدارة." : "لديك رسالة جديدة في المحادثة."),
+                icon: isAdminEvent ? "/icons/admin-chat-192.png" : "/icons/chat-app-192.png",
+                badge: isAdminEvent ? "/icons/admin-chat-192.png" : "/icons/chat-app-192.png",
                 dir: "rtl",
                 lang: "ar",
-                tag: data.orderId
-                    ? `chat-${data.orderId}-${data.notificationId || data.messageId || Date.now()}`
-                    : `waleed-chat-${data.notificationId || data.messageId || Date.now()}`,
+                tag: isAdminEvent
+                    ? `admin-event-${notificationId}`
+                    : (data.orderId ? `chat-${data.orderId}-${notificationId}` : `waleed-chat-${notificationId}`),
                 renotify: true,
                 silent: false,
                 vibrate: [180, 90, 180],
                 timestamp: Date.now(),
                 data: {
-                    url: data.url || "/pages/chat.html",
+                    type: data.type || "chat-message",
+                    url: data.url || (isAdminEvent ? "/pages/notifications.html" : "/pages/chat.html"),
                     orderId: data.orderId || "",
                     messageId: data.messageId || "",
-                    notificationId: data.notificationId || ""
+                    eventId: data.eventId || "",
+                    notificationId: String(notificationId)
                 }
             }
         )).catch(error => console.warn("Foreground notification failed", error));

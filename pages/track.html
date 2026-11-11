@@ -436,53 +436,6 @@ border-radius:15px;
 
 <script type="module">
 
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-
-getFirestore,
-
-collection,
-
-query,
-
-where,
-
-getDocs,
-
-doc,
-
-updateDoc,
-
-increment,
-
-serverTimestamp
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-
-apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
-
-authDomain: "sparepartswebsite1.firebaseapp.com",
-
-projectId: "sparepartswebsite1",
-
-storageBucket: "sparepartswebsite1.firebasestorage.app",
-
-messagingSenderId: "1063114847735",
-
-appId: "1:1063114847735:web:0e764c150ab10df2d82af2"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
 /* توحيد الأرقام العربية والفارسية والإنجليزية للمقارنة مع السجلات القديمة. */
 function normalizeNumber(value){
 return String(value ?? "")
@@ -532,43 +485,6 @@ userAgent:ua.slice(0,500)
 };
 }
 
-async function logTrackingAttempt(orderDocument,result){
-if(!orderDocument)return;
-
-try{
-const deviceDetails=getDeviceDetails();
-const orderData=orderDocument.data();
-const previousLogs=Array.isArray(orderData.trackingLogs)
-? orderData.trackingLogs.slice(-49)
-: [];
-const logEntry={
-id:(globalThis.crypto?.randomUUID?.() || (Date.now()+"-"+Math.random())).slice(0,80),
-result:result === "success" ? "success" : "failed",
-clientTime:new Date().toISOString(),
-source:"track.html",
-...deviceDetails
-};
-
-const changes={
-trackingAttemptCount:increment(1),
-trackingLogs:[...previousLogs,logEntry],
-lastTrackingAccessAt:serverTimestamp()
-};
-
-if(logEntry.result==="success"){
-changes.trackingSuccessCount=increment(1);
-changes.lastTrackingSuccessAt=serverTimestamp();
-}else{
-changes.trackingFailedCount=increment(1);
-changes.lastTrackingFailedAt=serverTimestamp();
-}
-
-await updateDoc(doc(db,"orders",orderDocument.id),changes);
-}catch(logError){
-console.warn("تعذر تسجيل محاولة التتبع",logError);
-}
-}
-
 window.checkTransaction = async function(){
 
 let transactionId =
@@ -606,36 +522,32 @@ return;
 
 }
 
+const searchButton=document.querySelector("button.btn-search");
+searchButton.disabled=true;
+result.style.display="block";
+result.innerHTML="<p>جاري التحقق من بيانات المعاملة...</p>";
+
 try{
 
 /*
- * نبحث برقم المعاملة أولاً، ثم نقارن رقم الجوال بعد توحيد الأرقام.
- * هذا يسمح بالعثور على السجلات القديمة المحفوظة بأرقام عربية أو فارسية.
+ * تتم المطابقة والتسجيل الآن داخل الخادم حتى لا يستطيع العميل تزوير نتيجة
+ * المحاولة، مع دعم الأرقام العربية والفارسية في السجلات القديمة.
  */
-const q = query(
-
-collection(db,"orders"),
-
-where("transactionId","==",transactionId)
-
-);
-
-const snapshot = await getDocs(q);
-let matchedOrder = null;
-
-snapshot.forEach((orderDoc)=>{
-const data = orderDoc.data();
-if(!matchedOrder && normalizePhone(data.phone) === phone){
-matchedOrder = orderDoc;
-}
+const attemptId=(globalThis.crypto?.randomUUID?.() || (Date.now()+"_"+Math.random().toString(36).slice(2))).replace(/[^A-Za-z0-9_-]/g,"").slice(0,100);
+const response=await fetch("/api/track-attempt",{
+method:"POST",
+headers:{"Content-Type":"application/json","Accept":"application/json"},
+body:JSON.stringify({
+transactionId,
+phone,
+attemptId,
+...getDeviceDetails()
+})
 });
+const trackingResult=await response.json().catch(function(){return {};});
+if(!response.ok)throw new Error(trackingResult.error || "tracking-attempt-failed");
 
-if(!matchedOrder){
-
-/* إذا كان رقم المعاملة موجوداً نسجل محاولة الجوال غير المطابقة داخلها. */
-await logTrackingAttempt(snapshot.docs[0] || null,"failed");
-
-result.style.display="block";
+if(!trackingResult.matched){
 
 result.innerHTML=
 
@@ -655,14 +567,12 @@ return;
 
 }
 
-await logTrackingAttempt(matchedOrder,"success");
-
 /* حفظ جلسة المحادثة على الجهاز بعد التحقق الناجح من رقم الجوال. */
 localStorage.setItem("waleed_internal_chat_session",JSON.stringify({
-orderId:matchedOrder.id,
-transactionId:transactionId,
+orderId:trackingResult.orderId,
+transactionId:trackingResult.transactionId || transactionId,
 phone:phone,
-name:matchedOrder.data().name || "المستفيد"
+name:trackingResult.name || "المستفيد"
 }));
 
 // الانتقال إلى صفحة الحالة بقيم موحدة وآمنة داخل الرابط
@@ -670,7 +580,7 @@ window.location.href =
 
 "status.html?transactionId="
 
-+ encodeURIComponent(transactionId)
++ encodeURIComponent(trackingResult.transactionId || transactionId)
 
 +"&phone="
 
@@ -698,6 +608,8 @@ result.innerHTML=
 
 `;
 
+}finally{
+searchButton.disabled=false;
 }
 
 }

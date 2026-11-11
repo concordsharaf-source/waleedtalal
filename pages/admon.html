@@ -44,12 +44,18 @@ margin:0;
 font-size:28px;
 }
 
+.admin-shortcuts{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:12px;
+margin-bottom:20px;
+}
+
 .chat-admin-link{
 display:flex;
 align-items:center;
 justify-content:center;
 gap:10px;
-margin-bottom:20px;
 padding:15px 20px;
 border-radius:14px;
 color:white;
@@ -58,6 +64,31 @@ text-decoration:none;
 font-size:17px;
 font-weight:bold;
 box-shadow:0 7px 20px rgba(4,86,82,.22);
+}
+
+.notifications-admin-link{
+background:linear-gradient(135deg,#b7791f,#8a5414);
+position:relative;
+}
+
+.admin-notification-badge{
+min-width:25px;
+height:25px;
+padding:0 7px;
+border-radius:999px;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+background:#fff;
+color:#8a5414;
+font-size:13px;
+font-weight:800;
+}
+
+.admin-notification-badge[hidden]{display:none;}
+
+@media (max-width:650px){
+.admin-shortcuts{grid-template-columns:1fr;}
 }
 
 .search-box{
@@ -466,7 +497,13 @@ font-weight:bold;
 
 </div>
 
+<div class="admin-shortcuts">
 <a class="chat-admin-link" href="admin-chat.html">💬 فتح محادثات المستفيدين</a>
+<a class="chat-admin-link notifications-admin-link" href="notifications.html">
+🔔 الإشعارات
+<span id="adminNotificationBadge" class="admin-notification-badge" hidden>0</span>
+</a>
+</div>
 
 <div class="search-box">
 
@@ -1220,6 +1257,12 @@ const updatedOrders=snapshot.docs.map(item=>({id:item.id,...item.data()}));
 updatedOrders.sort((a,b)=>(b.createdAt?.seconds || 0)-(a.createdAt?.seconds || 0));
 allOrders=updatedOrders;
 ordersLoaded=true;
+
+/* عند فتح طلب من مركز الإشعارات نعرض المعاملة المطلوبة مباشرة. */
+if(!ordersListenerReady){
+const linkedSearch=new URLSearchParams(window.location.search).get("search");
+if(linkedSearch)document.getElementById("searchInput").value=linkedSearch;
+}
 rerenderCurrentOrders();
 
 if(ordersListenerReady){
@@ -1801,27 +1844,26 @@ listenToOrders();
 <script>
 
 
-const PASSWORD="232167";
-
-
-function checkPass(){
+async function checkPass(){
 
 let p=document.getElementById("adminPass").value;
+let errorElement=document.getElementById("passError");
+errorElement.textContent="جاري التحقق...";
 
+try{
+const response=await fetch("/api/admin-notification-session",{
+method:"POST",
+headers:{"Content-Type":"application/json","Accept":"application/json"},
+body:JSON.stringify({password:p})
+});
 
-if(p===PASSWORD){
-
+if(!response.ok)throw new Error("invalid-password");
 localStorage.setItem("adminLogin","yes");
-
 document.getElementById("lockScreen").style.display="none";
-
-}
-
-else{
-
-document.getElementById("passError").innerHTML=
-"كلمة المرور خطأ";
-
+errorElement.textContent="";
+updateAdminNotificationBadge();
+}catch(error){
+errorElement.textContent="كلمة المرور خطأ";
 }
 
 }
@@ -1831,15 +1873,29 @@ document.getElementById("passError").innerHTML=
 if(localStorage.getItem("adminLogin")==="yes"){
 
 document.getElementById("lockScreen").style.display="none";
+updateAdminNotificationBadge();
 
 }
 
+async function updateAdminNotificationBadge(){
+try{
+const response=await fetch("/api/admin-notifications?limit=200",{cache:"no-store"});
+if(!response.ok)return;
+const data=await response.json();
+const badge=document.getElementById("adminNotificationBadge");
+const unread=Number(data.unreadCount || 0);
+badge.textContent=unread>99 ? "99+" : String(unread);
+badge.hidden=unread<1;
+}catch(error){
+console.warn("تعذر تحديث عداد الإشعارات",error);
+}
+}
 
 
 function logout(){
 
 localStorage.removeItem("adminLogin");
-
+fetch("/api/admin-notification-session",{method:"DELETE",keepalive:true}).catch(()=>{});
 location.reload();
 
 }
