@@ -532,9 +532,13 @@ else if(/chrome|crios/i.test(ua))browser="Google Chrome";
 else if(/safari/i.test(ua))browser="Safari";
 
 let os="نظام غير معروف";
+const hintedPlatform=cleanDeviceValue(hints.platform,40);
+const hintedPlatformVersion=cleanDeviceValue(hints.platformVersion,40);
 const androidVersion=ua.match(/Android\s+([0-9.]+)/i)?.[1] || "";
 const iosVersion=ua.match(/(?:CPU (?:iPhone )?OS|iPhone OS)\s+([0-9_]+)/i)?.[1]?.replace(/_/g,".") || "";
-if(/windows nt/i.test(ua))os="Windows";
+if(hintedPlatform){
+os=hintedPlatform+(hintedPlatformVersion?" "+hintedPlatformVersion:"");
+}else if(/windows nt/i.test(ua))os="Windows";
 else if(/android/i.test(ua))os="Android"+(androidVersion?" "+androidVersion:"");
 else if(/iphone|ipad|ipod/i.test(ua))os="iOS"+(iosVersion?" "+iosVersion:"");
 else if(/mac os x/i.test(ua))os="macOS";

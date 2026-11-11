@@ -41,6 +41,53 @@ function clean(value, maxLength) {
     return String(value ?? '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, maxLength);
 }
 
+function cleanClientHint(value, maxLength = 120) {
+    const text = clean(Array.isArray(value) ? value[0] : value, maxLength + 2);
+    return text.replace(/^"|"$/g, '').replace(/\\"/g, '"').slice(0, maxLength);
+}
+
+function friendlyDeviceModel(model) {
+    const raw = clean(model, 120);
+    const code = raw.toUpperCase();
+    const knownModels = [
+        [/^SM-S938/, 'Galaxy S25 Ultra'], [/^SM-S936/, 'Galaxy S25+'], [/^SM-S931/, 'Galaxy S25'],
+        [/^SM-S928/, 'Galaxy S24 Ultra'], [/^SM-S926/, 'Galaxy S24+'], [/^SM-S921/, 'Galaxy S24'],
+        [/^SM-S918/, 'Galaxy S23 Ultra'], [/^SM-S916/, 'Galaxy S23+'], [/^SM-S911/, 'Galaxy S23'],
+        [/^SM-S908/, 'Galaxy S22 Ultra'], [/^SM-S906/, 'Galaxy S22+'], [/^SM-S901/, 'Galaxy S22'],
+        [/^SM-F956/, 'Galaxy Z Fold6'], [/^SM-F741/, 'Galaxy Z Flip6'],
+        [/^SM-F946/, 'Galaxy Z Fold5'], [/^SM-F731/, 'Galaxy Z Flip5']
+    ];
+    const match = knownModels.find(([pattern]) => pattern.test(code));
+    return match ? `${match[1]} (${raw})` : raw;
+}
+
+function deviceModelFromUserAgent(userAgent) {
+    const androidBuild = String(userAgent || '').match(/Android[^;)]*;\s*([^;)]+?)\s+Build\//i);
+    if (androidBuild && !/^(K|wv)$/i.test(androidBuild[1].trim())) return androidBuild[1].trim();
+    if (/iphone/i.test(userAgent)) return 'iPhone';
+    if (/ipad/i.test(userAgent)) return 'iPad';
+    if (/ipod/i.test(userAgent)) return 'iPod';
+    return '';
+}
+
+function deviceBrandFromModel(model, userAgent) {
+    const source = `${model} ${userAgent}`.toLowerCase();
+    if (/\b(sm-|gt-|samsung)/i.test(`${model} ${userAgent}`)) return 'Samsung';
+    if (/\bpixel\b/.test(source)) return 'Google';
+    if (/huawei|\b(ele|vog|noh|lio|ana|jny)-/i.test(source)) return 'Huawei';
+    if (/honor/i.test(source)) return 'Honor';
+    if (/redmi|poco|xiaomi|\bmi\s/i.test(source)) return 'Xiaomi';
+    if (/oneplus/i.test(source)) return 'OnePlus';
+    if (/oppo|\bcph\d/i.test(source)) return 'OPPO';
+    if (/realme|\brmx\d/i.test(source)) return 'realme';
+    if (/vivo/i.test(source)) return 'vivo';
+    if (/motorola|\bmoto\b/i.test(source)) return 'Motorola';
+    if (/tecno/i.test(source)) return 'TECNO';
+    if (/infinix/i.test(source)) return 'Infinix';
+    if (/iphone|ipad|ipod/i.test(source)) return 'Apple';
+    return '';
+}
+
 async function transactionCandidates(database, transactionId) {
     const exact = await database.collection('orders').where('transactionId', '==', transactionId).get();
     if (!exact.empty) return exact.docs;
@@ -71,10 +118,24 @@ module.exports = async function handler(request, response) {
         const logDocument = matchedDocument || candidates[0] || null;
         const successful = Boolean(matchedDocument);
         const now = new Date().toISOString();
-        const device = clean(body.device, 80) || 'غير معروف';
-        const deviceBrand = clean(body.deviceBrand, 80);
-        const deviceModel = clean(body.deviceModel, 120);
-        const deviceName = [deviceBrand, deviceModel].filter(Boolean).join(' ') || 'الموديل غير متاح';
+        const requestHeaders = request.headers || {};
+        const userAgent = clean(body.userAgent || requestHeaders['user-agent'], 500);
+        const hintedModel = cleanClientHint(requestHeaders['sec-ch-ua-model'], 120);
+        const rawDeviceModel = clean(body.deviceModel, 120) || hintedModel || deviceModelFromUserAgent(userAgent);
+        const deviceModel = friendlyDeviceModel(rawDeviceModel);
+        const deviceBrand = clean(body.deviceBrand, 80) || deviceBrandFromModel(rawDeviceModel, userAgent);
+        const hintedPlatform = cleanClientHint(requestHeaders['sec-ch-ua-platform'], 40);
+        const hintedPlatformVersion = cleanClientHint(requestHeaders['sec-ch-ua-platform-version'], 40);
+        const hintedOs = [hintedPlatform, hintedPlatformVersion].filter(Boolean).join(' ');
+        const os = hintedPlatformVersion ? hintedOs : (clean(body.os, 80) || hintedPlatform || 'غير معروف');
+        const hintedArchitecture = [
+            cleanClientHint(requestHeaders['sec-ch-ua-arch'], 20),
+            cleanClientHint(requestHeaders['sec-ch-ua-bitness'], 10)
+        ].filter(Boolean).join(' ');
+        const architecture = clean(body.architecture, 40) || hintedArchitecture;
+        const mobileHint = cleanClientHint(requestHeaders['sec-ch-ua-mobile'], 5);
+        const device = clean(body.device, 80) || (mobileHint === '?1' ? 'جوال' : 'غير معروف');
+        const deviceName = [deviceBrand, deviceModel].filter(Boolean).join(' ') || 'الموديل محجوب من المتصفح';
         const logEntry = {
             id: attemptId,
             result: successful ? 'success' : 'failed',
@@ -84,11 +145,11 @@ module.exports = async function handler(request, response) {
             deviceBrand,
             deviceModel,
             browser: clean(body.browser, 80) || 'غير معروف',
-            os: clean(body.os, 80) || 'غير معروف',
-            architecture: clean(body.architecture, 40),
+            os,
+            architecture,
             language: clean(body.language, 20) || 'غير معروف',
             screen: clean(body.screen, 30) || 'غير معروف',
-            userAgent: clean(body.userAgent, 500)
+            userAgent
         };
 
         if (logDocument) {

@@ -1246,9 +1246,10 @@ function renderAccessLogItem(log){
 const success=log.result==="success";
 const model=trackingDeviceModel(log);
 const brand=trackingDeviceBrand(log,model);
+const reducedOldUserAgent=/Android 10;\s*K\)/i.test(String(log.userAgent || ""));
 const modelLabel=model
 ? (brand && !model.toLowerCase().includes(brand.toLowerCase()) ? brand+" "+model : model)
-: "غير متاح من المتصفح";
+: (reducedOldUserAgent ? "محجوب في السجل القديم" : "غير متاح من المتصفح");
 const architecture=String(log.architecture || "").trim();
 const screen=String(log.screen || "").trim();
 return `
