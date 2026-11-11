@@ -48,6 +48,7 @@
         const requestUrl = insidePages ? 'us.html' : 'pages/us.html';
         const trackUrl = insidePages ? 'track.html' : 'pages/track.html';
         const chatUrl = insidePages ? 'chat.html' : 'pages/chat.html';
+        const statisticsUrl = insidePages ? '../index.html#statistics' : '#statistics';
 
         const links = [
             {
@@ -59,7 +60,7 @@
                 href: trackUrl
             },
             {
-                text: 'المحادثة المباشرة',
+                text: 'المحادثة المباشرة مع الإدارة',
                 href: chatUrl,
                 pulse: true
             },
@@ -67,14 +68,25 @@
                 text: 'موقع الأمير الوليد بن طلال',
                 href: 'https://waleed-bin-talal-website.vercel.app/ar/',
                 external: true
+            },
+            {
+                text: 'إحصائياتنا',
+                href: statisticsUrl
+            },
+            {
+                text: 'تواصل مع الشكاوى',
+                href: 'https://wa.me/966578129244',
+                external: true,
+                complaints: true
             }
         ];
 
         links.forEach(item => {
             const link = document.createElement('a');
-            link.className = `site-header-action site-3d-btn${item.pulse ? ' site-wa-pulse' : ''}`;
+            link.className = `site-header-action site-3d-btn${item.pulse ? ' site-wa-pulse' : ''}${item.complaints ? ' site-complaints-action' : ''}`;
             link.href = item.href;
             link.textContent = item.text;
+            if (item.complaints) link.dataset.complaintsContact = 'true';
 
             if (item.external) {
                 link.target = '_blank';

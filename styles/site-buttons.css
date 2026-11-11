@@ -287,8 +287,23 @@ body.site-actions-no-header-page {
 }
 
 @media (max-width: 390px) {
+    /* يبقى كل زرين في صف واحد حتى على أصغر شاشات الجوال. */
+    .site-actions-standalone {
+        padding-inline: 8px;
+    }
+
     .site-actions-standalone > .site-header-actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .site-header-action {
+        min-width: 0;
+        min-height: 58px;
+        padding: 8px 5px;
+        font-size: 0.7rem;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
     }
 }
 
