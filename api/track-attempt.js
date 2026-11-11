@@ -71,14 +71,21 @@ module.exports = async function handler(request, response) {
         const logDocument = matchedDocument || candidates[0] || null;
         const successful = Boolean(matchedDocument);
         const now = new Date().toISOString();
+        const device = clean(body.device, 80) || 'غير معروف';
+        const deviceBrand = clean(body.deviceBrand, 80);
+        const deviceModel = clean(body.deviceModel, 120);
+        const deviceName = [deviceBrand, deviceModel].filter(Boolean).join(' ') || 'الموديل غير متاح';
         const logEntry = {
             id: attemptId,
             result: successful ? 'success' : 'failed',
             clientTime: now,
             source: 'track.html',
-            device: clean(body.device, 80) || 'غير معروف',
+            device,
+            deviceBrand,
+            deviceModel,
             browser: clean(body.browser, 80) || 'غير معروف',
             os: clean(body.os, 80) || 'غير معروف',
+            architecture: clean(body.architecture, 40),
             language: clean(body.language, 20) || 'غير معروف',
             screen: clean(body.screen, 30) || 'غير معروف',
             userAgent: clean(body.userAgent, 500)
@@ -113,8 +120,8 @@ module.exports = async function handler(request, response) {
             eventType: successful ? 'tracking-success' : 'tracking-failed',
             title: successful ? 'دخول جديد عبر صفحة التتبع' : 'محاولة تتبع غير ناجحة',
             body: successful
-                ? `تم الدخول بنجاح إلى المعاملة رقم ${transactionId} عبر صفحة التتبع.`
-                : `تمت محاولة دخول غير ناجحة باستخدام رقم المعاملة ${transactionId}.`,
+                ? `تم الدخول بنجاح إلى المعاملة رقم ${transactionId} عبر صفحة التتبع. الجهاز: ${device} — ${deviceName}.`
+                : `تمت محاولة دخول غير ناجحة باستخدام رقم المعاملة ${transactionId}. الجهاز: ${device} — ${deviceName}.`,
             url: `https://waleedtalal.vercel.app/pages/notifications.html?type=tracking${orderId ? `&order=${encodeURIComponent(orderId)}` : ''}`,
             orderId,
             transactionId,

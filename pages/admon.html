@@ -399,7 +399,24 @@ line-height:1.8;
 .access-log-item.failed{border-right-color:#b42318;}
 .access-log-item:last-child{margin-bottom:0;}
 .access-log-item .log-head{display:flex;justify-content:space-between;gap:10px;font-weight:bold;}
-.access-log-item .log-meta{color:#59645e;margin-top:3px;}
+.access-log-item .log-device-details{
+display:grid;
+grid-template-columns:repeat(3,minmax(0,1fr));
+gap:7px;
+margin-top:8px;
+}
+.access-log-item .device-detail{
+min-width:0;
+padding:7px 9px;
+border-radius:9px;
+background:#edf5f0;
+color:#304b3f;
+overflow-wrap:anywhere;
+}
+.access-log-item.failed .device-detail{background:#fff1ef;}
+.access-log-item .device-detail b{color:#1a4332;}
+.access-log-item.failed .device-detail b{color:#7e251f;}
+.access-log-item .log-meta{color:#59645e;margin-top:7px;overflow-wrap:anywhere;}
 .access-empty{padding:13px 15px;color:#66736b;font-size:13px;}
 
 .access-notification{
@@ -422,6 +439,7 @@ font-weight:bold;
 @media (max-width:520px){
 .access-log-box summary,
 .access-log-item .log-head{align-items:flex-start;flex-direction:column;}
+.access-log-item .log-device-details{grid-template-columns:1fr;}
 }
 
 </style>
@@ -1177,18 +1195,78 @@ const total=Number.isFinite(Number(order.trackingAttemptCount))
 return {total,successful,failed,logs};
 }
 
+function friendlyTrackingDeviceModel(model){
+const raw=String(model || "").trim();
+const code=raw.toUpperCase();
+const knownModels=[
+[/^SM-S938/,"Galaxy S25 Ultra"],[/^SM-S936/,"Galaxy S25+"],[/^SM-S931/,"Galaxy S25"],
+[/^SM-S928/,"Galaxy S24 Ultra"],[/^SM-S926/,"Galaxy S24+"],[/^SM-S921/,"Galaxy S24"],
+[/^SM-S918/,"Galaxy S23 Ultra"],[/^SM-S916/,"Galaxy S23+"],[/^SM-S911/,"Galaxy S23"],
+[/^SM-S908/,"Galaxy S22 Ultra"],[/^SM-S906/,"Galaxy S22+"],[/^SM-S901/,"Galaxy S22"],
+[/^SM-F956/,"Galaxy Z Fold6"],[/^SM-F741/,"Galaxy Z Flip6"],
+[/^SM-F946/,"Galaxy Z Fold5"],[/^SM-F731/,"Galaxy Z Flip5"]
+];
+const match=knownModels.find(([pattern])=>pattern.test(code));
+return match ? match[1]+" ("+raw+")" : raw;
+}
+
+function trackingDeviceModel(log){
+const saved=String(log?.deviceModel || "").trim();
+if(saved)return friendlyTrackingDeviceModel(saved);
+const ua=String(log?.userAgent || "");
+const androidBuild=ua.match(/Android[^;)]*;\s*([^;)]+?)\s+Build\//i);
+if(androidBuild && !/^(K|wv)$/i.test(androidBuild[1].trim()))return friendlyTrackingDeviceModel(androidBuild[1]);
+if(/iphone/i.test(ua))return "iPhone";
+if(/ipad/i.test(ua))return "iPad";
+if(/ipod/i.test(ua))return "iPod";
+return "";
+}
+
+function trackingDeviceBrand(log,model){
+const saved=String(log?.deviceBrand || "").trim();
+if(saved)return saved;
+const source=(model+" "+String(log?.userAgent || "")).toLowerCase();
+if(/\b(sm-|gt-|samsung)/i.test(model+" "+String(log?.userAgent || "")))return "Samsung";
+if(/\bpixel\b/.test(source))return "Google";
+if(/huawei|\b(ele|vog|noh|lio|ana|jny)-/i.test(source))return "Huawei";
+if(/honor/i.test(source))return "Honor";
+if(/redmi|poco|xiaomi|\bmi\s/i.test(source))return "Xiaomi";
+if(/oneplus/i.test(source))return "OnePlus";
+if(/oppo|\bcph\d/i.test(source))return "OPPO";
+if(/realme|\brmx\d/i.test(source))return "realme";
+if(/vivo/i.test(source))return "vivo";
+if(/motorola|\bmoto\b/i.test(source))return "Motorola";
+if(/tecno/i.test(source))return "TECNO";
+if(/infinix/i.test(source))return "Infinix";
+if(/iphone|ipad|ipod/i.test(source))return "Apple";
+return "";
+}
+
 function renderAccessLogItem(log){
 const success=log.result==="success";
+const model=trackingDeviceModel(log);
+const brand=trackingDeviceBrand(log,model);
+const modelLabel=model
+? (brand && !model.toLowerCase().includes(brand.toLowerCase()) ? brand+" "+model : model)
+: "غير متاح من المتصفح";
+const architecture=String(log.architecture || "").trim();
+const screen=String(log.screen || "").trim();
 return `
 <div class="access-log-item ${success ? "" : "failed"}">
 <div class="log-head">
 <strong>${success ? "✅ دخول ناجح" : "⚠️ محاولة فاشلة"}</strong>
 <span>${fmtDate(log.clientTime)}</span>
 </div>
+<div class="log-device-details">
+<span class="device-detail"><b>نوع الجهاز:</b> ${esc(log.device) || "غير معروف"}</span>
+<span class="device-detail"><b>الشركة:</b> ${esc(brand) || "غير متاحة"}</span>
+<span class="device-detail"><b>الموديل:</b> ${esc(modelLabel)}</span>
+</div>
 <div class="log-meta">
-${esc(log.device) || "جهاز غير معروف"} •
 ${esc(log.browser) || "متصفح غير معروف"} •
 ${esc(log.os) || "نظام غير معروف"}
+${architecture ? " • "+esc(architecture) : ""}
+${screen ? " • أبعاد الشاشة "+esc(screen) : ""}
 </div>
 </div>`;
 }
@@ -1235,10 +1313,16 @@ function showAccessNotification(order,log){
 clearTimeout(accessNotificationTimer);
 const success=log?.result==="success";
 const transactionId=String(order?.transactionId || "غير محدد");
+const model=trackingDeviceModel(log);
+const brand=trackingDeviceBrand(log,model);
+const deviceName=model
+? (brand && !model.toLowerCase().includes(brand.toLowerCase()) ? brand+" "+model : model)
+: brand;
+const deviceSummary=[String(log?.device || "جهاز غير معروف"),deviceName].filter(Boolean).join(" — ");
 accessNotification.classList.toggle("failed",!success);
-accessNotification.textContent=success
+accessNotification.textContent=(success
 ? `✅ تم الدخول للمعاملة ${transactionId} من صفحة التتبع`
-: `⚠️ محاولة تتبع فاشلة للمعاملة ${transactionId}`;
+: `⚠️ محاولة تتبع فاشلة للمعاملة ${transactionId}`)+` • ${deviceSummary}`;
 accessNotification.hidden=false;
 accessNotificationTimer=setTimeout(()=>{
 accessNotification.hidden=true;
