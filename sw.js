@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v53";
+const CACHE_NAME = "waleedtalal-pwa-v54";
 
 /*
  * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
@@ -73,6 +73,7 @@ const APP_SHELL = [
   "./scripts/chat-beneficiary.js",
   "./scripts/chat-admin.js",
   "./scripts/push-notifications.js",
+  "./scripts/device-info.js",
   "./fonts/cairo-arabic.woff2",
   "./fonts/cairo-latin.woff2",
   "./fonts/noto-naskh-arabic-400.ttf",

@@ -929,6 +929,7 @@ import {
     buildWhatsappUrl,
     saveOrderForm
 } from "../scripts/order-form.js";
+import { getDeviceDetails } from "../scripts/device-info.js";
 
 /* حفظ أرقام الجوال بصيغة إنجليزية موحدة لتسهيل البحث لاحقاً. */
 function normalizePhone(value){
@@ -1007,11 +1008,14 @@ btnText.innerText = "جاري حفظ وإرسال الطلب...";
 
 try{
 
+/* معلومات الجهاز نفسها المستخدمة في إشعارات تتبع المعاملة. */
+const deviceDetails = await getDeviceDetails();
 const registrationResponse = await fetch("/api/register-order",{
     method:"POST",
     headers:{"Content-Type":"application/json",Accept:"application/json"},
     body:JSON.stringify({
-        name,phone,email,idNumber,partNumber,bankName,country,type,notes
+        name,phone,email,idNumber,partNumber,bankName,country,type,notes,
+        ...deviceDetails
     })
 });
 const registration = await registrationResponse.json().catch(()=>({}));

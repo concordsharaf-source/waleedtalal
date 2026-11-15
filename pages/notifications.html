@@ -329,6 +329,24 @@ if(item.orderId)return"admon.html";
 return item.url||"admon.html";
 }
 
+function appendMetaChip(container,label,value){
+const text=String(value || "").trim();
+if(!text)return;
+const chip=document.createElement("span");
+chip.className="meta-chip";
+chip.textContent=label+": "+text;
+container.append(chip);
+}
+
+function registrationDeviceLabel(details={}){
+const brand=String(details.deviceBrand || "").trim();
+const model=String(details.deviceModel || "").trim();
+const modelName=model
+? (brand && !model.toLowerCase().includes(brand.toLowerCase()) ? brand+" "+model : model)
+: "";
+return [details.device,modelName].filter(Boolean).join(" — ");
+}
+
 function render(){
 updateMetrics();
 const items=visibleNotifications();
@@ -355,6 +373,17 @@ const body=document.createElement("p");body.className="event-body";body.textCont
 const meta=document.createElement("div");meta.className="event-meta";
 const typeChip=document.createElement("span");typeChip.className="meta-chip";typeChip.textContent=categoryLabel(item);meta.append(typeChip);
 if(item.transactionId){const transaction=document.createElement("span");transaction.className="meta-chip";transaction.textContent="رقم المعاملة: "+item.transactionId;meta.append(transaction);}
+if(categoryOf(item)==="registration"){
+const details=item.details || {};
+appendMetaChip(meta,"المستفيد",details.applicantName);
+appendMetaChip(meta,"رقم الجوال",details.applicantPhone);
+appendMetaChip(meta,"البريد",details.applicantEmail);
+appendMetaChip(meta,"الدولة",details.country);
+appendMetaChip(meta,"نوع الطلب",details.requestType);
+appendMetaChip(meta,"الجهاز",registrationDeviceLabel(details));
+appendMetaChip(meta,"النظام",details.os);
+appendMetaChip(meta,"المتصفح",details.browser);
+}
 const actions=document.createElement("div");actions.className="event-actions";
 const open=document.createElement("a");open.className="event-link";open.href=actionUrl(item);open.textContent=categoryOf(item)==="chat"?"فتح المحادثة":"فتح الطلب";
 open.addEventListener("click",()=>{if(item.unread)markRead([item.id],false);});

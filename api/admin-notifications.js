@@ -33,6 +33,11 @@ function timestampToIso(value) {
 
 function notificationJson(snapshot) {
     const data = snapshot.data() || {};
+    const details = data.details && typeof data.details === 'object' ? data.details : {};
+    const detailKeys = [
+        'applicantName', 'applicantPhone', 'applicantEmail', 'country', 'requestType',
+        'device', 'deviceBrand', 'deviceModel', 'browser', 'os', 'architecture', 'screen'
+    ];
     return {
         id: snapshot.id,
         eventType: String(data.eventType || ''),
@@ -43,6 +48,9 @@ function notificationJson(snapshot) {
         transactionId: String(data.transactionId || ''),
         conversationId: String(data.conversationId || ''),
         sourceId: String(data.sourceId || ''),
+        details: Object.fromEntries(detailKeys
+            .map(key => [key, String(details[key] || '')])
+            .filter(([, value]) => value)),
         unread: data.unread !== false,
         createdAt: timestampToIso(data.createdAt),
         readAt: timestampToIso(data.readAt)

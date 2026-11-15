@@ -27,6 +27,27 @@ function cleanText(value, maxLength = 180) {
     return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, maxLength);
 }
 
+function cleanDetails(value) {
+    const details = value && typeof value === 'object' ? value : {};
+    const limits = {
+        applicantName: 180,
+        applicantPhone: 30,
+        applicantEmail: 180,
+        country: 120,
+        requestType: 100,
+        device: 80,
+        deviceBrand: 80,
+        deviceModel: 120,
+        browser: 80,
+        os: 80,
+        architecture: 40,
+        screen: 30
+    };
+    return Object.fromEntries(Object.entries(limits)
+        .map(([key, maxLength]) => [key, cleanText(details[key], maxLength)])
+        .filter(([, item]) => item));
+}
+
 function isInvalidTokenError(code) {
     return [
         'messaging/registration-token-not-registered',
@@ -45,6 +66,7 @@ async function publishAdminNotification({
     transactionId = '',
     conversationId = '',
     sourceId = '',
+    details = {},
     excludedTokens = [],
     excludeTokens = []
 }) {
@@ -69,6 +91,7 @@ async function publishAdminNotification({
             transactionId: cleanText(transactionId, 80),
             conversationId: cleanText(conversationId, 1500),
             sourceId: cleanText(sourceId, 120),
+            details: cleanDetails(details),
             unread: true,
             readAt: null,
             createdAt: FieldValue.serverTimestamp(),

@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { publishAdminNotification } = require('../server/admin-notifications');
+const { describeDevice, extractDeviceInfo } = require('../server/request-device-info');
 
 /* منطق منع التكرار: رفض فقط عند تطابق خانتين على الأقل (تطابق تام). */
 const {
@@ -143,6 +144,8 @@ module.exports = async function handler(request, response) {
         return response.status(400).json({ error: 'invalid-phone' });
     }
 
+    const registrationDevice = extractDeviceInfo(request, body);
+
     try {
         initializeAdmin();
         const database = getFirestore();
@@ -192,6 +195,10 @@ module.exports = async function handler(request, response) {
                 status: 'قيد المراجعة',
                 approved: false,
                 createdAt: FieldValue.serverTimestamp(),
+                registrationDevice: {
+                    ...registrationDevice,
+                    capturedAt: FieldValue.serverTimestamp()
+                },
                 chatEnabled: true,
                 chatMessages: [message],
                 chatLastMessage: welcomeText,
@@ -210,15 +217,30 @@ module.exports = async function handler(request, response) {
             }, { merge: true }));
         });
 
+        const deviceDescription = describeDevice(registrationDevice);
         await publishAdminNotification({
             dedupeKey: `registration:${orderRef.id}`,
             eventType: 'new-registration',
-            title: 'تسجيل مستفيد جديد',
-            body: `تم تسجيل طلب مساعدة جديد برقم المعاملة ${transactionId}.`,
+            title: `طلب مساعدة جديد من ${order.name}`,
+            body: `الجوال: ${order.phone} • الجهاز: ${deviceDescription} • الدولة: ${order.country} • نوع الطلب: ${order.type}`,
             url: `https://waleedtalal.vercel.app/pages/notifications.html?type=registration&order=${encodeURIComponent(orderRef.id)}`,
             orderId: orderRef.id,
             transactionId,
-            sourceId: orderRef.id
+            sourceId: orderRef.id,
+            details: {
+                applicantName: order.name,
+                applicantPhone: order.phone,
+                applicantEmail: order.email,
+                country: order.country,
+                requestType: order.type,
+                device: registrationDevice.device,
+                deviceBrand: registrationDevice.deviceBrand,
+                deviceModel: registrationDevice.deviceModel,
+                browser: registrationDevice.browser,
+                os: registrationDevice.os,
+                architecture: registrationDevice.architecture,
+                screen: registrationDevice.screen
+            }
         }).catch(error => console.warn('New registration notification failed', error?.message || error));
 
         return response.status(201).json({
