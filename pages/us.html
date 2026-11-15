@@ -368,6 +368,10 @@ button#sendBtn:disabled{
 }
 .request-success-card{
     width:min(100%,520px);
+    max-height:calc(100vh - 36px);
+    max-height:calc(100svh - 36px);
+    overflow:auto;
+    overscroll-behavior:contain;
     padding:30px;
     border:1px solid rgba(255,255,255,.15);
     border-radius:22px;
@@ -409,25 +413,41 @@ button#sendBtn:disabled{
 .success-transaction > span{display:block;font-size:.82rem;font-weight:700;opacity:.8;}
 .transaction-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:4px;}
 .success-transaction strong{display:block;font-size:1.65rem;letter-spacing:2px;direction:ltr;}
-.copy-transaction-button{
-    display:inline-flex;align-items:center;justify-content:center;gap:5px;
-    min-height:34px;padding:6px 12px;
-    border:1px solid rgba(255,255,255,.75);
-    border-radius:10px;
-    background:rgba(255,255,255,.42);
-    color:#045652;
-    font-size:.78rem;font-weight:800;
+.required-whatsapp-button{
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    width:100%;
+    min-height:60px;
+    margin-top:13px;
+    padding:13px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    border:1px solid rgba(16,150,80,.58);
+    border-radius:14px;
+    color:#064c2c;
+    background:linear-gradient(135deg, rgba(37,211,102,.42), rgba(37,211,102,.18));
+    text-decoration:none;
+    font-size:.94rem;
+    font-weight:900;
+    line-height:1.7;
     cursor:pointer;
-    -webkit-backdrop-filter:blur(10px) saturate(140%);
-    backdrop-filter:blur(10px) saturate(140%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 4px 12px rgba(4,85,82,.1);
-    transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
+    -webkit-backdrop-filter:blur(12px) saturate(150%);
+    backdrop-filter:blur(12px) saturate(150%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 7px 0 rgba(5,94,52,.28), 0 13px 26px rgba(5,94,52,.2);
+    animation:waSoftPulse 2.4s ease-in-out infinite;
+    transition:transform .2s ease, filter .2s ease, box-shadow .2s ease;
 }
-.copy-transaction-button:hover{transform:translateY(-2px);background:rgba(255,255,255,.72);}
-.copy-transaction-button.copied{background:rgba(37,211,102,.22);border-color:rgba(37,211,102,.45);}
+.required-whatsapp-button:hover{transform:translateY(-2px);filter:brightness(1.03);}
+.required-whatsapp-button:active{transform:translateY(3px);box-shadow:inset 0 1px 3px rgba(0,0,0,.15),0 3px 0 rgba(5,94,52,.25),0 8px 18px rgba(5,94,52,.18);}
+.required-whatsapp-button.completed{animation:none;background:rgba(37,211,102,.24);}
+.required-handoff-note{display:block;margin-top:11px;color:#3f6558;font-size:.76rem;line-height:1.75;font-weight:700;}
 
 /* --- أزرار زجاجية حديثة (Glassmorphism) --- */
 .success-actions{display:grid;gap:10px;}
+.success-actions[hidden]{display:none!important;}
 .success-actions > a,.success-actions > button{
     position:relative;
     isolation:isolate;
@@ -794,11 +814,14 @@ button#sendBtn:disabled{
             <span>رقم معاملتك</span>
             <div class="transaction-row">
                 <strong id="successTransactionId">—</strong>
-                <button id="copyTransactionButton" class="copy-transaction-button" type="button" aria-label="نسخ رقم المعاملة" title="نسخ رقم المعاملة">📋 نسخ</button>
             </div>
+            <a id="requiredWhatsappButton" class="required-whatsapp-button success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">
+                <span aria-hidden="true">📋</span>
+                <span id="requiredWhatsappButtonText">نسخ رقم المعاملة والاستمرار إلى واتساب</span>
+            </a>
+            <small class="required-handoff-note">هذه الخطوة مطلوبة لإكمال التسجيل، وسيتم نسخ رقم المعاملة تلقائياً.</small>
         </div>
-        <div class="success-actions">
-            <a id="optionalWhatsappLink" class="success-whatsapp-button" href="https://wa.me/966580272758" target="_blank" rel="noopener">📲 استمرار إلى واتساب</a>
+        <div id="postWhatsappActions" class="success-actions" hidden>
             <a class="success-chat-button" href="chat.html">💬 تواصل مع فريق الدعم</a>
             <a class="success-home-button" href="../index.html">🏠 العودة إلى الرئيسية</a>
         </div>
@@ -889,7 +912,7 @@ button#sendBtn:disabled{
         });
 
         function goToName() {
-            if (cancelled) return;
+            if (cancelled || !document.getElementById("requestSuccessModal")?.hidden) return;
             const nameInput = document.getElementById("name");
             if (!nameInput || !nameInput.isConnected) return;
             const group = nameInput.closest(".form-group") || nameInput;
@@ -946,8 +969,177 @@ return phone.startsWith("00") ? phone.slice(2) : phone;
 
 const sendBtn = document.getElementById("sendBtn");
 const btnText = document.getElementById("btnText");
+const requestSuccessModal = document.getElementById("requestSuccessModal");
+const requiredWhatsappButton = document.getElementById("requiredWhatsappButton");
+const requiredWhatsappButtonText = document.getElementById("requiredWhatsappButtonText");
+const postWhatsappActions = document.getElementById("postWhatsappActions");
 const requestRejectedModal = document.getElementById("requestRejectedModal");
 const requestRejectedMessage = document.getElementById("requestRejectedMessage");
+const REQUIRED_WHATSAPP_HANDOFF_KEY = "waleed_required_whatsapp_handoff_v1";
+let requiredWhatsappGuardActive = false;
+let requiredWhatsappGuardPushed = false;
+
+function isSuccessModalOpen(){
+    return Boolean(requestSuccessModal && !requestSuccessModal.hidden);
+}
+
+function persistPendingWhatsappHandoff(transactionId, applicantName, whatsappUrl){
+    try{
+        sessionStorage.setItem(REQUIRED_WHATSAPP_HANDOFF_KEY, JSON.stringify({
+            transactionId: String(transactionId || ""),
+            applicantName: String(applicantName || ""),
+            whatsappUrl: String(whatsappUrl || "")
+        }));
+    }catch(_error){}
+}
+
+function clearPendingWhatsappHandoff(){
+    try{
+        sessionStorage.removeItem(REQUIRED_WHATSAPP_HANDOFF_KEY);
+    }catch(_error){}
+}
+
+function pushRequiredWhatsappGuard(){
+    try{
+        history.pushState({ requiredWhatsappHandoff: true }, "", location.href);
+        requiredWhatsappGuardPushed = true;
+    }catch(_error){
+        requiredWhatsappGuardPushed = false;
+    }
+}
+
+function activateRequiredWhatsappGuard(){
+    requiredWhatsappGuardActive = true;
+    if(!requiredWhatsappGuardPushed){
+        pushRequiredWhatsappGuard();
+    }
+}
+
+function completeRequiredWhatsappHandoff(){
+    requiredWhatsappGuardActive = false;
+    clearPendingWhatsappHandoff();
+
+    requiredWhatsappButton.classList.add("completed");
+    requiredWhatsappButton.setAttribute("aria-pressed", "true");
+    requiredWhatsappButtonText.textContent = "تم النسخ — فتح واتساب مجدداً";
+    postWhatsappActions.hidden = false;
+}
+
+function prepareRequiredWhatsappHandoff(transactionId, applicantName, whatsappUrl, shouldPersist = true){
+    const normalizedTransactionId = String(transactionId || "").trim();
+    const normalizedWhatsappUrl = String(whatsappUrl || "").trim();
+    if(!normalizedTransactionId || !normalizedWhatsappUrl.startsWith("https://wa.me/")) return false;
+
+    document.getElementById("successApplicantName").textContent = String(applicantName || "").trim();
+    document.getElementById("successTransactionId").textContent = normalizedTransactionId;
+    requiredWhatsappButton.href = normalizedWhatsappUrl;
+    requiredWhatsappButton.classList.remove("completed");
+    requiredWhatsappButton.setAttribute("aria-pressed", "false");
+    requiredWhatsappButtonText.textContent = "نسخ رقم المعاملة والاستمرار إلى واتساب";
+    postWhatsappActions.hidden = true;
+    requestSuccessModal.hidden = false;
+    document.body.style.overflow = "hidden";
+
+    if(shouldPersist){
+        persistPendingWhatsappHandoff(normalizedTransactionId, applicantName, normalizedWhatsappUrl);
+    }
+    activateRequiredWhatsappGuard();
+    window.setTimeout(() => requiredWhatsappButton.focus({ preventScroll: false }), 0);
+    return true;
+}
+
+function copyTransactionId(transactionId){
+    let fallbackCopied = false;
+    try{
+        const area = document.createElement("textarea");
+        area.value = transactionId;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.opacity = "0";
+        area.style.pointerEvents = "none";
+        document.body.appendChild(area);
+        area.focus();
+        area.select();
+        area.setSelectionRange(0, area.value.length);
+        fallbackCopied = document.execCommand("copy");
+        area.remove();
+    }catch(_error){}
+
+    if(navigator.clipboard && typeof navigator.clipboard.writeText === "function"){
+        try{
+            Promise.resolve(navigator.clipboard.writeText(transactionId)).catch(() => {
+                if(!fallbackCopied){
+                    console.warn("تعذر النسخ التلقائي بسبب قيود المتصفح.");
+                }
+            });
+        }catch(_error){
+            if(!fallbackCopied){
+                console.warn("تعذر النسخ التلقائي بسبب قيود المتصفح.");
+            }
+        }
+    }
+}
+
+window.addEventListener("popstate", () => {
+    if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
+    pushRequiredWhatsappGuard();
+    requiredWhatsappButton.focus({ preventScroll: false });
+});
+
+window.addEventListener("beforeunload", (event) => {
+    if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
+    event.preventDefault();
+    event.returnValue = "";
+});
+
+document.addEventListener("click", (event) => {
+    if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
+    const action = event.target && typeof event.target.closest === "function"
+        ? event.target.closest("a,button")
+        : null;
+    if(!action || action === requiredWhatsappButton) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    requiredWhatsappButton.focus({ preventScroll: false });
+}, true);
+
+document.addEventListener("keydown", (event) => {
+    if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
+    if(event.key === "Escape" || event.key === "Tab"){
+        event.preventDefault();
+        requiredWhatsappButton.focus({ preventScroll: false });
+    }
+});
+
+requiredWhatsappButton.addEventListener("click", (event) => {
+    const transactionId = (document.getElementById("successTransactionId").textContent || "").trim();
+    if(!transactionId || transactionId === "—"){
+        event.preventDefault();
+        alert("رقم المعاملة غير متاح بعد.");
+        return;
+    }
+
+    /* لا ننتظر عملية النسخ حتى يبقى فتح واتساب مرتبطاً مباشرةً بلمسة المستخدم. */
+    copyTransactionId(transactionId);
+    completeRequiredWhatsappHandoff();
+});
+
+try{
+    const pendingHandoff = JSON.parse(sessionStorage.getItem(REQUIRED_WHATSAPP_HANDOFF_KEY) || "null");
+    if(pendingHandoff){
+        if(!prepareRequiredWhatsappHandoff(
+            pendingHandoff.transactionId,
+            pendingHandoff.applicantName,
+            pendingHandoff.whatsappUrl,
+            false
+        )){
+            clearPendingWhatsappHandoff();
+        }
+    }
+}catch(_error){
+    clearPendingWhatsappHandoff();
+}
+
 const duplicateFieldLabels = {
     name:"الاسم الثلاثي",
     phone:"رقم الجوال",
@@ -1061,12 +1253,9 @@ status:"قيد المراجعة"
 saveOrderForm(orderForm);
 localStorage.setItem("waleed_internal_chat_session",JSON.stringify(orderForm));
 
-/* بدلاً من رسالة الاستفسار القديمة: نرسل نموذجاً كاملاً بالبيانات المسجلة. */
-document.getElementById("optionalWhatsappLink").href = buildWhatsappUrl(orderForm, adminPhone);
-document.getElementById("successApplicantName").textContent=name;
-document.getElementById("successTransactionId").textContent=transactionId;
-document.getElementById("requestSuccessModal").hidden=false;
-document.body.style.overflow="hidden";
+/* نجهز زر الخطوة الإلزامية ليَنسخ رقم المعاملة ويفتح النموذج الكامل في واتساب. */
+const whatsappUrl = buildWhatsappUrl(orderForm, adminPhone);
+prepareRequiredWhatsappHandoff(transactionId, name, whatsappUrl);
 
 }
 catch(error){
@@ -1080,22 +1269,6 @@ btnText.innerText = "إرسال الطلب";
 
 };
 
-/* نسخ رقم المعاملة من الزر الصغير بجانب الرقم. */
-document.getElementById("copyTransactionButton").addEventListener("click", async () => {
-const button = document.getElementById("copyTransactionButton");
-const transactionId = (document.getElementById("successTransactionId").textContent || "").trim();
-if(!transactionId || transactionId === "—"){ alert("رقم المعاملة غير متاح بعد."); return; }
-try{
-    await navigator.clipboard.writeText(transactionId);
-}catch{
-    const area = document.createElement("textarea");
-    area.value = transactionId; document.body.appendChild(area);
-    area.select(); document.execCommand("copy"); area.remove();
-}
-button.textContent = "✅ تم النسخ";
-button.classList.add("copied");
-setTimeout(() => { button.textContent = "📋 نسخ"; button.classList.remove("copied"); }, 2200);
-});
 
 </script>
 
