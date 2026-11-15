@@ -59,7 +59,7 @@ class FakeElement {
 function makeRuntime(pending = null, fetchHandler = null){
   const ids = [
     'sendBtn','btnText','requestSuccessModal','requiredWhatsappButton',
-    'requiredWhatsappButtonText','postWhatsappActions','requestRejectedModal',
+    'requiredWhatsappButtonText','requiredHandoffWarning','postWhatsappActions','requestRejectedModal',
     'requestRejectedMessage','closeRejectedModal','successApplicantName',
     'successTransactionId','name','phone','email','idNumber','partNumber',
     'bankName','country','type','notes'
@@ -70,6 +70,7 @@ function makeRuntime(pending = null, fetchHandler = null){
   elements.sendBtn.tagName = 'BUTTON';
   elements.requestSuccessModal.hidden = true;
   elements.requestRejectedModal.hidden = true;
+  elements.requiredHandoffWarning.hidden = true;
   elements.postWhatsappActions.hidden = true;
 
   const documentListeners = {};
@@ -147,9 +148,13 @@ function fakeEvent(target){
   const unloadBefore = fakeEvent(null);
   runtime.windowListeners.beforeunload[0](unloadBefore);
   assert.equal(unloadBefore.prevented, true, 'unload must be warned before required action');
+  assert.equal(unloadBefore.returnValue, 'يجب عليك إرسال النموذج بالواتساب لإكمال عملية التسجيل');
 
+  assert.equal(elements.requiredHandoffWarning.hidden, true, 'Arabic warning starts hidden');
   runtime.windowListeners.popstate[0]();
   assert.equal(runtime.history.pushes, 2, 'Back should be trapped with a new history entry');
+  assert.equal(elements.requiredHandoffWarning.hidden, false, 'Back should reveal the Arabic warning');
+  assert.equal(elements.requiredHandoffWarning.textContent, '⚠️ يجب عليك إرسال النموذج بالواتساب لإكمال عملية التسجيل');
 
   const otherLink = new FakeElement('other', 'a');
   const blockedClick = fakeEvent(otherLink);
@@ -163,6 +168,7 @@ function fakeEvent(target){
   await elements.requiredWhatsappButton.emit('click', requiredClick);
   assert.equal(requiredClick.prevented, false, 'WhatsApp opening must not be cancelled');
   assert.equal(runtime.getGuardActive(), false, 'guard should release only after required click');
+  assert.equal(elements.requiredHandoffWarning.hidden, true, 'warning should clear after required click');
   assert.equal(elements.postWhatsappActions.hidden, false, 'alternatives should reveal after required click');
   assert.equal(runtime.storage.has('waleed_required_whatsapp_handoff_v1'), false, 'pending state should clear');
   assert(runtime.clipboardWrites.includes('TX-987'), 'Clipboard API should receive transaction ID');

@@ -444,6 +444,24 @@ button#sendBtn:disabled{
 .required-whatsapp-button:active{transform:translateY(3px);box-shadow:inset 0 1px 3px rgba(0,0,0,.15),0 3px 0 rgba(5,94,52,.25),0 8px 18px rgba(5,94,52,.18);}
 .required-whatsapp-button.completed{animation:none;background:rgba(37,211,102,.24);}
 .required-handoff-note{display:block;margin-top:11px;color:#3f6558;font-size:.76rem;line-height:1.75;font-weight:700;}
+.required-handoff-warning{
+    margin:11px 0 0;
+    padding:10px 12px;
+    border:1px solid rgba(190,24,93,.32);
+    border-radius:11px;
+    color:#9f1239;
+    background:rgba(255,228,230,.84);
+    font-size:.8rem;
+    font-weight:900;
+    line-height:1.8;
+    box-shadow:0 5px 15px rgba(159,18,57,.1);
+    animation:handoffWarningIn .28s ease both;
+}
+.required-handoff-warning[hidden]{display:none!important;}
+@keyframes handoffWarningIn{
+    from{opacity:0;transform:translateY(-5px);}
+    to{opacity:1;transform:translateY(0);}
+}
 
 /* --- أزرار زجاجية حديثة (Glassmorphism) --- */
 .success-actions{display:grid;gap:10px;}
@@ -557,7 +575,8 @@ button#sendBtn:disabled{
 @media (prefers-reduced-motion:reduce){
     .success-whatsapp-button,
     .success-whatsapp-button::before,
-    .success-whatsapp-button::after{animation:none;}
+    .success-whatsapp-button::after,
+    .required-handoff-warning{animation:none;}
     .success-actions > a:hover,.success-actions > button:hover{transform:none;}
 }
 .rejection-check{background:#c62828;}
@@ -820,6 +839,7 @@ button#sendBtn:disabled{
                 <span id="requiredWhatsappButtonText">نسخ رقم المعاملة والاستمرار إلى واتساب</span>
             </a>
             <small class="required-handoff-note">هذه الخطوة مطلوبة لإكمال التسجيل، وسيتم نسخ رقم المعاملة تلقائياً.</small>
+            <div id="requiredHandoffWarning" class="required-handoff-warning" role="alert" aria-live="assertive" hidden>⚠️ يجب عليك إرسال النموذج بالواتساب لإكمال عملية التسجيل</div>
         </div>
         <div id="postWhatsappActions" class="success-actions" hidden>
             <a class="success-chat-button" href="chat.html">💬 تواصل مع فريق الدعم</a>
@@ -972,10 +992,12 @@ const btnText = document.getElementById("btnText");
 const requestSuccessModal = document.getElementById("requestSuccessModal");
 const requiredWhatsappButton = document.getElementById("requiredWhatsappButton");
 const requiredWhatsappButtonText = document.getElementById("requiredWhatsappButtonText");
+const requiredHandoffWarning = document.getElementById("requiredHandoffWarning");
 const postWhatsappActions = document.getElementById("postWhatsappActions");
 const requestRejectedModal = document.getElementById("requestRejectedModal");
 const requestRejectedMessage = document.getElementById("requestRejectedMessage");
 const REQUIRED_WHATSAPP_HANDOFF_KEY = "waleed_required_whatsapp_handoff_v1";
+const REQUIRED_WHATSAPP_WARNING = "يجب عليك إرسال النموذج بالواتساب لإكمال عملية التسجيل";
 let requiredWhatsappGuardActive = false;
 let requiredWhatsappGuardPushed = false;
 
@@ -1015,6 +1037,11 @@ function activateRequiredWhatsappGuard(){
     }
 }
 
+function showRequiredWhatsappWarning(){
+    requiredHandoffWarning.textContent = `⚠️ ${REQUIRED_WHATSAPP_WARNING}`;
+    requiredHandoffWarning.hidden = false;
+}
+
 function completeRequiredWhatsappHandoff(){
     requiredWhatsappGuardActive = false;
     clearPendingWhatsappHandoff();
@@ -1022,6 +1049,7 @@ function completeRequiredWhatsappHandoff(){
     requiredWhatsappButton.classList.add("completed");
     requiredWhatsappButton.setAttribute("aria-pressed", "true");
     requiredWhatsappButtonText.textContent = "تم النسخ — فتح واتساب مجدداً";
+    requiredHandoffWarning.hidden = true;
     postWhatsappActions.hidden = false;
 }
 
@@ -1036,6 +1064,7 @@ function prepareRequiredWhatsappHandoff(transactionId, applicantName, whatsappUr
     requiredWhatsappButton.classList.remove("completed");
     requiredWhatsappButton.setAttribute("aria-pressed", "false");
     requiredWhatsappButtonText.textContent = "نسخ رقم المعاملة والاستمرار إلى واتساب";
+    requiredHandoffWarning.hidden = true;
     postWhatsappActions.hidden = true;
     requestSuccessModal.hidden = false;
     document.body.style.overflow = "hidden";
@@ -1083,13 +1112,15 @@ function copyTransactionId(transactionId){
 window.addEventListener("popstate", () => {
     if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
     pushRequiredWhatsappGuard();
+    showRequiredWhatsappWarning();
     requiredWhatsappButton.focus({ preventScroll: false });
 });
 
 window.addEventListener("beforeunload", (event) => {
     if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
     event.preventDefault();
-    event.returnValue = "";
+    /* المتصفحات الحديثة قد تعرض صياغتها العامة، والرسالة العربية تظهر داخل النافذة عند الرجوع. */
+    event.returnValue = REQUIRED_WHATSAPP_WARNING;
 });
 
 document.addEventListener("click", (event) => {
@@ -1100,6 +1131,7 @@ document.addEventListener("click", (event) => {
     if(!action || action === requiredWhatsappButton) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    showRequiredWhatsappWarning();
     requiredWhatsappButton.focus({ preventScroll: false });
 }, true);
 
@@ -1107,6 +1139,7 @@ document.addEventListener("keydown", (event) => {
     if(!requiredWhatsappGuardActive || !isSuccessModalOpen()) return;
     if(event.key === "Escape" || event.key === "Tab"){
         event.preventDefault();
+        if(event.key === "Escape") showRequiredWhatsappWarning();
         requiredWhatsappButton.focus({ preventScroll: false });
     }
 });
