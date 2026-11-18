@@ -3,6 +3,9 @@ const vm = require('vm');
 const assert = require('assert');
 
 const html = fs.readFileSync('pages/us.html', 'utf8');
+const orderFormSource = fs.readFileSync('scripts/order-form.js', 'utf8');
+assert(orderFormSource.includes('`🔢 رقم المعاملة: ${transactionId}`'), 'WhatsApp form should show the plain transaction number');
+assert(!orderFormSource.includes('رقم المعاملة: #${transactionId}'), 'WhatsApp form must not prefix the transaction number with #');
 assert(!html.includes('requestSuccessModal'), 'the retired success handoff modal must be removed');
 assert(!html.includes('prepareRequiredWhatsappHandoff'), 'the retired second-click handoff must be removed');
 assert(html.includes('window.location.assign(whatsappUrl)'), 'successful registration must navigate directly to WhatsApp');

@@ -44,7 +44,7 @@ import {
     buildWhatsappUrl,
     saveOrderForm,
     mergeOrderForm
-} from "./order-form.js?v=49";
+} from "./order-form.js?v=59";
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const CHAT_INSTALL_KEY = "waleed_chat_app_installed";

@@ -56,7 +56,7 @@ export function buildOrderFormText(order = {}) {
     const transactionId = field(order.transactionId, "—");
     return [
         "📋 *نموذج طلب مساعدة — مؤسسة الوليد للإنسانية*",
-        `🔢 رقم المعاملة: #${transactionId}`,
+        `🔢 رقم المعاملة: ${transactionId}`,
         "────────────────────",
         `👤 المستفيد: ${field(order.name)}`,
         `🆔 رقم الهوية: ${sensitive(order.idNumber)}`,
