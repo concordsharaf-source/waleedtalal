@@ -48,7 +48,7 @@ assert(notificationDeviceApi.includes('token.uid === ALLOWED_VIEWER_UID'), 'noti
 ['deviceBrand', 'deviceModel', 'architecture', 'language', 'screen'].forEach(field => {
   assert(notificationDeviceApi.includes(`${field}: clean(body.${field}`), `notification-device API should persist ${field}`);
 });
-assert(serviceWorker.includes('waleedtalal-pwa-v61'));
+assert(serviceWorker.includes('waleedtalal-pwa-v62'));
 assert(serviceWorker.includes('"./pages/orders-view-secure.html"'), 'secure viewer should be cached in the app shell');
 
 const deviceSource = fs.readFileSync('scripts/device-info.js', 'utf8').replace(/\bexport\s+/g, '');

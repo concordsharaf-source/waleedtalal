@@ -845,7 +845,7 @@ button#sendBtn:disabled{
 import {
     buildWhatsappUrl,
     saveOrderForm
-} from "../scripts/order-form.js?v=60";
+} from "../scripts/order-form.js?v=62";
 import { getDeviceDetails } from "../scripts/device-info.js";
 
 /* حفظ أرقام الجوال بصيغة إنجليزية موحدة لتسهيل البحث لاحقاً. */
@@ -870,6 +870,68 @@ const requestRejectedMessage = document.getElementById("requestRejectedMessage")
 try{
     sessionStorage.removeItem("waleed_required_whatsapp_handoff_v1");
 }catch(_error){}
+
+/* بعد فتح واتساب نحتفظ بحالة قصيرة داخل علامة التبويب نفسها. عند عودة
+   المستفيد من واتساب نفتح المحادثة مباشرة؛ جلسة الطلب محفوظة مسبقاً،
+   لذلك لا تظهر له شاشة إدخال رقم المعاملة أو الجوال. */
+const WHATSAPP_RETURN_CHAT_KEY = "waleed_open_chat_after_whatsapp_v1";
+const WHATSAPP_RETURN_MAX_AGE = 6 * 60 * 60 * 1000;
+let whatsappReturnRedirecting = false;
+
+function readWhatsappReturnState(){
+    try{
+        const value = JSON.parse(sessionStorage.getItem(WHATSAPP_RETURN_CHAT_KEY) || "null");
+        return value && typeof value === "object" ? value : null;
+    }catch(_error){
+        return null;
+    }
+}
+
+function saveWhatsappReturnState(value){
+    try{
+        sessionStorage.setItem(WHATSAPP_RETURN_CHAT_KEY, JSON.stringify(value));
+    }catch(_error){}
+}
+
+function armChatAfterWhatsapp(orderForm){
+    saveWhatsappReturnState({
+        orderId:String(orderForm.orderId || ""),
+        transactionId:String(orderForm.transactionId || ""),
+        createdAt:Date.now(),
+        leftForWhatsapp:false
+    });
+}
+
+function markWhatsappAsOpened(){
+    const state = readWhatsappReturnState();
+    if(!state || state.leftForWhatsapp) return;
+    state.leftForWhatsapp = true;
+    saveWhatsappReturnState(state);
+}
+
+function openChatAfterWhatsappReturn(){
+    if(whatsappReturnRedirecting || document.visibilityState === "hidden") return;
+    const state = readWhatsappReturnState();
+    if(!state) return;
+    const age = Date.now() - Number(state.createdAt || 0);
+    if(age < 0 || age > WHATSAPP_RETURN_MAX_AGE){
+        sessionStorage.removeItem(WHATSAPP_RETURN_CHAT_KEY);
+        return;
+    }
+    if(!state.leftForWhatsapp) return;
+    whatsappReturnRedirecting = true;
+    sessionStorage.removeItem(WHATSAPP_RETURN_CHAT_KEY);
+    window.location.replace("chat.html");
+}
+
+document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "hidden") markWhatsappAsOpened();
+    else window.setTimeout(openChatAfterWhatsappReturn, 0);
+});
+window.addEventListener("pagehide", markWhatsappAsOpened);
+window.addEventListener("pageshow", () => window.setTimeout(openChatAfterWhatsappReturn, 0));
+window.addEventListener("focus", () => window.setTimeout(openChatAfterWhatsappReturn, 0));
+window.setTimeout(openChatAfterWhatsappReturn, 0);
 
 const duplicateFieldLabels = {
     name:"الاسم الثلاثي",
@@ -987,14 +1049,17 @@ try{
     localStorage.setItem("waleed_internal_chat_session",JSON.stringify(orderForm));
 }catch(_error){}
 
-/* بعد تأكيد الحفظ في الخادم، ننتقل مباشرةً في الصفحة نفسها إلى نموذج واتساب الكامل. */
+/* بعد تأكيد الحفظ في الخادم، نفتح واتساب. وعند الرجوع منه تُفتح
+   المحادثة الداخلية تلقائياً اعتماداً على الجلسة المحفوظة أعلاه. */
 const whatsappUrl = buildWhatsappUrl(orderForm, adminPhone);
+armChatAfterWhatsapp(orderForm);
 btnText.innerText = "تم حفظ الطلب، جاري فتح واتساب...";
 window.location.assign(whatsappUrl);
 redirectingToWhatsapp = true;
 
 }
 catch(error){
+try{ sessionStorage.removeItem(WHATSAPP_RETURN_CHAT_KEY); }catch(_error){}
 console.log(error);
 alert("حدث خطأ أثناء حفظ الطلب، يرجى المحاولة مرة أخرى.");
 }

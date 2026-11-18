@@ -9,11 +9,14 @@ const registerApiSource = fs.readFileSync('api/register-order.js', 'utf8');
 const orderFormSource = fs.readFileSync('scripts/order-form.js', 'utf8');
 assert(orderFormSource.includes('`🔢 رقم المعاملة: ${transactionId}`'), 'WhatsApp form should show the plain transaction number');
 assert(!orderFormSource.includes('رقم المعاملة: #${transactionId}'), 'WhatsApp form must not prefix the transaction number with #');
-assert(orderFormSource.includes('pages/chat.html?transaction=${encodeURIComponent(transactionId)}'), 'WhatsApp form should link to internal messaging');
-assert(orderFormSource.includes('يمكن الدخول باستخدام رقم المعاملة ورقم الجوال المسجل في الطلب.'), 'WhatsApp form should explain internal-chat credentials');
+assert(!orderFormSource.includes('pages/chat.html?transaction='), 'WhatsApp form must not contain an internal-chat link');
+assert(!orderFormSource.includes('💬 المراسلة الداخلية:'), 'WhatsApp form must not mention internal messaging');
+assert(!orderFormSource.includes('يمكن الدخول باستخدام رقم المعاملة ورقم الجوال المسجل في الطلب.'), 'WhatsApp form must not expose chat login instructions');
 assert(html.includes('class="internal-chat-entry" href="chat.html"'), 'registration page should expose internal messaging');
 assert(chatSource.includes('new URLSearchParams(location.search).get("transaction")'), 'chat login should prefill the transaction from its link');
-assert(chatHtml.includes('chat-beneficiary.js?v=60'), 'chat page should load the updated beneficiary flow');
+assert(chatHtml.includes('chat-beneficiary.js?v=62'), 'chat page should load the updated beneficiary flow');
+assert(html.includes('window.location.replace("chat.html")'), 'returning from WhatsApp should open internal chat directly');
+assert(html.includes('armChatAfterWhatsapp(orderForm)'), 'successful registration should arm automatic chat return');
 assert(registerApiSource.includes('chatEnabled: true'), 'successful registration should create an internal chat');
 assert(registerApiSource.includes('chatMessages: [message]'), 'successful registration should create the welcome message');
 assert(!html.includes('requestSuccessModal'), 'the retired success handoff modal must be removed');
@@ -69,6 +72,7 @@ function makeRuntime(fetchHandler){
   const events = [];
   const alerts = [];
   const assignedUrls = [];
+  const replacedUrls = [];
   const localValues = new Map();
   const sessionValues = new Map([
     ['waleed_required_whatsapp_handoff_v1', '{"obsolete":true}']
@@ -76,9 +80,14 @@ function makeRuntime(fetchHandler){
   let fetchCount = 0;
   let requestBody = null;
 
+  const documentListeners = {};
+  const windowListeners = {};
   const document = {
     body:{style:{}},
-    getElementById(id){ return elements[id] || null; }
+    visibilityState:'visible',
+    getElementById(id){ return elements[id] || null; },
+    addEventListener(type, handler){ (documentListeners[type] ||= []).push(handler); },
+    dispatch(type){ (documentListeners[type] || []).forEach(handler => handler({type})); }
   };
   const localStorage = {
     setItem(key, value){
@@ -98,8 +107,15 @@ function makeRuntime(fetchHandler){
       assign(url){
         events.push('redirect-whatsapp');
         assignedUrls.push(String(url));
+      },
+      replace(url){
+        events.push('redirect-chat');
+        replacedUrls.push(String(url));
       }
-    }
+    },
+    addEventListener(type, handler){ (windowListeners[type] ||= []).push(handler); },
+    dispatch(type){ (windowListeners[type] || []).forEach(handler => handler({type})); },
+    setTimeout(handler){ handler(); return 1; }
   };
   const context = vm.createContext({
     console:{log(){}, warn(){}, error(){}}, document, window, localStorage, sessionStorage,
@@ -116,7 +132,8 @@ function makeRuntime(fetchHandler){
   vm.runInContext(source, context, {filename:'us-inline-module.mjs'});
 
   return {
-    elements, events, alerts, assignedUrls, localValues, sessionValues, context,
+    elements, events, alerts, assignedUrls, replacedUrls, localValues, sessionValues, context,
+    document, window,
     get fetchCount(){ return fetchCount; },
     get requestBody(){ return requestBody; }
   };
@@ -160,6 +177,14 @@ function fillValidForm(runtime){
   assert(successful.assignedUrls[0].startsWith('https://wa.me/966580272758?text='));
   assert.equal(successful.elements.sendBtn.disabled, true, 'button should stay locked while leaving for WhatsApp');
   assert.equal(successful.elements.btnText.innerText, 'تم حفظ الطلب، جاري فتح واتساب...');
+  const returnState = JSON.parse(successful.sessionValues.get('waleed_open_chat_after_whatsapp_v1'));
+  assert.equal(returnState.leftForWhatsapp, false, 'chat return should wait until the page actually leaves for WhatsApp');
+  successful.window.dispatch('pagehide');
+  assert.equal(JSON.parse(successful.sessionValues.get('waleed_open_chat_after_whatsapp_v1')).leftForWhatsapp, true);
+  successful.window.dispatch('pageshow');
+  assert.deepEqual(successful.replacedUrls, ['chat.html'], 'returning from WhatsApp should open chat without showing login');
+  assert.equal(successful.sessionValues.has('waleed_open_chat_after_whatsapp_v1'), false, 'one-time return state should be cleared');
+  assert(successful.localValues.has('waleed_internal_chat_session'), 'direct chat should retain the saved authenticated session');
 
   const duplicate = makeRuntime(async () => ({
     ok:false,

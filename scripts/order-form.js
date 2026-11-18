@@ -54,7 +54,6 @@ export function mergeOrderForm(order = {}) {
  */
 export function buildOrderFormText(order = {}) {
     const transactionId = field(order.transactionId, "—");
-    const internalChatUrl = `https://waleedtalal.vercel.app/pages/chat.html?transaction=${encodeURIComponent(transactionId)}`;
     return [
         "📋 *نموذج طلب مساعدة — مؤسسة الوليد للإنسانية*",
         `🔢 رقم المعاملة: ${transactionId}`,
@@ -69,9 +68,6 @@ export function buildOrderFormText(order = {}) {
         `📂 نوع الطلب: ${field(order.type)}`,
         `📝 شرح الاحتياج: ${field(order.notes, MISSING, 600)}`,
         `📍 حالة الطلب: ${field(order.status, "قيد المراجعة")}`,
-        "",
-        `💬 المراسلة الداخلية: ${internalChatUrl}`,
-        "يمكن الدخول باستخدام رقم المعاملة ورقم الجوال المسجل في الطلب.",
         "",
         "هذه بيانات نموذج طلب المساعدة الذي تم تسجيله، نرجو مراجعته واستكمال الإجراءات."
     ].join("\n");
