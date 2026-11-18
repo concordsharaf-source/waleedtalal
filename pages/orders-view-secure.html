@@ -10,6 +10,7 @@
     <link rel="preload" href="../fonts/cairo-arabic.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="../fonts/cairo-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../styles/site-buttons.css">
+    <script src="../scripts/pwa.js" defer></script>
 
     <style>
         :root {
@@ -193,6 +194,25 @@
         .summary-card span { display: block; color: var(--muted); font-size: .72rem; }
         .summary-card strong { display: block; margin-top: 3px; color: var(--green-700); font-size: 1.35rem; }
 
+        .notification-shortcut { margin-top: 17px; display: grid; gap: 10px; }
+        .viewer-push-panel { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid #d6e5dc; border-radius: 17px; background: rgba(255,255,255,.95); box-shadow: 0 8px 24px rgba(23,37,29,.05); }
+        .viewer-push-copy { min-width: 0; display: flex; align-items: flex-start; gap: 10px; }
+        .viewer-push-dot { width: 11px; height: 11px; flex: 0 0 11px; margin-top: 7px; border-radius: 50%; background: #aebbb3; box-shadow: 0 0 0 5px #edf2ef; }
+        .viewer-push-panel.enabled .viewer-push-dot { background: #23a267; box-shadow: 0 0 0 5px #e0f3e8; }
+        .viewer-push-copy strong { display: block; color: var(--green-900); font-size: .86rem; }
+        .viewer-push-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: .68rem; line-height: 1.7; }
+        .viewer-push-toggle { min-width: 142px; min-height: 43px; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; color: #fff; background: var(--green-900); font-weight: 900; cursor: pointer; }
+        .viewer-push-toggle.enabled { background: var(--danger); }
+        .viewer-bell { position: relative; display: inline-grid; place-items: center; font-size: 19px; line-height: 1; }
+        .viewer-push-toggle.enabled .viewer-bell::after { content: ""; position: absolute; width: 25px; height: 3px; border-radius: 3px; background: #fff; transform: rotate(-43deg); }
+        .viewer-push-toggle:not(.enabled) .viewer-bell { animation: viewerBellPulse 1.25s ease-in-out infinite; transform-origin: top center; }
+        @keyframes viewerBellPulse { 0%,70%,100%{transform:rotate(0)} 10%{transform:rotate(12deg)} 25%{transform:rotate(-12deg)} 40%{transform:rotate(8deg)} 55%{transform:rotate(-8deg)} }
+        .secure-notifications-link { position: relative; min-height: 54px; padding: 12px 16px; display: flex; align-items: center; justify-content: center; gap: 9px; border-radius: 15px; color: #fff; background: linear-gradient(135deg,#b7791f,#8a5414); text-decoration: none; font-weight: 900; box-shadow: 0 8px 22px rgba(138,84,20,.2); }
+        .secure-notification-badge { min-width: 25px; height: 25px; padding: 0 7px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; color: #8a5414; background: #fff; font-size: .7rem; }
+        .secure-notification-badge[hidden] { display: none; }
+        .notifications-subpage-head { margin-bottom: 13px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .notifications-back-link { padding: 9px 13px; border: 1px solid #cfe0d6; border-radius: 11px; color: var(--green-900); background: #fff; text-decoration: none; font-size: .76rem; font-weight: 900; }
+
         .notification-center {
             margin-top: 17px;
             padding: 16px;
@@ -342,8 +362,10 @@
             .toolbar { grid-template-columns: 1fr; padding: 11px; }
             .order-card { padding: 14px; }
             .notification-center { padding: 12px; }
-            .notification-center-head { align-items: stretch; flex-direction: column; }
-            .notification-refresh { width: 100%; }
+            .notification-center-head, .viewer-push-panel { align-items: stretch; flex-direction: column; }
+            .notification-refresh, .viewer-push-toggle { width: 100%; }
+            .notifications-subpage-head { align-items: stretch; flex-direction: column; }
+            .notifications-back-link { text-align: center; }
             .device-facts { grid-template-columns: repeat(2, minmax(0,1fr)); }
         }
 
@@ -386,45 +408,70 @@
         </header>
 
         <main>
-            <section class="summary" aria-label="ملخص المعاملات">
-                <article class="summary-card"><span>إجمالي المعاملات</span><strong id="totalCount">—</strong></article>
-                <article class="summary-card"><span>قيد المراجعة</span><strong id="reviewCount">—</strong></article>
-                <article class="summary-card"><span>معتمدة</span><strong id="approvedCount">—</strong></article>
-                <article class="summary-card"><span>مكتملة</span><strong id="doneCount">—</strong></article>
-                <article class="summary-card"><span>دخل أصحابها للمراجعة</span><strong id="visitedCount">—</strong></article>
-            </section>
+            <div id="ordersPage">
+                <section class="summary" aria-label="ملخص المعاملات">
+                    <article class="summary-card"><span>إجمالي المعاملات</span><strong id="totalCount">—</strong></article>
+                    <article class="summary-card"><span>قيد المراجعة</span><strong id="reviewCount">—</strong></article>
+                    <article class="summary-card"><span>معتمدة</span><strong id="approvedCount">—</strong></article>
+                    <article class="summary-card"><span>مكتملة</span><strong id="doneCount">—</strong></article>
+                    <article class="summary-card"><span>دخل أصحابها للمراجعة</span><strong id="visitedCount">—</strong></article>
+                </section>
 
-            <section class="notification-center" aria-labelledby="notificationCenterTitle">
-                <div class="notification-center-head">
-                    <div>
-                        <h2 id="notificationCenterTitle">🔔 إشعارات التسجيل والتتبع</h2>
-                        <p>تظهر التسجيلات الجديدة ومحاولات التتبع هنا، وتُحدّث تلقائياً أثناء فتح الصفحة.</p>
+                <section class="notification-shortcut" aria-label="إشعارات الإدارة">
+                    <div id="viewerPushPanel" class="viewer-push-panel">
+                        <div class="viewer-push-copy">
+                            <span class="viewer-push-dot" aria-hidden="true"></span>
+                            <div>
+                                <strong>إشعارات التسجيل والتتبع</strong>
+                                <span id="viewerPushStatus">فعّل الإشعارات لتصلك التنبيهات على هذا الجهاز حتى عند إغلاق الصفحة.</span>
+                            </div>
+                        </div>
+                        <button id="viewerPushToggle" class="viewer-push-toggle" type="button"><span class="viewer-bell" aria-hidden="true">🔔</span><span id="viewerPushToggleText">تفعيل الإشعارات</span></button>
                     </div>
-                    <button id="notificationRefresh" class="notification-refresh" type="button">تحديث الإشعارات</button>
-                </div>
-                <div class="notification-metrics" role="tablist" aria-label="تصفية الإشعارات">
-                    <button class="notification-filter active" type="button" data-notification-filter="all"><span>الكل</span><strong id="allNotificationCount">0</strong></button>
-                    <button class="notification-filter" type="button" data-notification-filter="registration"><span>تسجيلات جديدة</span><strong id="registrationNotificationCount">0</strong></button>
-                    <button class="notification-filter" type="button" data-notification-filter="tracking"><span>نشاط التتبع</span><strong id="trackingNotificationCount">0</strong></button>
-                </div>
-                <div id="secureNotificationFeed" class="secure-notification-feed" aria-live="polite">
-                    <div class="notification-empty">سجّل الدخول لتحميل الإشعارات.</div>
-                </div>
-            </section>
+                    <a class="secure-notifications-link" href="orders-view-secure.html?view=notifications">
+                        <span>🔔 الانتقال إلى الإشعارات</span>
+                        <span id="secureNotificationBadge" class="secure-notification-badge" hidden>0</span>
+                    </a>
+                </section>
 
-            <section class="toolbar" aria-label="البحث والترتيب">
-                <input id="searchInput" type="search" autocomplete="off" placeholder="ابحث بأي معلومة: رقم، اسم، جوال، دولة، حالة...">
-                <select id="sortSelect" aria-label="ترتيب المعاملات">
-                    <option value="new">الأحدث أولًا</option>
-                    <option value="old">الأقدم أولًا</option>
-                </select>
-            </section>
+                <section class="toolbar" aria-label="البحث والترتيب">
+                    <input id="searchInput" type="search" autocomplete="off" placeholder="ابحث بأي معلومة: رقم، اسم، جوال، دولة، حالة...">
+                    <select id="sortSelect" aria-label="ترتيب المعاملات">
+                        <option value="new">الأحدث أولًا</option>
+                        <option value="old">الأقدم أولًا</option>
+                    </select>
+                </section>
 
-            <div class="results-meta">
-                <span id="resultsCount">سجّل الدخول لتحميل المعاملات</span>
+                <div class="results-meta">
+                    <span id="resultsCount">سجّل الدخول لتحميل المعاملات</span>
+                </div>
+
+                <section id="orders" aria-live="polite" aria-busy="false"></section>
             </div>
 
-            <section id="orders" aria-live="polite" aria-busy="false"></section>
+            <section id="notificationsSubpage" hidden>
+                <div class="notifications-subpage-head">
+                    <strong>صفحة الإشعارات</strong>
+                    <a class="notifications-back-link" href="orders-view-secure.html">العودة إلى المعاملات</a>
+                </div>
+                <section class="notification-center" aria-labelledby="notificationCenterTitle">
+                    <div class="notification-center-head">
+                        <div>
+                            <h2 id="notificationCenterTitle">🔔 إشعارات التسجيل والتتبع</h2>
+                            <p>تظهر التسجيلات الجديدة ومحاولات التتبع هنا، وتُحدّث تلقائياً أثناء فتح الصفحة.</p>
+                        </div>
+                        <button id="notificationRefresh" class="notification-refresh" type="button">تحديث الإشعارات</button>
+                    </div>
+                    <div class="notification-metrics" role="tablist" aria-label="تصفية الإشعارات">
+                        <button class="notification-filter active" type="button" data-notification-filter="all"><span>الكل</span><strong id="allNotificationCount">0</strong></button>
+                        <button class="notification-filter" type="button" data-notification-filter="registration"><span>تسجيلات جديدة</span><strong id="registrationNotificationCount">0</strong></button>
+                        <button class="notification-filter" type="button" data-notification-filter="tracking"><span>نشاط التتبع</span><strong id="trackingNotificationCount">0</strong></button>
+                    </div>
+                    <div id="secureNotificationFeed" class="secure-notification-feed" aria-live="polite">
+                        <div class="notification-empty">سجّل الدخول لتحميل الإشعارات.</div>
+                    </div>
+                </section>
+            </section>
         </main>
     </div>
     <div id="viewerToast" class="viewer-toast" role="status"></div>
@@ -441,10 +488,12 @@
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { formatAmount } from "../scripts/amount-format.js";
+        import { getBrowserPushToken } from "../scripts/push-notifications.js";
         import {
             deviceBrandFromModel,
             deviceModelFromUserAgent,
-            friendlyDeviceModel
+            friendlyDeviceModel,
+            getDeviceDetails
         } from "../scripts/device-info.js";
 
         const firebaseConfig = {
@@ -475,6 +524,19 @@
         const resultsCount = document.getElementById("resultsCount");
         const notificationFeed = document.getElementById("secureNotificationFeed");
         const notificationRefresh = document.getElementById("notificationRefresh");
+        const ordersPage = document.getElementById("ordersPage");
+        const notificationsSubpage = document.getElementById("notificationsSubpage");
+        const viewerPushPanel = document.getElementById("viewerPushPanel");
+        const viewerPushToggle = document.getElementById("viewerPushToggle");
+        const viewerPushToggleText = document.getElementById("viewerPushToggleText");
+        const viewerPushStatus = document.getElementById("viewerPushStatus");
+        const secureNotificationBadge = document.getElementById("secureNotificationBadge");
+        const pageParams = new URLSearchParams(location.search);
+        const notificationsPageMode = pageParams.get("view") === "notifications" ||
+            ["registration", "tracking"].includes(pageParams.get("notification"));
+        const PUSH_ENABLED_KEY = "waleed_admin_notifications_enabled";
+        const PUSH_OPTED_OUT_KEY = "waleed_admin_notifications_opted_out";
+        const PUSH_DEVICE_ID_KEY = "waleed_admin_notification_device_id";
         let allOrders = [];
         let loadedForUid = "";
         let unsubscribeOrders = null;
@@ -486,6 +548,7 @@
         let notificationTimer = 0;
         let toastTimer = 0;
         let deepLinkApplied = false;
+        let viewerPushBusy = false;
 
         function isAllowedViewer(user) {
             return Boolean(
@@ -626,6 +689,86 @@
             return result;
         }
 
+        function viewerNotificationDeviceId() {
+            let value = localStorage.getItem(PUSH_DEVICE_ID_KEY);
+            if (!value) {
+                value = `owner_${(globalThis.crypto?.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g, "")}`;
+                localStorage.setItem(PUSH_DEVICE_ID_KEY, value);
+            }
+            return value;
+        }
+
+        function viewerNotificationsEnabled() {
+            return localStorage.getItem(PUSH_ENABLED_KEY) === "yes" &&
+                "Notification" in window && Notification.permission === "granted";
+        }
+
+        function updateViewerPushUi(message = "") {
+            const enabled = viewerNotificationsEnabled();
+            viewerPushPanel.classList.toggle("enabled", enabled);
+            viewerPushToggle.classList.toggle("enabled", enabled);
+            viewerPushToggle.setAttribute("aria-pressed", String(enabled));
+            viewerPushToggleText.textContent = enabled ? "إيقاف الإشعارات" : "تفعيل الإشعارات";
+            viewerPushToggle.disabled = viewerPushBusy;
+            if (message) {
+                viewerPushStatus.textContent = message;
+            } else if (enabled) {
+                viewerPushStatus.textContent = "الإشعارات مفعّلة على هذا الجهاز وستصلك حتى عند إغلاق الصفحة.";
+            } else if ("Notification" in window && Notification.permission === "denied") {
+                viewerPushStatus.textContent = "الإذن محظور من إعدادات المتصفح. اسمح بالإشعارات ثم أعد المحاولة.";
+            } else {
+                viewerPushStatus.textContent = "فعّل الإشعارات لتصلك تنبيهات التسجيل والتتبع على هذا الجهاز.";
+            }
+        }
+
+        async function registerViewerNotificationDevice({ requestPermission = false } = {}) {
+            if (!currentViewer) throw new Error("viewer-not-authenticated");
+            const token = await getBrowserPushToken({ requestPermission });
+            if (!token) throw new Error(("Notification" in window && Notification.permission === "denied") ? "permission-denied" : "token-unavailable");
+            const details = await getDeviceDetails();
+            await notificationApi(currentViewer, "/api/admin-notification-device", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    action: "register",
+                    deviceId: viewerNotificationDeviceId(),
+                    token,
+                    ...details
+                })
+            });
+            localStorage.setItem(PUSH_ENABLED_KEY, "yes");
+            localStorage.removeItem(PUSH_OPTED_OUT_KEY);
+            updateViewerPushUi();
+        }
+
+        async function disableViewerNotificationDevice() {
+            const first = confirm("سيؤدي إيقاف الإشعارات إلى عدم وصول تنبيهات التسجيل والتتبع على هذا الجهاز. هل تريد المتابعة؟");
+            if (!first) return false;
+            const second = confirm("تأكيد أخير: لن تصلك الإشعارات الجديدة عند إغلاق الصفحة. هل تريد إيقافها الآن؟");
+            if (!second) return false;
+            await notificationApi(currentViewer, "/api/admin-notification-device", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "unregister", deviceId: viewerNotificationDeviceId() })
+            });
+            localStorage.removeItem(PUSH_ENABLED_KEY);
+            localStorage.setItem(PUSH_OPTED_OUT_KEY, "yes");
+            updateViewerPushUi("تم إيقاف الإشعارات على هذا الجهاز.");
+            showViewerToast("تم إيقاف الإشعارات");
+            return true;
+        }
+
+        async function maintainViewerNotificationDevice() {
+            updateViewerPushUi();
+            if (!viewerNotificationsEnabled()) return;
+            try {
+                await registerViewerNotificationDevice({ requestPermission: false });
+            } catch (error) {
+                console.error(error);
+                updateViewerPushUi("تعذر تحديث تسجيل هذا الجهاز. اضغط الزر لإعادة التفعيل.");
+            }
+        }
+
         function appendNotificationChip(container, label, value) {
             const text = String(value || "").trim();
             if (!text) return;
@@ -638,9 +781,12 @@
         function updateNotificationMetrics() {
             const registrationCount = adminNotifications.filter(item => notificationCategory(item) === "registration").length;
             const trackingCount = adminNotifications.length - registrationCount;
+            const unreadCount = adminNotifications.filter(item => item.unread).length;
             document.getElementById("allNotificationCount").textContent = adminNotifications.length.toLocaleString("ar");
             document.getElementById("registrationNotificationCount").textContent = registrationCount.toLocaleString("ar");
             document.getElementById("trackingNotificationCount").textContent = trackingCount.toLocaleString("ar");
+            secureNotificationBadge.textContent = unreadCount > 99 ? "+99" : unreadCount.toLocaleString("ar");
+            secureNotificationBadge.hidden = unreadCount === 0;
         }
 
         function renderAdminNotifications() {
@@ -955,7 +1101,31 @@
             ordersElement.appendChild(fragment);
         }
 
+        function showViewerSection(page, { updateUrl = false } = {}) {
+            const showNotifications = page === "notifications";
+            ordersPage.hidden = showNotifications;
+            notificationsSubpage.hidden = !showNotifications;
+            if (updateUrl) {
+                const url = new URL(location.href);
+                if (showNotifications) {
+                    url.searchParams.set("view", "notifications");
+                } else {
+                    url.searchParams.delete("view");
+                    url.searchParams.delete("notification");
+                }
+                history.replaceState({}, "", url);
+            }
+            document.title = showNotifications ? "الإشعارات | صفحة الإدارة" : "صفحة الإدارة";
+        }
+
         function focusOrder(orderId, transactionId) {
+            showViewerSection("orders");
+            const url = new URL(location.href);
+            url.searchParams.delete("view");
+            url.searchParams.delete("notification");
+            if (orderId) url.searchParams.set("order", String(orderId));
+            if (transactionId) url.searchParams.set("transaction", String(transactionId));
+            history.replaceState({}, "", url);
             const matched = allOrders.find(order => String(order.id || "") === String(orderId || "")) ||
                 allOrders.find(order => String(order.transactionId || "") === String(transactionId || ""));
             const queryValue = String(matched?.transactionId || transactionId || "").trim();
@@ -974,7 +1144,7 @@
         }
 
         function applyDeepLink() {
-            if (deepLinkApplied || !allOrders.length) return;
+            if (deepLinkApplied || !allOrders.length || !notificationsSubpage.hidden) return;
             const params = new URLSearchParams(location.search);
             const orderId = params.get("order") || "";
             const transactionId = params.get("transaction") || "";
@@ -1035,6 +1205,7 @@
             ["allNotificationCount", "registrationNotificationCount", "trackingNotificationCount"].forEach(id => {
                 document.getElementById(id).textContent = "0";
             });
+            secureNotificationBadge.hidden = true;
             resultsCount.textContent = "سجّل الدخول لتحميل المعاملات";
             ["totalCount", "reviewCount", "approvedCount", "doneCount", "visitedCount"].forEach(id => {
                 document.getElementById(id).textContent = "—";
@@ -1051,8 +1222,10 @@
             currentViewer = user;
             authScreen.hidden = true;
             appShell.hidden = false;
+            showViewerSection(notificationsPageMode ? "notifications" : "orders");
             loadOrders(user);
             loadAdminNotifications(user);
+            maintainViewerNotificationDevice();
         }
 
         loginForm.addEventListener("submit", async event => {
@@ -1099,6 +1272,31 @@
             searchFrame = requestAnimationFrame(renderOrders);
         });
         sortSelect.addEventListener("change", renderOrders);
+
+        viewerPushToggle.addEventListener("click", async () => {
+            if (!currentViewer || viewerPushBusy) return;
+            viewerPushBusy = true;
+            updateViewerPushUi(viewerNotificationsEnabled() ? "جاري إيقاف الإشعارات..." : "جاري تفعيل الإشعارات...");
+            let statusMessage = "";
+            try {
+                if (viewerNotificationsEnabled()) {
+                    const disabled = await disableViewerNotificationDevice();
+                    if (!disabled) statusMessage = "لم يتم إيقاف الإشعارات.";
+                } else {
+                    await registerViewerNotificationDevice({ requestPermission: true });
+                    statusMessage = "تم تفعيل الإشعارات على هذا الجهاز.";
+                    showViewerToast("تم تفعيل الإشعارات");
+                }
+            } catch (error) {
+                console.error(error);
+                statusMessage = error?.message === "permission-denied"
+                    ? "الإذن محظور من إعدادات المتصفح. اسمح بالإشعارات ثم أعد المحاولة."
+                    : "تعذر تغيير إعداد الإشعارات الآن. تحقق من اتصالك ثم حاول مرة أخرى.";
+            } finally {
+                viewerPushBusy = false;
+                updateViewerPushUi(statusMessage);
+            }
+        });
 
         document.querySelectorAll("[data-notification-filter]").forEach(button => {
             button.addEventListener("click", () => {

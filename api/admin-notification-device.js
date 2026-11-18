@@ -3,7 +3,11 @@
 const crypto = require('crypto');
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 const { isAdminRequest } = require('../server/admin-auth');
+
+const ALLOWED_VIEWER_UID = '8Ni42RlbrGTtgepNdSso3li8nD62';
+const ALLOWED_VIEWER_EMAIL = 'admin@admin.com';
 
 function parseServiceAccount() {
     const rawValue = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
@@ -19,6 +23,21 @@ function parseServiceAccount() {
 
 function initializeAdmin() {
     if (!getApps().length) initializeApp({ credential: cert(parseServiceAccount()) });
+}
+
+async function isAuthorizedRequest(request) {
+    if (isAdminRequest(request)) return true;
+    const authorization = String(request.headers?.authorization || '');
+    const match = authorization.match(/^Bearer\s+(.+)$/i);
+    if (!match) return false;
+    try {
+        initializeAdmin();
+        const token = await getAuth().verifyIdToken(match[1]);
+        return token.uid === ALLOWED_VIEWER_UID &&
+            String(token.email || '').toLowerCase() === ALLOWED_VIEWER_EMAIL;
+    } catch {
+        return false;
+    }
 }
 
 function parseBody(request) {
@@ -37,7 +56,7 @@ module.exports = async function handler(request, response) {
         return response.status(405).json({ error: 'method-not-allowed' });
     }
 
-    if (!isAdminRequest(request)) {
+    if (!await isAuthorizedRequest(request)) {
         return response.status(401).json({ error: 'admin-auth-required' });
     }
 
@@ -64,8 +83,13 @@ module.exports = async function handler(request, response) {
             token,
             enabled: true,
             device: clean(body.device, 80),
+            deviceBrand: clean(body.deviceBrand, 80),
+            deviceModel: clean(body.deviceModel, 120),
             browser: clean(body.browser, 80),
             os: clean(body.os, 80),
+            architecture: clean(body.architecture, 40),
+            language: clean(body.language, 20),
+            screen: clean(body.screen, 30),
             userAgent: clean(body.userAgent, 300),
             updatedAt: FieldValue.serverTimestamp(),
             registeredAt: FieldValue.serverTimestamp()
