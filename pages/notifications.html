@@ -323,9 +323,14 @@ markAllButton.disabled=!state.notifications.some(item=>item.unread);
 }
 
 function actionUrl(item){
-if(categoryOf(item)==="chat"&&item.url)return item.url;
-if(item.transactionId)return`admon.html?search=${encodeURIComponent(item.transactionId)}`;
-if(item.orderId)return"admon.html";
+const category=categoryOf(item);
+if(category==="chat"&&item.url)return item.url;
+if(category==="registration"||category==="tracking"){
+const params=new URLSearchParams({notification:category});
+if(item.orderId)params.set("order",item.orderId);
+if(item.transactionId)params.set("transaction",item.transactionId);
+return`orders-view-secure.html?${params.toString()}`;
+}
 return item.url||"admon.html";
 }
 

@@ -4,7 +4,7 @@ function cleanDeviceValue(value, maxLength = 120) {
     return String(value ?? '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, maxLength);
 }
 
-function deviceModelFromUserAgent(userAgent) {
+export function deviceModelFromUserAgent(userAgent) {
     const androidBuild = userAgent.match(/Android[^;)]*;\s*([^;)]+?)\s+Build\//i);
     if (androidBuild && !/^(K|wv)$/i.test(androidBuild[1].trim())) {
         return cleanDeviceValue(androidBuild[1]);
@@ -15,7 +15,7 @@ function deviceModelFromUserAgent(userAgent) {
     return '';
 }
 
-function friendlyDeviceModel(model) {
+export function friendlyDeviceModel(model) {
     const raw = cleanDeviceValue(model);
     const code = raw.toUpperCase();
     const knownModels = [
@@ -30,7 +30,7 @@ function friendlyDeviceModel(model) {
     return match ? `${match[1]} (${raw})` : raw;
 }
 
-function deviceBrandFromModel(model, userAgent) {
+export function deviceBrandFromModel(model, userAgent) {
     const source = `${model} ${userAgent}`.toLowerCase();
     if (/\b(sm-|gt-|samsung)/i.test(`${model} ${userAgent}`)) return 'Samsung';
     if (/\bpixel\b/.test(source)) return 'Google';

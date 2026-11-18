@@ -223,7 +223,7 @@ module.exports = async function handler(request, response) {
             eventType: 'new-registration',
             title: `طلب مساعدة جديد من ${order.name}`,
             body: `الجوال: ${order.phone} • الجهاز: ${deviceDescription} • الدولة: ${order.country} • نوع الطلب: ${order.type}`,
-            url: `https://waleedtalal.vercel.app/pages/notifications.html?type=registration&order=${encodeURIComponent(orderRef.id)}`,
+            url: `https://waleedtalal.vercel.app/pages/orders-view-secure.html?notification=registration&order=${encodeURIComponent(orderRef.id)}&transaction=${encodeURIComponent(transactionId)}`,
             orderId: orderRef.id,
             transactionId,
             sourceId: orderRef.id,
@@ -239,6 +239,7 @@ module.exports = async function handler(request, response) {
                 browser: registrationDevice.browser,
                 os: registrationDevice.os,
                 architecture: registrationDevice.architecture,
+                language: registrationDevice.language,
                 screen: registrationDevice.screen
             }
         }).catch(error => console.warn('New registration notification failed', error?.message || error));

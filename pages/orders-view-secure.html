@@ -193,6 +193,39 @@
         .summary-card span { display: block; color: var(--muted); font-size: .72rem; }
         .summary-card strong { display: block; margin-top: 3px; color: var(--green-700); font-size: 1.35rem; }
 
+        .notification-center {
+            margin-top: 17px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 19px;
+            background: rgba(255,255,255,.95);
+            box-shadow: 0 9px 26px rgba(23,37,29,.06);
+        }
+        .notification-center-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .notification-center h2 { margin: 0; color: var(--green-900); font-size: 1rem; }
+        .notification-center-head p { margin: 4px 0 0; color: var(--muted); font-size: .72rem; }
+        .notification-refresh { min-height: 39px; padding: 7px 12px; border: 1px solid #cde0d4; border-radius: 11px; color: var(--green-900); background: #eff7f2; font-weight: 900; cursor: pointer; }
+        .notification-metrics { margin-top: 12px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+        .notification-filter { min-width: 0; padding: 9px; border: 1px solid #d6e5dc; border-radius: 11px; color: #446052; background: #f7faf8; cursor: pointer; }
+        .notification-filter span, .notification-filter strong { display: block; }
+        .notification-filter span { font-size: .66rem; }
+        .notification-filter strong { margin-top: 2px; color: var(--green-700); font-size: .94rem; }
+        .notification-filter.active { border-color: var(--green-500); color: #fff; background: var(--green-900); }
+        .notification-filter.active strong { color: #fff; }
+        .secure-notification-feed { margin-top: 11px; display: grid; gap: 8px; max-height: 390px; overflow-y: auto; overscroll-behavior: contain; }
+        .secure-notification-card { min-width: 0; padding: 11px 12px; border: 1px solid #dde9e2; border-radius: 13px; background: #fbfdfc; }
+        .secure-notification-card.unread { border-right: 4px solid var(--gold); background: #fffdf7; }
+        .secure-notification-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 9px; }
+        .secure-notification-title { margin: 0; color: #214d35; font-size: .79rem; overflow-wrap: anywhere; }
+        .secure-notification-time { flex: 0 0 auto; color: #7b8981; font-size: .62rem; }
+        .secure-notification-body { margin: 5px 0 0; color: #5e7066; font-size: .69rem; line-height: 1.7; overflow-wrap: anywhere; }
+        .secure-notification-meta { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 5px; }
+        .secure-meta-chip { max-width: 100%; padding: 4px 7px; border-radius: 999px; color: #476254; background: #eaf3ee; font-size: .61rem; overflow-wrap: anywhere; }
+        .secure-notification-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 7px; }
+        .secure-notification-actions button { min-height: 34px; padding: 6px 10px; border: 0; border-radius: 9px; color: #fff; background: var(--green-700); font-size: .67rem; font-weight: 900; cursor: pointer; }
+        .secure-notification-actions .read-action { color: var(--green-900); background: #e5f1e9; }
+        .notification-empty { padding: 18px; color: var(--muted); text-align: center; font-size: .75rem; }
+
         .toolbar {
             margin-top: 18px;
             padding: 14px;
@@ -227,7 +260,9 @@
             border-radius: 20px;
             background: var(--surface);
             box-shadow: 0 12px 30px rgba(23,37,29,.07);
+            transition: border-color .22s, box-shadow .22s;
         }
+        .order-card.focused { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(212,175,55,.18), 0 15px 34px rgba(23,37,29,.1); }
 
         .order-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #e6eee9; }
         .transaction-label { display: block; color: var(--muted); font-size: .7rem; }
@@ -269,7 +304,18 @@
         .access-log-item { padding: 8px 9px; border-right: 3px solid #22a05d; border-radius: 8px; background: rgba(255,255,255,.8); }
         .access-log-item.failed { border-right-color: #c7792b; }
         .access-log-head { display: flex; justify-content: space-between; gap: 8px; color: #244b34; font-size: .68rem; font-weight: 900; }
-        .access-log-meta { margin-top: 3px; color: #65776b; font-size: .65rem; line-height: 1.7; }
+        .access-log-meta { margin-top: 7px; color: #65776b; font-size: .65rem; line-height: 1.7; }
+        .device-info-card { padding: 13px; border: 1px solid #d2e4d9; background: #f2f8f4; }
+        .device-info-title { display: block; margin-bottom: 8px; color: #28583b; font-size: .72rem; font-weight: 900; }
+        .device-facts { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+        .access-log-item .device-facts { margin-top: 7px; }
+        .device-fact { min-width: 0; padding: 8px; border-radius: 9px; background: rgba(255,255,255,.84); }
+        .device-fact span { display: block; color: var(--muted); font-size: .6rem; }
+        .device-fact strong { display: block; margin-top: 3px; color: #1d4930; font-size: .69rem; overflow-wrap: anywhere; }
+        .device-missing { grid-column: 1 / -1; color: #68766e; font-size: .7rem; line-height: 1.8; }
+
+        .viewer-toast { position: fixed; z-index: 1500; right: 50%; bottom: 18px; max-width: min(92vw,520px); padding: 11px 16px; border-radius: 12px; color: #fff; background: #173f2d; box-shadow: 0 10px 30px rgba(0,0,0,.22); opacity: 0; pointer-events: none; transform: translate(50%,18px); transition: .2s; text-align: center; font-size: .76rem; }
+        .viewer-toast.show { opacity: 1; transform: translate(50%,0); }
 
         .empty, .loading, .error {
             grid-column: 1 / -1;
@@ -295,12 +341,17 @@
             .notice { align-items: flex-start; flex-direction: column; }
             .toolbar { grid-template-columns: 1fr; padding: 11px; }
             .order-card { padding: 14px; }
+            .notification-center { padding: 12px; }
+            .notification-center-head { align-items: stretch; flex-direction: column; }
+            .notification-refresh { width: 100%; }
+            .device-facts { grid-template-columns: repeat(2, minmax(0,1fr)); }
         }
 
         @media (max-width: 420px) {
             .details-grid { grid-template-columns: 1fr; }
             .detail.wide { grid-column: auto; }
             .access-stats { grid-template-columns: 1fr; }
+            .notification-metrics, .device-facts { grid-template-columns: 1fr; }
             .logout-button { padding: 7px 10px; font-size: .75rem; }
             .brand strong { font-size: .85rem; }
         }
@@ -343,6 +394,24 @@
                 <article class="summary-card"><span>دخل أصحابها للمراجعة</span><strong id="visitedCount">—</strong></article>
             </section>
 
+            <section class="notification-center" aria-labelledby="notificationCenterTitle">
+                <div class="notification-center-head">
+                    <div>
+                        <h2 id="notificationCenterTitle">🔔 إشعارات التسجيل والتتبع</h2>
+                        <p>تظهر التسجيلات الجديدة ومحاولات التتبع هنا، وتُحدّث تلقائياً أثناء فتح الصفحة.</p>
+                    </div>
+                    <button id="notificationRefresh" class="notification-refresh" type="button">تحديث الإشعارات</button>
+                </div>
+                <div class="notification-metrics" role="tablist" aria-label="تصفية الإشعارات">
+                    <button class="notification-filter active" type="button" data-notification-filter="all"><span>الكل</span><strong id="allNotificationCount">0</strong></button>
+                    <button class="notification-filter" type="button" data-notification-filter="registration"><span>تسجيلات جديدة</span><strong id="registrationNotificationCount">0</strong></button>
+                    <button class="notification-filter" type="button" data-notification-filter="tracking"><span>نشاط التتبع</span><strong id="trackingNotificationCount">0</strong></button>
+                </div>
+                <div id="secureNotificationFeed" class="secure-notification-feed" aria-live="polite">
+                    <div class="notification-empty">سجّل الدخول لتحميل الإشعارات.</div>
+                </div>
+            </section>
+
             <section class="toolbar" aria-label="البحث والترتيب">
                 <input id="searchInput" type="search" autocomplete="off" placeholder="ابحث بأي معلومة: رقم، اسم، جوال، دولة، حالة...">
                 <select id="sortSelect" aria-label="ترتيب المعاملات">
@@ -358,6 +427,7 @@
             <section id="orders" aria-live="polite" aria-busy="false"></section>
         </main>
     </div>
+    <div id="viewerToast" class="viewer-toast" role="status"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -369,8 +439,13 @@
             setPersistence,
             browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { formatAmount } from "../scripts/amount-format.js";
+        import {
+            deviceBrandFromModel,
+            deviceModelFromUserAgent,
+            friendlyDeviceModel
+        } from "../scripts/device-info.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDD_I84b3b6bmVkjVx-t2g7Cbd6RPcYz_Q",
@@ -398,8 +473,19 @@
         const searchInput = document.getElementById("searchInput");
         const sortSelect = document.getElementById("sortSelect");
         const resultsCount = document.getElementById("resultsCount");
+        const notificationFeed = document.getElementById("secureNotificationFeed");
+        const notificationRefresh = document.getElementById("notificationRefresh");
         let allOrders = [];
         let loadedForUid = "";
+        let unsubscribeOrders = null;
+        let currentViewer = null;
+        let adminNotifications = [];
+        let notificationFilter = "all";
+        let notificationInitialized = false;
+        let knownNotificationIds = new Set();
+        let notificationTimer = 0;
+        let toastTimer = 0;
+        let deepLinkApplied = false;
 
         function isAllowedViewer(user) {
             return Boolean(
@@ -443,6 +529,231 @@
                 minute: "2-digit"
             }).format(date);
         }
+
+        function showViewerToast(message) {
+            const toast = document.getElementById("viewerToast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        function normalizedDeviceInfo(source = {}) {
+            const userAgent = String(source.userAgent || "");
+            const savedModel = String(source.deviceModel || "").trim();
+            const rawModel = savedModel || deviceModelFromUserAgent(userAgent);
+            const model = friendlyDeviceModel(rawModel);
+            const brand = String(source.deviceBrand || "").trim() || deviceBrandFromModel(rawModel, userAgent);
+            const reducedOldUserAgent = /Android 10;\s*K\)/i.test(userAgent);
+            const modelLabel = model
+                ? (brand && !model.toLowerCase().includes(brand.toLowerCase()) ? `${brand} ${model}` : model)
+                : (reducedOldUserAgent ? "محجوب في السجل القديم" : "غير متاح من المتصفح");
+            return {
+                available: Boolean(source.device || brand || model || source.browser || source.os || source.architecture || source.language || source.screen || userAgent),
+                device: safeText(source.device, "غير معروف"),
+                brand: brand || "غير متاحة",
+                model: modelLabel,
+                browser: safeText(source.browser, "غير معروف"),
+                os: safeText(source.os, "غير معروف"),
+                architecture: safeText(source.architecture, "غير متاحة"),
+                language: safeText(source.language, "غير معروفة"),
+                screen: safeText(source.screen, "غير متاحة")
+            };
+        }
+
+        function appendDeviceFact(container, label, value) {
+            const fact = document.createElement("div");
+            fact.className = "device-fact";
+            const factLabel = document.createElement("span");
+            factLabel.textContent = label;
+            const factValue = document.createElement("strong");
+            factValue.textContent = value;
+            fact.append(factLabel, factValue);
+            container.appendChild(fact);
+        }
+
+        function createDeviceFacts(source) {
+            const info = normalizedDeviceInfo(source);
+            const facts = document.createElement("div");
+            facts.className = "device-facts";
+            if (!info.available) {
+                const missing = document.createElement("div");
+                missing.className = "device-missing";
+                missing.textContent = "لم تُحفظ معلومات الجهاز لهذا السجل القديم.";
+                facts.appendChild(missing);
+                return facts;
+            }
+            [
+                ["نوع الجهاز", info.device],
+                ["الشركة", info.brand],
+                ["الموديل", info.model],
+                ["نظام التشغيل", info.os],
+                ["المتصفح", info.browser],
+                ["المعمارية", info.architecture],
+                ["اللغة", info.language],
+                ["أبعاد الشاشة", info.screen]
+            ].forEach(([label, value]) => appendDeviceFact(facts, label, value));
+            return facts;
+        }
+
+        function appendRegistrationDeviceDetails(grid, order) {
+            const detail = document.createElement("div");
+            detail.className = "detail wide device-info-card";
+            const title = document.createElement("span");
+            title.className = "device-info-title";
+            title.textContent = "معلومات جهاز تسجيل الطلب";
+            detail.append(title, createDeviceFacts(order.registrationDevice || {}));
+            grid.appendChild(detail);
+        }
+
+        function notificationCategory(item) {
+            return item?.eventType === "new-registration" ? "registration" : "tracking";
+        }
+
+        async function notificationApi(user, url, options = {}) {
+            const token = await user.getIdToken();
+            const response = await fetch(url, {
+                cache: "no-store",
+                ...options,
+                headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${token}`,
+                    ...(options.headers || {})
+                }
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(result.error || "notification-request-failed");
+            return result;
+        }
+
+        function appendNotificationChip(container, label, value) {
+            const text = String(value || "").trim();
+            if (!text) return;
+            const chip = document.createElement("span");
+            chip.className = "secure-meta-chip";
+            chip.textContent = `${label}: ${text}`;
+            container.appendChild(chip);
+        }
+
+        function updateNotificationMetrics() {
+            const registrationCount = adminNotifications.filter(item => notificationCategory(item) === "registration").length;
+            const trackingCount = adminNotifications.length - registrationCount;
+            document.getElementById("allNotificationCount").textContent = adminNotifications.length.toLocaleString("ar");
+            document.getElementById("registrationNotificationCount").textContent = registrationCount.toLocaleString("ar");
+            document.getElementById("trackingNotificationCount").textContent = trackingCount.toLocaleString("ar");
+        }
+
+        function renderAdminNotifications() {
+            updateNotificationMetrics();
+            const visible = adminNotifications.filter(item => notificationFilter === "all" || notificationCategory(item) === notificationFilter);
+            notificationFeed.replaceChildren();
+            if (!visible.length) {
+                const empty = document.createElement("div");
+                empty.className = "notification-empty";
+                empty.textContent = "لا توجد إشعارات في هذا القسم.";
+                notificationFeed.appendChild(empty);
+                return;
+            }
+
+            visible.slice(0, 60).forEach(item => {
+                const card = document.createElement("article");
+                card.className = `secure-notification-card${item.unread ? " unread" : ""}`;
+                const head = document.createElement("div");
+                head.className = "secure-notification-head";
+                const title = document.createElement("h3");
+                title.className = "secure-notification-title";
+                title.textContent = item.title || (notificationCategory(item) === "registration" ? "تسجيل جديد" : "نشاط تتبع");
+                const time = document.createElement("time");
+                time.className = "secure-notification-time";
+                time.textContent = formatDate(item.createdAt);
+                head.append(title, time);
+
+                const body = document.createElement("p");
+                body.className = "secure-notification-body";
+                body.textContent = item.body || "تم تسجيل نشاط جديد.";
+                const meta = document.createElement("div");
+                meta.className = "secure-notification-meta";
+                appendNotificationChip(meta, "رقم المعاملة", item.transactionId);
+                const details = item.details || {};
+                if (notificationCategory(item) === "registration") {
+                    appendNotificationChip(meta, "المستفيد", details.applicantName);
+                    appendNotificationChip(meta, "الجوال", details.applicantPhone);
+                }
+                const deviceInfo = normalizedDeviceInfo(details);
+                if (deviceInfo.available) {
+                    appendNotificationChip(meta, "نوع الجهاز", deviceInfo.device);
+                    appendNotificationChip(meta, "الشركة", deviceInfo.brand);
+                    appendNotificationChip(meta, "الموديل", deviceInfo.model);
+                    appendNotificationChip(meta, "النظام", deviceInfo.os);
+                    appendNotificationChip(meta, "المتصفح", deviceInfo.browser);
+                    appendNotificationChip(meta, "المعمارية", deviceInfo.architecture);
+                    appendNotificationChip(meta, "اللغة", deviceInfo.language);
+                    appendNotificationChip(meta, "الشاشة", deviceInfo.screen);
+                }
+
+                const actions = document.createElement("div");
+                actions.className = "secure-notification-actions";
+                if (item.orderId || item.transactionId) {
+                    const open = document.createElement("button");
+                    open.type = "button";
+                    open.textContent = "عرض المعاملة";
+                    open.addEventListener("click", () => {
+                        focusOrder(item.orderId, item.transactionId);
+                        if (item.unread) markNotificationRead(item.id);
+                    });
+                    actions.appendChild(open);
+                }
+                if (item.unread) {
+                    const read = document.createElement("button");
+                    read.type = "button";
+                    read.className = "read-action";
+                    read.textContent = "تعليم كمقروء";
+                    read.addEventListener("click", () => markNotificationRead(item.id));
+                    actions.appendChild(read);
+                }
+                card.append(head, body, meta, actions);
+                notificationFeed.appendChild(card);
+            });
+        }
+
+        async function loadAdminNotifications(user, { quiet = false } = {}) {
+            if (!user || !isAllowedViewer(user)) return;
+            if (!quiet) notificationFeed.innerHTML = '<div class="notification-empty">جاري تحميل الإشعارات...</div>';
+            try {
+                const data = await notificationApi(user, "/api/admin-notifications?limit=200");
+                const received = (Array.isArray(data.notifications) ? data.notifications : [])
+                    .filter(item => ["new-registration", "tracking-success", "tracking-failed"].includes(item.eventType));
+                if (notificationInitialized) {
+                    const added = received.filter(item => !knownNotificationIds.has(item.id));
+                    if (added.length) showViewerToast(added.length === 1 ? "وصل إشعار تسجيل أو تتبع جديد" : `وصل ${added.length.toLocaleString("ar")} إشعارات جديدة`);
+                }
+                adminNotifications = received;
+                knownNotificationIds = new Set(received.map(item => item.id));
+                notificationInitialized = true;
+                renderAdminNotifications();
+            } catch (error) {
+                console.error(error);
+                if (!quiet) notificationFeed.innerHTML = '<div class="notification-empty">تعذر تحميل الإشعارات الآن.</div>';
+            }
+        }
+
+        async function markNotificationRead(id) {
+            if (!id || !currentViewer) return;
+            const item = adminNotifications.find(notification => notification.id === id);
+            if (item) item.unread = false;
+            renderAdminNotifications();
+            try {
+                await notificationApi(currentViewer, "/api/admin-notifications", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "mark-read", ids: [id] })
+                });
+            } catch (error) {
+                console.error(error);
+                await loadAdminNotifications(currentViewer, { quiet: true });
+            }
+        }
+
         function trackingLogsFor(order) {
             return (Array.isArray(order.trackingLogs) ? [...order.trackingLogs] : [])
                 .sort((a, b) => (parseDate(b.clientTime)?.getTime() || 0) - (parseDate(a.clientTime)?.getTime() || 0));
@@ -502,11 +813,8 @@
                     const date = document.createElement("span");
                     date.textContent = formatDate(log.clientTime);
                     head.append(result, date);
-                    const meta = document.createElement("div");
-                    meta.className = "access-log-meta";
-                    meta.textContent = [log.device || "جهاز غير معروف", log.browser || "متصفح غير معروف", log.os || "نظام غير معروف", log.language ? `اللغة: ${log.language}` : "", log.screen ? `الشاشة: ${log.screen}` : ""]
-                        .filter(Boolean).join(" • ");
-                    item.append(head, meta);
+                    const deviceFacts = createDeviceFacts(log || {});
+                    item.append(head, deviceFacts);
                     list.appendChild(item);
                 });
                 detail.append(logTitle, list);
@@ -533,6 +841,8 @@
         function createOrderCard(order) {
             const card = document.createElement("article");
             card.className = "order-card";
+            card.dataset.orderId = String(order.id || "");
+            card.dataset.transactionId = String(order.transactionId || "");
 
             const head = document.createElement("div");
             head.className = "order-head";
@@ -574,6 +884,7 @@
             appendDetail(grid, "مبلغ المنحة", formatAmount(order.grantAmount));
             appendDetail(grid, "الحالة", order.status || "قيد المراجعة");
             appendDetail(grid, "تفاصيل الطلب", order.notes, { wide: true });
+            appendRegistrationDeviceDetails(grid, order);
             appendTrackingDetails(grid, order);
 
             card.append(head, grid);
@@ -593,7 +904,9 @@
                 order.partNumber,
                 order.grantAmount,
                 order.status,
-                order.notes
+                order.notes,
+                ...Object.values(order.registrationDevice || {}),
+                ...trackingLogsFor(order).flatMap(log => Object.values(log || {}))
             ].join(" "));
         }
 
@@ -642,36 +955,86 @@
             ordersElement.appendChild(fragment);
         }
 
-        async function loadOrders(user) {
-            if (loadedForUid === user.uid) return;
+        function focusOrder(orderId, transactionId) {
+            const matched = allOrders.find(order => String(order.id || "") === String(orderId || "")) ||
+                allOrders.find(order => String(order.transactionId || "") === String(transactionId || ""));
+            const queryValue = String(matched?.transactionId || transactionId || "").trim();
+            if (queryValue) searchInput.value = queryValue;
+            renderOrders();
+            requestAnimationFrame(() => {
+                const card = [...ordersElement.querySelectorAll(".order-card")].find(item =>
+                    (orderId && item.dataset.orderId === String(orderId)) ||
+                    (transactionId && item.dataset.transactionId === String(transactionId))
+                );
+                if (!card) return;
+                card.classList.add("focused");
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                setTimeout(() => card.classList.remove("focused"), 3200);
+            });
+        }
+
+        function applyDeepLink() {
+            if (deepLinkApplied || !allOrders.length) return;
+            const params = new URLSearchParams(location.search);
+            const orderId = params.get("order") || "";
+            const transactionId = params.get("transaction") || "";
+            if (!orderId && !transactionId) return;
+            deepLinkApplied = true;
+            focusOrder(orderId, transactionId);
+        }
+
+        function stopOrdersListener() {
+            if (typeof unsubscribeOrders === "function") unsubscribeOrders();
+            unsubscribeOrders = null;
+        }
+
+        function loadOrders(user) {
+            if (loadedForUid === user.uid && unsubscribeOrders) return;
+            stopOrdersListener();
             loadedForUid = user.uid;
             ordersElement.setAttribute("aria-busy", "true");
             ordersElement.innerHTML = '<div class="loading">جاري تحميل المعاملات...</div>';
             resultsCount.textContent = "جاري تحميل المعاملات...";
 
-            try {
-                const snapshot = await getDocs(collection(db, "orders"));
-                if (!isAllowedViewer(auth.currentUser)) throw new Error("unauthorized-viewer");
+            unsubscribeOrders = onSnapshot(collection(db, "orders"), snapshot => {
+                if (!isAllowedViewer(auth.currentUser)) return;
                 allOrders = snapshot.docs.map(documentSnapshot => ({
                     id: documentSnapshot.id,
                     ...documentSnapshot.data()
                 }));
                 updateSummary();
                 renderOrders();
-            } catch (error) {
+                applyDeepLink();
+                clearTimeout(notificationTimer);
+                notificationTimer = setTimeout(() => {
+                    if (currentViewer) loadAdminNotifications(currentViewer, { quiet: true });
+                }, 1200);
+            }, error => {
                 console.error(error);
+                stopOrdersListener();
                 loadedForUid = "";
                 ordersElement.setAttribute("aria-busy", "false");
                 ordersElement.innerHTML = '<div class="error">تعذر تحميل المعاملات. تحقق من صلاحيات الحساب.</div>';
                 resultsCount.textContent = "تعذر تحميل النتائج";
-            }
+            });
         }
 
         function showLogin(message = "") {
             /* إزالة أي بيانات حساسة من الواجهة فور انتهاء الجلسة. */
+            stopOrdersListener();
+            clearTimeout(notificationTimer);
             loadedForUid = "";
+            currentViewer = null;
             allOrders = [];
+            adminNotifications = [];
+            notificationInitialized = false;
+            knownNotificationIds = new Set();
+            deepLinkApplied = false;
             ordersElement.textContent = "";
+            notificationFeed.innerHTML = '<div class="notification-empty">سجّل الدخول لتحميل الإشعارات.</div>';
+            ["allNotificationCount", "registrationNotificationCount", "trackingNotificationCount"].forEach(id => {
+                document.getElementById(id).textContent = "0";
+            });
             resultsCount.textContent = "سجّل الدخول لتحميل المعاملات";
             ["totalCount", "reviewCount", "approvedCount", "doneCount", "visitedCount"].forEach(id => {
                 document.getElementById(id).textContent = "—";
@@ -685,9 +1048,11 @@
         }
 
         function showViewer(user) {
+            currentViewer = user;
             authScreen.hidden = true;
             appShell.hidden = false;
             loadOrders(user);
+            loadAdminNotifications(user);
         }
 
         loginForm.addEventListener("submit", async event => {
@@ -721,7 +1086,9 @@
         });
 
         document.getElementById("logoutButton").addEventListener("click", async () => {
+            stopOrdersListener();
             loadedForUid = "";
+            currentViewer = null;
             allOrders = [];
             await signOut(auth);
         });
@@ -732,6 +1099,45 @@
             searchFrame = requestAnimationFrame(renderOrders);
         });
         sortSelect.addEventListener("change", renderOrders);
+
+        document.querySelectorAll("[data-notification-filter]").forEach(button => {
+            button.addEventListener("click", () => {
+                notificationFilter = button.dataset.notificationFilter || "all";
+                document.querySelectorAll("[data-notification-filter]").forEach(item => {
+                    item.classList.toggle("active", item === button);
+                });
+                renderAdminNotifications();
+            });
+        });
+
+        const requestedNotificationFilter = new URLSearchParams(location.search).get("notification");
+        if (["registration", "tracking"].includes(requestedNotificationFilter)) {
+            notificationFilter = requestedNotificationFilter;
+            document.querySelector(`[data-notification-filter="${requestedNotificationFilter}"]`)?.click();
+        }
+
+        notificationRefresh.addEventListener("click", async () => {
+            if (!currentViewer) return;
+            notificationRefresh.disabled = true;
+            notificationRefresh.textContent = "جاري التحديث...";
+            await loadAdminNotifications(currentViewer, { quiet: true });
+            notificationRefresh.disabled = false;
+            notificationRefresh.textContent = "تحديث الإشعارات";
+        });
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible" && currentViewer) {
+                loadAdminNotifications(currentViewer, { quiet: true });
+            }
+        });
+        window.addEventListener("waleed-chat-push", () => {
+            if (currentViewer) loadAdminNotifications(currentViewer, { quiet: true });
+        });
+        setInterval(() => {
+            if (document.visibilityState === "visible" && currentViewer) {
+                loadAdminNotifications(currentViewer, { quiet: true });
+            }
+        }, 45000);
 
         onAuthStateChanged(auth, async user => {
             if (!user) {

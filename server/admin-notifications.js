@@ -41,6 +41,7 @@ function cleanDetails(value) {
         browser: 80,
         os: 80,
         architecture: 40,
+        language: 20,
         screen: 30
     };
     return Object.fromEntries(Object.entries(limits)

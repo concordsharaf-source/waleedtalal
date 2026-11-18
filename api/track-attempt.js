@@ -183,10 +183,20 @@ module.exports = async function handler(request, response) {
             body: successful
                 ? `تم الدخول بنجاح إلى المعاملة رقم ${transactionId} عبر صفحة التتبع. الجهاز: ${device} — ${deviceName}.`
                 : `تمت محاولة دخول غير ناجحة باستخدام رقم المعاملة ${transactionId}. الجهاز: ${device} — ${deviceName}.`,
-            url: `https://waleedtalal.vercel.app/pages/notifications.html?type=tracking${orderId ? `&order=${encodeURIComponent(orderId)}` : ''}`,
+            url: `https://waleedtalal.vercel.app/pages/orders-view-secure.html?notification=tracking${orderId ? `&order=${encodeURIComponent(orderId)}` : ''}&transaction=${encodeURIComponent(transactionId)}`,
             orderId,
             transactionId,
-            sourceId: attemptId
+            sourceId: attemptId,
+            details: {
+                device,
+                deviceBrand,
+                deviceModel,
+                browser: logEntry.browser,
+                os,
+                architecture,
+                language: logEntry.language,
+                screen: logEntry.screen
+            }
         }).catch(error => console.warn('Tracking admin notification failed', error?.message || error));
 
         const matchedOrder = matchedDocument?.data() || {};

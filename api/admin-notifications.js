@@ -2,7 +2,11 @@
 
 const { getApps, initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
 const { isAdminRequest } = require('../server/admin-auth');
+
+const ALLOWED_VIEWER_UID = '8Ni42RlbrGTtgepNdSso3li8nD62';
+const ALLOWED_VIEWER_EMAIL = 'admin@admin.com';
 
 function parseServiceAccount() {
     const rawValue = String(process.env.FIREBASE_SERVICE_ACCOUNT_JSON || '').trim();
@@ -18,6 +22,21 @@ function parseServiceAccount() {
 
 function initializeAdmin() {
     if (!getApps().length) initializeApp({ credential: cert(parseServiceAccount()) });
+}
+
+async function isAuthorizedRequest(request) {
+    if (isAdminRequest(request)) return true;
+    const authorization = String(request.headers?.authorization || '');
+    const match = authorization.match(/^Bearer\s+(.+)$/i);
+    if (!match) return false;
+    try {
+        initializeAdmin();
+        const token = await getAuth().verifyIdToken(match[1]);
+        return token.uid === ALLOWED_VIEWER_UID &&
+            String(token.email || '').toLowerCase() === ALLOWED_VIEWER_EMAIL;
+    } catch {
+        return false;
+    }
 }
 
 function parseBody(request) {
@@ -36,7 +55,7 @@ function notificationJson(snapshot) {
     const details = data.details && typeof data.details === 'object' ? data.details : {};
     const detailKeys = [
         'applicantName', 'applicantPhone', 'applicantEmail', 'country', 'requestType',
-        'device', 'deviceBrand', 'deviceModel', 'browser', 'os', 'architecture', 'screen'
+        'device', 'deviceBrand', 'deviceModel', 'browser', 'os', 'architecture', 'language', 'screen'
     ];
     return {
         id: snapshot.id,
@@ -60,7 +79,7 @@ function notificationJson(snapshot) {
 module.exports = async function handler(request, response) {
     response.setHeader('Cache-Control', 'private, no-store, max-age=0');
 
-    if (!isAdminRequest(request)) {
+    if (!await isAuthorizedRequest(request)) {
         return response.status(401).json({ error: 'admin-auth-required' });
     }
 

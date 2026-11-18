@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v57";
+const CACHE_NAME = "waleedtalal-pwa-v58";
 
 /*
  * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
@@ -108,7 +108,8 @@ const APP_SHELL = [
   "./pages/terms.html",
   "./pages/privacy-policy.html",
   "./pages/success.html",
-  "./pages/orders-view.html"
+  "./pages/orders-view.html",
+  "./pages/orders-view-secure.html"
 ];
 
 self.addEventListener("install", event => {
