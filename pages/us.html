@@ -344,6 +344,28 @@ button#sendBtn:disabled{
     transform: none;
 }
 
+.internal-chat-entry{
+    width:100%;
+    min-height:52px;
+    margin-top:12px;
+    padding:11px 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    border:1px solid rgba(8,121,115,.3);
+    border-radius:13px;
+    color:#045652;
+    background:rgba(237,248,246,.86);
+    text-align:center;
+    text-decoration:none;
+    font-weight:900;
+    transition:transform .2s ease,background .2s ease;
+}
+.internal-chat-entry:hover{transform:translateY(-2px);background:#e1f4ee;}
+.internal-chat-entry small{color:#5e7168;font-size:.7rem;font-weight:700;}
+
 .note{
     background: rgba(212, 175, 55, 0.12);
     color: var(--text-gold);
@@ -602,7 +624,7 @@ button#sendBtn:disabled{
 <h2>نموذج طلب مساعدة</h2>
 
 <div class="note">
-💡 بعد إرسال الطلب سيتم حفظ بياناتك وفتح نموذج الطلب في واتساب مباشرةً.
+💡 بعد إرسال الطلب سيتم حفظ بياناتك وفتح نموذج الطلب في واتساب مباشرةً، ويمكنك الدخول للمراسلة الداخلية برقم المعاملة ورقم الجوال المسجل.
 </div>
 
 <div class="form-group">
@@ -691,6 +713,10 @@ button#sendBtn:disabled{
     <i class="fas fa-paper-plane" style="font-size:1.25rem;"></i>
     <span id="btnText">إرسال الطلب</span>
 </button>
+<a class="internal-chat-entry" href="chat.html">
+    <span>💬 الدخول إلى المراسلة الداخلية</span>
+    <small>باستخدام رقم المعاملة ورقم الجوال المسجل في الطلب</small>
+</a>
 
 </div>
 
@@ -819,7 +845,7 @@ button#sendBtn:disabled{
 import {
     buildWhatsappUrl,
     saveOrderForm
-} from "../scripts/order-form.js?v=59";
+} from "../scripts/order-form.js?v=60";
 import { getDeviceDetails } from "../scripts/device-info.js";
 
 /* حفظ أرقام الجوال بصيغة إنجليزية موحدة لتسهيل البحث لاحقاً. */

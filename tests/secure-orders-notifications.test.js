@@ -32,7 +32,7 @@ assert(notificationServer.includes('language: 20'), 'notification detail sanitiz
 assert(notificationsApi.includes("getAuth().verifyIdToken"), 'notification API should verify Firebase ID tokens');
 assert(notificationsApi.includes("token.uid === ALLOWED_VIEWER_UID"), 'notification API should restrict the secure viewer UID');
 assert(notificationsApi.includes("'language', 'screen'"), 'notification API should return language and screen details');
-assert(serviceWorker.includes('waleedtalal-pwa-v59'));
+assert(serviceWorker.includes('waleedtalal-pwa-v60'));
 assert(serviceWorker.includes('"./pages/orders-view-secure.html"'), 'secure viewer should be cached in the app shell');
 
 const deviceSource = fs.readFileSync('scripts/device-info.js', 'utf8').replace(/\bexport\s+/g, '');

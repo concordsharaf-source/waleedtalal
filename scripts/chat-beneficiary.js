@@ -44,7 +44,7 @@ import {
     buildWhatsappUrl,
     saveOrderForm,
     mergeOrderForm
-} from "./order-form.js?v=59";
+} from "./order-form.js?v=60";
 
 const SESSION_KEY = "waleed_internal_chat_session";
 const CHAT_INSTALL_KEY = "waleed_chat_app_installed";
@@ -1092,4 +1092,7 @@ if (session) {
     transactionInput.value = session.transactionId;
     phoneInput.value = session.phone;
     startChat(session);
+} else {
+    const requestedTransaction = normalizeTransaction(new URLSearchParams(location.search).get("transaction") || "");
+    if (requestedTransaction) transactionInput.value = requestedTransaction;
 }

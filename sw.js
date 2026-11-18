@@ -1,4 +1,4 @@
-const CACHE_NAME = "waleedtalal-pwa-v59";
+const CACHE_NAME = "waleedtalal-pwa-v60";
 
 /*
  * نستقبل Web Push مباشرة بلا importScripts خارجي. الاعتماد السابق على مكتبة
