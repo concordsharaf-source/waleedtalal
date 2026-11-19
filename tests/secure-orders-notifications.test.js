@@ -4,6 +4,7 @@ const assert = require('assert');
 const Module = require('module');
 
 const securePage = fs.readFileSync('pages/orders-view-secure.html', 'utf8');
+const ownerAdminPage = fs.readFileSync('pages/admon.html', 'utf8');
 const notificationPage = fs.readFileSync('pages/notifications.html', 'utf8');
 const registerApi = fs.readFileSync('api/register-order.js', 'utf8');
 const trackingApi = fs.readFileSync('api/track-attempt.js', 'utf8');
@@ -26,8 +27,13 @@ assert(securePage.includes('secureNotificationBadge.hidden = unreadCount === 0')
 assert(securePage.includes('tracking.textContent = "معلومات التتبع"'), 'every order notification should offer a tracking-information button');
 assert(securePage.includes('const params = new URLSearchParams({ transactionId, phone })'), 'tracking-information links should include transaction and phone credentials');
 assert(securePage.includes('return `status.html?${params.toString()}`'), 'tracking-information button should open the normal status page');
-assert(securePage.includes('order?.phone || item?.details?.applicantPhone'), 'tracking links should resolve the registered mobile number');
+assert(securePage.includes('phone: item?.details?.applicantPhone'), 'registration notification links should fall back to their saved mobile number');
 assert(securePage.includes('if (item.unread) await markNotificationRead(item.id)'), 'opening tracking information should mark the notification read first');
+assert(securePage.includes('trackingButton.textContent = "معلومات التتبع"'), 'secure user-information cards should offer the same tracking button');
+assert(securePage.includes('trackingStatusUrlForOrder(order)'), 'secure user-information cards should use the order transaction and registered phone');
+assert(ownerAdminPage.includes('📋 معلومات التتبع'), 'owner user-information cards should offer a tracking button');
+assert(ownerAdminPage.includes('window.openTrackingInfo=function(id)'), 'owner user-information tracking button should resolve the selected order');
+assert(ownerAdminPage.includes('window.location.assign("status.html?"+params.toString())'), 'owner user-information tracking button should open the status page');
 assert(securePage.includes('onSnapshot(collection(db, "orders")'), 'orders should update in real time');
 assert(securePage.includes('/api/admin-notifications?limit=200'), 'secure viewer should load persistent owner notifications');
 assert(securePage.includes('Authorization: `Bearer ${token}`'), 'secure viewer should authenticate notification requests with Firebase');
@@ -53,7 +59,7 @@ assert(notificationDeviceApi.includes('token.uid === ALLOWED_VIEWER_UID'), 'noti
 ['deviceBrand', 'deviceModel', 'architecture', 'language', 'screen'].forEach(field => {
   assert(notificationDeviceApi.includes(`${field}: clean(body.${field}`), `notification-device API should persist ${field}`);
 });
-assert(serviceWorker.includes('waleedtalal-pwa-v63'));
+assert(serviceWorker.includes('waleedtalal-pwa-v64'));
 assert(serviceWorker.includes('"./pages/orders-view-secure.html"'), 'secure viewer should be cached in the app shell');
 
 const deviceSource = fs.readFileSync('scripts/device-info.js', 'utf8').replace(/\bexport\s+/g, '');

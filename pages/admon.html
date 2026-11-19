@@ -295,12 +295,13 @@ margin-top:5px;
 
 .order-actions{
 display:grid;
-grid-template-columns:repeat(2,minmax(0,1fr));
+grid-template-columns:repeat(3,minmax(0,1fr));
 gap:10px;
 margin-top:20px;
 }
 
 .edit-btn,
+.tracking-info-btn,
 .delete-btn{
 width:100%;
 margin:0;
@@ -318,17 +319,23 @@ transition:opacity .2s ease, transform .2s ease;
 background:#1a4332;
 }
 
+.tracking-info-btn{
+background:#9a6818;
+}
+
 .delete-btn{
 background:#b42318;
 }
 
 .edit-btn:hover,
+.tracking-info-btn:hover,
 .delete-btn:hover{
 opacity:.9;
 transform:translateY(-1px);
 }
 
 .edit-btn:disabled,
+.tracking-info-btn:disabled,
 .delete-btn:disabled{
 opacity:.6;
 cursor:wait;
@@ -1505,6 +1512,13 @@ onclick="openEdit('${data.id}')">
 
 </button>
 
+<button class="tracking-info-btn"
+onclick="openTrackingInfo('${data.id}')">
+
+📋 معلومات التتبع
+
+</button>
+
 <button class="delete-btn"
 onclick="deleteOrder('${data.id}', this)">
 
@@ -1527,6 +1541,19 @@ onclick="deleteOrder('${data.id}', this)">
 
 
 
+
+window.openTrackingInfo=function(id){
+const order=allOrders.find(item=>item.id===id);
+if(!order || !String(order.transactionId || "").trim() || !String(order.phone || "").trim()){
+alert("لا تتوفر بيانات المعاملة أو رقم الجوال لفتح معلومات التتبع.");
+return;
+}
+const params=new URLSearchParams({
+transactionId:String(order.transactionId).trim(),
+phone:String(order.phone).trim()
+});
+window.location.assign("status.html?"+params.toString());
+};
 
 window.openEdit=function(id){
 

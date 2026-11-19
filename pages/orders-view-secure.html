@@ -313,6 +313,8 @@
         .detail-label { display: block; color: var(--muted); font-size: .68rem; }
         .detail-value { display: block; margin-top: 4px; overflow-wrap: anywhere; color: var(--ink); font-size: .82rem; font-weight: 800; white-space: pre-wrap; }
         .detail-value.ltr { direction: ltr; unicode-bidi: isolate; text-align: right; }
+        .order-card-actions { margin-top: 13px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .order-tracking-button { min-height: 42px; padding: 8px 14px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg,#a8731e,#81510f); font-weight: 900; cursor: pointer; }
 
         .access-detail { padding: 13px; background: #f0f8f3; border: 1px solid #d2e8d9; }
         .access-status { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; padding: 5px 9px; border-radius: 999px; color: #12643a; background: #dff5e7; font-size: .76rem; }
@@ -788,13 +790,21 @@
                 null;
         }
 
-        function trackingStatusUrl(item) {
-            const order = orderForNotification(item);
-            const transactionId = String(order?.transactionId || item?.transactionId || "").trim();
-            const phone = String(order?.phone || item?.details?.applicantPhone || "").trim();
+        function trackingStatusUrlForOrder(order) {
+            const transactionId = String(order?.transactionId || "").trim();
+            const phone = String(order?.phone || "").trim();
             if (!transactionId || !phone) return "";
             const params = new URLSearchParams({ transactionId, phone });
             return `status.html?${params.toString()}`;
+        }
+
+        function trackingStatusUrl(item) {
+            const order = orderForNotification(item);
+            if (order) return trackingStatusUrlForOrder(order);
+            return trackingStatusUrlForOrder({
+                transactionId: item?.transactionId,
+                phone: item?.details?.applicantPhone
+            });
         }
 
         function updateNotificationMetrics() {
@@ -1068,7 +1078,23 @@
             appendRegistrationDeviceDetails(grid, order);
             appendTrackingDetails(grid, order);
 
-            card.append(head, grid);
+            const actions = document.createElement("div");
+            actions.className = "order-card-actions";
+            const trackingButton = document.createElement("button");
+            trackingButton.type = "button";
+            trackingButton.className = "order-tracking-button";
+            trackingButton.textContent = "معلومات التتبع";
+            trackingButton.addEventListener("click", () => {
+                const url = trackingStatusUrlForOrder(order);
+                if (!url) {
+                    showViewerToast("لا تتوفر بيانات المعاملة أو رقم الجوال.");
+                    return;
+                }
+                window.location.assign(url);
+            });
+            actions.appendChild(trackingButton);
+
+            card.append(head, grid, actions);
             return card;
         }
 
