@@ -23,6 +23,11 @@ assert(securePage.includes('const first = confirm(') && securePage.includes('con
 assert(securePage.includes('.viewer-push-toggle.enabled .viewer-bell::after'), 'enabled push button should show a diagonal slash');
 assert(securePage.includes('.viewer-push-toggle:not(.enabled) .viewer-bell'), 'disabled push bell should pulse');
 assert(securePage.includes('secureNotificationBadge.hidden = unreadCount === 0'), 'main-page notification badge should follow unread state');
+assert(securePage.includes('tracking.textContent = "معلومات التتبع"'), 'every order notification should offer a tracking-information button');
+assert(securePage.includes('const params = new URLSearchParams({ transactionId, phone })'), 'tracking-information links should include transaction and phone credentials');
+assert(securePage.includes('return `status.html?${params.toString()}`'), 'tracking-information button should open the normal status page');
+assert(securePage.includes('order?.phone || item?.details?.applicantPhone'), 'tracking links should resolve the registered mobile number');
+assert(securePage.includes('if (item.unread) await markNotificationRead(item.id)'), 'opening tracking information should mark the notification read first');
 assert(securePage.includes('onSnapshot(collection(db, "orders")'), 'orders should update in real time');
 assert(securePage.includes('/api/admin-notifications?limit=200'), 'secure viewer should load persistent owner notifications');
 assert(securePage.includes('Authorization: `Bearer ${token}`'), 'secure viewer should authenticate notification requests with Firebase');
@@ -48,7 +53,7 @@ assert(notificationDeviceApi.includes('token.uid === ALLOWED_VIEWER_UID'), 'noti
 ['deviceBrand', 'deviceModel', 'architecture', 'language', 'screen'].forEach(field => {
   assert(notificationDeviceApi.includes(`${field}: clean(body.${field}`), `notification-device API should persist ${field}`);
 });
-assert(serviceWorker.includes('waleedtalal-pwa-v62'));
+assert(serviceWorker.includes('waleedtalal-pwa-v63'));
 assert(serviceWorker.includes('"./pages/orders-view-secure.html"'), 'secure viewer should be cached in the app shell');
 
 const deviceSource = fs.readFileSync('scripts/device-info.js', 'utf8').replace(/\bexport\s+/g, '');

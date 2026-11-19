@@ -243,7 +243,9 @@
         .secure-meta-chip { max-width: 100%; padding: 4px 7px; border-radius: 999px; color: #476254; background: #eaf3ee; font-size: .61rem; overflow-wrap: anywhere; }
         .secure-notification-actions { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 7px; }
         .secure-notification-actions button { min-height: 34px; padding: 6px 10px; border: 0; border-radius: 9px; color: #fff; background: var(--green-700); font-size: .67rem; font-weight: 900; cursor: pointer; }
+        .secure-notification-actions .tracking-action { background: #9a6818; }
         .secure-notification-actions .read-action { color: var(--green-900); background: #e5f1e9; }
+        .secure-notification-actions button:disabled { opacity: .62; cursor: wait; }
         .notification-empty { padding: 18px; color: var(--muted); text-align: center; font-size: .75rem; }
 
         .toolbar {
@@ -778,6 +780,23 @@
             container.appendChild(chip);
         }
 
+        function orderForNotification(item) {
+            const orderId = String(item?.orderId || "");
+            const transactionId = normalizeDigits(item?.transactionId || "").trim();
+            return allOrders.find(order => orderId && String(order.id || "") === orderId) ||
+                allOrders.find(order => transactionId && normalizeDigits(order.transactionId || "").trim() === transactionId) ||
+                null;
+        }
+
+        function trackingStatusUrl(item) {
+            const order = orderForNotification(item);
+            const transactionId = String(order?.transactionId || item?.transactionId || "").trim();
+            const phone = String(order?.phone || item?.details?.applicantPhone || "").trim();
+            if (!transactionId || !phone) return "";
+            const params = new URLSearchParams({ transactionId, phone });
+            return `status.html?${params.toString()}`;
+        }
+
         function updateNotificationMetrics() {
             const registrationCount = adminNotifications.filter(item => notificationCategory(item) === "registration").length;
             const trackingCount = adminNotifications.length - registrationCount;
@@ -848,6 +867,22 @@
                         if (item.unread) markNotificationRead(item.id);
                     });
                     actions.appendChild(open);
+
+                    const tracking = document.createElement("button");
+                    tracking.type = "button";
+                    tracking.className = "tracking-action";
+                    tracking.textContent = "معلومات التتبع";
+                    tracking.addEventListener("click", async () => {
+                        const url = trackingStatusUrl(item);
+                        if (!url) {
+                            showViewerToast("لا توجد معاملة مطابقة لعرض معلومات التتبع.");
+                            return;
+                        }
+                        tracking.disabled = true;
+                        if (item.unread) await markNotificationRead(item.id);
+                        window.location.assign(url);
+                    });
+                    actions.appendChild(tracking);
                 }
                 if (item.unread) {
                     const read = document.createElement("button");
